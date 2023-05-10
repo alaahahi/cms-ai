@@ -10,7 +10,7 @@ import { ref } from "vue";
 import { WebCamUI } from "vue-camera-lib";
 
 const form = useForm({
-  card_number:"",
+  card_number: "",
   name: "",
   birthdate: "",
   certification: "",
@@ -20,22 +20,19 @@ const form = useForm({
   phone_number: "",
   invoice_number: "",
   relatives: "",
+  family_name: "",
 });
 defineProps({
   usersType: Array,
   coordinators: Array,
 });
 //
-let show_birthday_husband=ref(false);
-let show_birthday_wife=ref(false)
+let show_birthday = ref(false);
 
-let showWife = ref(false);
 let day = ref("اليوم");
 let month = ref("الشهر");
 let year = ref("السنة");
-let dayW = ref("اليوم");
-let monthW = ref("الشهر");
-let yearW = ref("السنة");
+
 let showHusband = ref(false);
 let certification = ref([
   { key: "بدون", name: "بدون" },
@@ -47,10 +44,7 @@ let certification = ref([
   { key: "ماجستير", name: "ماجستير" },
   { key: "دكتوراه", name: "دكتوراه" },
 ]);
-let relativesType = ref([
-  { key: "1", name: "الهلال الأحمر" },
-
-]);
+let relativesType = ref([{ key: "1", name: "الهلال الأحمر" }]);
 let dayList = ref([
   { key: "01", name: "01" },
   { key: "02", name: "02" },
@@ -67,29 +61,19 @@ const isLoading = ref(false);
 
 const submit = () => {
   isLoading.value = true;
-  show_birthday_husband.value=false;
-  show_birthday_wife.value=false;
-  if(day.value=='اليوم'||month.value=='الشهر'||year.value=='السنة'){
-    show_birthday_husband.value=true;
-    isLoading.value = false;
-    return 0;
-  }
-  if(dayW.value=='اليوم'||monthW.value=='الشهر'||yearW.value=='السنة'){
-    show_birthday_wife.value=true;
+  show_birthday.value = false;
+  if (day.value == "اليوم" || month.value == "الشهر" || year.value == "السنة") {
+    show_birthday.value = true;
     isLoading.value = false;
     return 0;
   }
 
-  form.post(route("formRegistration"))
-    .then(response => {
-      // Handle successful response
-    })
-    .catch(error => {
+  form.post(route("formRegistration")).then((response) => {
       isLoading.value = false;
-      show_birthday_husband.value=false;
-      show_birthday_wife.value=false;
-
-      // Handle error response
+    })
+    .catch((error) => {
+      isLoading.value = false;
+      show_birthday.value = false;
     })
     .finally(() => {
       isLoading.value = false;
@@ -102,7 +86,7 @@ const photoHusband = (data) => {
 };
 const photoWife = (data) => {
   form.wife_image = data.image_data_url;
-  showWife.value = false;
+  // showWife.value = false;
 };
 const handleImage = (e) => {
   const selectedImage = e.target.files[0]; // get first file
@@ -139,8 +123,8 @@ const createBase64ImageWife = (fileObject) => {
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
         محافظة كركوك - العقد الإلكتروني
       </h2>
-      <WebCamUI @photoTaken="photoHusband" v-if="showHusband" />
-      <WebCamUI @photoTaken="photoWife" v-if="showWife" />
+      <!-- <WebCamUI @photoTaken="photoHusband" v-if="showHusband" />
+      <WebCamUI @photoTaken="photoWife" v-if="showWife" /> -->
     </template>
     <form name="createForm" @submit.prevent="submit">
       <div class="flex flex-row">
@@ -151,21 +135,12 @@ const createBase64ImageWife = (fileObject) => {
                 <div class="p-6 bg-white border-b border-gray-200">
                   <h2 class="text-center text-xl py-2">معلومات البطاقة</h2>
                   <div className="flex flex-col">
-                    <div className="mb-4">
+                    <!-- <div className="mb-4">
                       <InputLabel for="name" value="الصورة الشخصية" />
                       <img :src="form.image" />
                       <button
                         @click.prevent="showHusband = true"
-                        class="
-                          px-12
-                          mt-3
-                          mx-2
-                          py-2
-                          font-bold
-                          text-white
-                          bg-rose-500
-                          rounded
-                        "
+                        class="px-12 mt-3 mx-2 py-2 font-bold text-white bg-rose-500 rounded"
                       >
                         الكاميرة
                       </button>
@@ -173,21 +148,27 @@ const createBase64ImageWife = (fileObject) => {
                         @change="handleImage"
                         type="file"
                         accept="image/*"
-                        class="
-                          px-2
-                          mt-3
-                          py-1
-                          font-bold
-                          text-white
-                          bg-rose-500
-                          rounded
-                        "
+                        class="px-2 mt-3 py-1 font-bold text-white bg-rose-500 rounded"
                       />
+                      <span className="text-red-600" v-if="form.errors.image">
+                        الصورة الشخصية حقل مطلوب
+                      </span>
+                    </div> -->
+                    <div className="mb-4">
+                      <InputLabel for="card_number" value="رقم البطاقة" />
+
+                      <TextInput
+                        id="card_number"
+                        type="number"
+                        class="mt-1 block w-full"
+                        v-model="form.card_number"
+                      />
+
                       <span
                         className="text-red-600"
-                        v-if="form.errors.image"
+                        v-if="form.errors.card_number"
                       >
-                        الصورة الشخصية حقل مطلوب
+                        رقم البطاقة حقل مطلوب
                       </span>
                     </div>
                     <div className="mb-4">
@@ -198,47 +179,22 @@ const createBase64ImageWife = (fileObject) => {
                         type="text"
                         class="mt-1 block w-full"
                         v-model="form.name"
-                        autofocus
                       />
 
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.name"
-                      >
+                      <span className="text-red-600" v-if="form.errors.name">
                         الأسم حقل مطلوب
                       </span>
                     </div>
                     <div className="mb-4">
-                      <InputLabel
-                        for="birthdate"
-                        value="تاريخ الميلاد"
-                      />
+                      <InputLabel for="birthdate" value="تاريخ الميلاد" />
                       <div class="flex flex-row">
                         <div class="basis-1/3 px-2">
                           <select
                             v-model="day"
                             @change="
-                              form.birthdate =
-                                year + '/' + month + '/' + day
+                              form.birthdate = year + '/' + month + '/' + day
                             "
-                            class="
-                              m-1
-                              pr-8
-                              bg-gray-50
-                              border border-gray-300
-                              text-gray-900 text-sm
-                              rounded-lg
-                              focus:ring-blue-500 focus:border-blue-500
-                              block
-                              w-full
-                              p-2.5
-                              dark:bg-gray-700
-                              dark:border-gray-600
-                              dark:placeholder-gray-400
-                              dark:text-white
-                              dark:focus:ring-blue-500
-                              dark:focus:border-blue-500
-                            "
+                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                           >
                             <option :value="day" selected disabled>
                               {{ day }}
@@ -259,27 +215,9 @@ const createBase64ImageWife = (fileObject) => {
                           <select
                             v-model="month"
                             @change="
-                              form.birthdate =
-                                year + '/' + month + '/' + day
+                              form.birthdate = year + '/' + month + '/' + day
                             "
-                            class="
-                              m-1
-                              pr-8
-                              bg-gray-50
-                              border border-gray-300
-                              text-gray-900 text-sm
-                              rounded-lg
-                              focus:ring-blue-500 focus:border-blue-500
-                              block
-                              w-full
-                              p-2.5
-                              dark:bg-gray-700
-                              dark:border-gray-600
-                              dark:placeholder-gray-400
-                              dark:text-white
-                              dark:focus:ring-blue-500
-                              dark:focus:border-blue-500
-                            "
+                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                           >
                             <option :value="month" selected disabled>
                               {{ month }}
@@ -300,27 +238,9 @@ const createBase64ImageWife = (fileObject) => {
                           <select
                             v-model="year"
                             @change="
-                              form.birthdate =
-                                year + '/' + month + '/' + day
+                              form.birthdate = year + '/' + month + '/' + day
                             "
-                            class="
-                              m-1
-                              pr-8
-                              bg-gray-50
-                              border border-gray-300
-                              text-gray-900 text-sm
-                              rounded-lg
-                              focus:ring-blue-500 focus:border-blue-500
-                              block
-                              w-full
-                              p-2.5
-                              dark:bg-gray-700
-                              dark:border-gray-600
-                              dark:placeholder-gray-400
-                              dark:text-white
-                              dark:focus:ring-blue-500
-                              dark:focus:border-blue-500
-                            "
+                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                           >
                             <option :value="year" selected disabled>
                               {{ year }}
@@ -334,36 +254,17 @@ const createBase64ImageWife = (fileObject) => {
 
                       <span
                         className="text-red-600"
-                        v-if="form.errors.birthdate ||show_birthday_husband"
+                        v-if="form.errors.birthdate || show_birthday"
                       >
                         حقل تاريخ الميلاد مطلوب
                       </span>
                     </div>
                     <div className="mb-4">
-                      <InputLabel
-                        for="certification"
-                        value="التحصيل العلمي"
-                      />
+                      <InputLabel for="certification" value="التحصيل العلمي" />
                       <select
                         v-model="form.certification"
                         id="userType"
-                        class="
-                          pr-8
-                          bg-gray-50
-                          border border-gray-300
-                          text-gray-900 text-sm
-                          rounded-lg
-                          focus:ring-blue-500 focus:border-blue-500
-                          block
-                          w-full
-                          p-2.5
-                          dark:bg-gray-700
-                          dark:border-gray-600
-                          dark:placeholder-gray-400
-                          dark:text-white
-                          dark:focus:ring-blue-500
-                          dark:focus:border-blue-500
-                        "
+                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       >
                         <option selected disabled>التحصيل العلمي</option>
                         <option
@@ -389,13 +290,9 @@ const createBase64ImageWife = (fileObject) => {
                         type="text"
                         class="mt-1 block w-full"
                         v-model="form.job"
-                        autofocus
                       />
 
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.job"
-                      >
+                      <span className="text-red-600" v-if="form.errors.job">
                         المهنة حقل مطلوب
                       </span>
                     </div>
@@ -408,14 +305,28 @@ const createBase64ImageWife = (fileObject) => {
                         type="text"
                         class="mt-1 block w-full"
                         v-model="form.address"
-                        autofocus
+                      />
+
+                      <span className="text-red-600" v-if="form.errors.address">
+                        العنوان حقل مطلوب
+                      </span>
+                    </div>
+
+                    <div className="mb-4">
+                      <InputLabel for="family_name" value="أفراد العائلة" />
+
+                      <TextInput
+                        id="family_name"
+                        type="text"
+                        class="mt-1 block w-full"
+                        v-model="form.family_name"
                       />
 
                       <span
                         className="text-red-600"
-                        v-if="form.errors.address"
+                        v-if="form.errors.family_name"
                       >
-                        العنوان حقل مطلوب
+                        أفراد العائلة حقل مطلوب
                       </span>
                     </div>
                   </div>
@@ -424,7 +335,6 @@ const createBase64ImageWife = (fileObject) => {
             </div>
           </div>
         </div>
-
       </div>
       <div class="flex flex-row">
         <div class="grow">
@@ -441,7 +351,6 @@ const createBase64ImageWife = (fileObject) => {
                           type="number"
                           class="mt-1 block w-full"
                           v-model="form.invoice_number"
-                          autofocus
                         />
 
                         <span
@@ -460,7 +369,6 @@ const createBase64ImageWife = (fileObject) => {
                           type="text"
                           class="mt-1 block w-full"
                           v-model="form.phone_number"
-                          autofocus
                         />
 
                         <span
@@ -477,23 +385,7 @@ const createBase64ImageWife = (fileObject) => {
                         <select
                           v-model="form.relatives"
                           id="relatives"
-                          class="
-                            pr-8
-                            bg-gray-50
-                            border border-gray-300
-                            text-gray-900 text-sm
-                            rounded-lg
-                            focus:ring-blue-500 focus:border-blue-500
-                            block
-                            w-full
-                            p-2.5
-                            dark:bg-gray-700
-                            dark:border-gray-600
-                            dark:placeholder-gray-400
-                            dark:text-white
-                            dark:focus:ring-blue-500
-                            dark:focus:border-blue-500
-                          "
+                          class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
                           <option selected disabled>تحديد البطاقة</option>
                           <option
@@ -528,11 +420,14 @@ const createBase64ImageWife = (fileObject) => {
           العودة
         </Link>
 
-        <button @click.prevent="submit" :disabled="isLoading" class="px-6 mb-12 mx-2 py-2 font-bold text-white bg-rose-500 rounded">
+        <button
+          @click.prevent="submit"
+          :disabled="isLoading"
+          class="px-6 mb-12 mx-2 py-2 font-bold text-white bg-rose-500 rounded"
+        >
           <span v-if="!isLoading">حفظ</span>
           <span v-else>جاري الحفظ...</span>
         </button>
-
       </div>
     </form>
   </AuthenticatedLayout>

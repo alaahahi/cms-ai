@@ -19,11 +19,7 @@ use Carbon\Carbon;
 class UserController extends Controller
 {
     public function __construct(){
-        if ( App::environment('local') ) {
-            $this->url = "http://127.0.0.1:8000";
-        } else if(App::environment('development')){
-            $this->url = App::environment('FRONTEND_URL');
-        } 
+         $this->url = env('FRONTEND_URL');
          $this->userAdmin =  UserType::where('name', 'admin')->first()->id;
          $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
          $this->userLab =  UserType::where('name', 'lab')->first()->id;

@@ -30,11 +30,7 @@ use Intervention\Image\Facades\Image;
 class FormRegistrationController extends Controller
 {
     public function __construct(){
-        if ( App::environment('local') ) {
-            $this->url = App::environment('FRONTEND_URL');;
-        } else if(App::environment('development')){
-            $this->url =App::environment('FRONTEND_URL');
-        } 
+        $this->url = env('FRONTEND_URL');
          $this->userAdmin =  UserType::where('name', 'admin')->first()->id;
          $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
          $this->userLab =  UserType::where('name', 'lab')->first()->id;
@@ -78,22 +74,22 @@ class FormRegistrationController extends Controller
     }
     public function getIndex()
     {
-        $data = Profile::select('id','user_accepted','husband_name', 'wife_name', 'phone_number','husband_address','wife_address','results','no','created_at')->where('user_accepted',null)->orderBy('no', 'DESC')->paginate(10);
+        $data = Profile::where('user_accepted',null)->orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
     }
     public function getIndexSaved()
     {
-        $data = Profile::select('id','user_accepted','husband_name', 'wife_name', 'phone_number','husband_address','wife_address','results','no','created_at')->orderBy('no', 'DESC')->paginate(10);
+        $data = Profile::orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
     }
     public function getIndexCompleted()
     {
-        $data = Profile::select('id','user_accepted','husband_name', 'wife_name', 'phone_number','husband_address','wife_address','results','no','created_at')->where('results',3)->orderBy('no', 'DESC')->paginate(10);
+        $data = Profile::where('results',3)->orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
     }
     public function getIndexCourt()
     {
-        $data = Profile::select('id','user_accepted','husband_name', 'wife_name', 'phone_number','husband_address','wife_address','results','no','created_at')->where('results',4)->orderBy('no', 'DESC')->paginate(10);
+        $data = Profile::where('results',4)->orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
     }
     public function create()
@@ -114,39 +110,29 @@ class FormRegistrationController extends Controller
 
         $user = Auth::user();
         Validator::make($request->all(), [
-                    'husband_name' => 'required|string|max:255',
-                    'husband_birthdate' => 'required|string|max:255',
-                    'husband_certification' => 'required|string|max:255',
-                    'husband_job' => 'required|string|max:255',
-                    'husband_address' => 'required|string|max:255',
-                    'husband_image' => 'required',
-                    'wife_name' => 'required|string|max:255',
-                    'wife_birthdate' => 'required|string|max:255',
-                    'wife_certification' => 'required|string|max:255',
-                    'wife_job' => 'required|string|max:255',
-                    'wife_address' => 'required|string|max:255',
-                    'wife_image' => 'required',
+                    'card_number' =>'required|string|max:255',
+                    'name' => 'required|string|max:255',
+                    'birthdate' => 'required|string|max:255',
+                    'certification' => 'required|string|max:255',
+                    'job' => 'required|string|max:255',
+                    'address' => 'required|string|max:255',
                     'phone_number' => 'required|string|max:255',
                     'invoice_number' => 'required|string|max:255',
                     'relatives' => 'required|string|max:255',
                      ])->validate();
                 $user = Profile::create([
-                    'husband_name' => $request->husband_name,
-                    'husband_birthdate' => $request->husband_birthdate,
-                    'husband_certification' => $request->husband_certification,
-                    'husband_job' => $request->husband_job,
-                    'husband_address' => $request->husband_address,
-                    'husband_image' =>  Image::make($request->husband_image)->resize(100,75)->encode('data-url'),
-                    'wife_name' => $request->wife_name,
-                    'wife_birthdate' => $request->wife_birthdate,
-                    'wife_certification' => $request->wife_certification,
-                    'wife_job' => $request->wife_job,
-                    'wife_address' => $request->wife_address,
-                    'wife_image' => Image::make($request->wife_image)->resize(100,75)->encode('data-url'),
+                    'card_number'=> $request->card_number,
+                    'name' => $request->name,
+                    'birthdate' => $request->birthdate,
+                    'certification' => $request->certification,
+                    'job' => $request->job,
+                    'address' => $request->address,
+                    // 'image' =>  Image::make($request->image)->resize(100,75)->encode('data-url'),
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
                     'relatives' => $request->relatives,
                     'user_id' =>$user->id,
+                    'family_name'=> $request->family_name,
                     'no'=> $no 
                      ]);
             
@@ -156,39 +142,29 @@ class FormRegistrationController extends Controller
     {
         $user = Auth::user();
         Validator::make($request->all(), [
-                    'husband_name' => 'required|string|max:255',
-                    'husband_birthdate' => 'required|string|max:255',
-                    'husband_certification' => 'required|string|max:255',
-                    'husband_job' => 'required|string|max:255',
-                    'husband_address' => 'required|string|max:255',
-                    'husband_image' => 'required',
-                    'wife_name' => 'required|string|max:255',
-                    'wife_birthdate' => 'required|string|max:255',
-                    'wife_certification' => 'required|string|max:255',
-                    'wife_job' => 'required|string|max:255',
-                    'wife_address' => 'required|string|max:255',
-                    'wife_image' => 'required',
-                    'phone_number' => 'required|string|max:255',
-                    'invoice_number' => 'required|string|max:255',
-                    'relatives' => 'required|string|max:255',
+            'card_number' =>'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'birthdate' => 'required|string|max:255',
+            'certification' => 'required|string|max:255',
+            'job' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:255',
+            'invoice_number' => 'required|string|max:255',
+            'relatives' => 'required|string|max:255',
                      ])->validate();
                 Profile::where('id',$id)->update([
-                    'husband_name' => $request->husband_name,
-                    'husband_birthdate' => $request->husband_birthdate,
-                    'husband_certification' => $request->husband_certification,
-                    'husband_job' => $request->husband_job,
-                    'husband_address' => $request->husband_address,
-                    'husband_image' =>  Image::make($request->husband_image)->resize(100,75)->encode('data-url'),
-                    'wife_name' => $request->wife_name,
-                    'wife_birthdate' => $request->wife_birthdate,
-                    'wife_certification' => $request->wife_certification,
-                    'wife_job' => $request->wife_job,
-                    'wife_address' => $request->wife_address,
-                    'wife_image' => Image::make($request->wife_image)->resize(100,75)->encode('data-url'),
+                    'card_number'=> $request->card_number,
+                    'name' => $request->name,
+                    'birthdate' => $request->birthdate,
+                    'certification' => $request->certification,
+                    'job' => $request->job,
+                    'address' => $request->address,
+                    // 'image' =>  Image::make($request->image)->resize(100,75)->encode('data-url'),
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
                     'relatives' => $request->relatives,
-                    'user_id' =>$user->id
+                    'user_id' =>$user->id,
+                    'family_name'=> $request->family_name,
                      ]);
             
         return Inertia::render('FormRegistration/Index', ['url'=>$this->url]);
@@ -265,7 +241,7 @@ class FormRegistrationController extends Controller
     public function getProfiles(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::select('id','user_accepted','husband_name', 'wife_name', 'phone_number','husband_address','wife_address','results','no','created_at')->orwhere('husband_name', 'LIKE','%'.$term.'%')->where('user_accepted',null)->orwhere('wife_name', 'LIKE','%'.$term.'%')->where('user_accepted',null)->orwhere('invoice_number',$term)->where('user_accepted',null)->paginate(10);
+        $data = Profile::orwhere('name', 'LIKE','%'.$term.'%')->where('user_accepted',null)->orwhere('wife_name', 'LIKE','%'.$term.'%')->where('user_accepted',null)->orwhere('invoice_number',$term)->where('user_accepted',null)->paginate(10);
         return response()->json($data); 
 
     }
@@ -273,14 +249,14 @@ class FormRegistrationController extends Controller
     public function getProfilesSaved(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::select('id','user_accepted','husband_name', 'wife_name', 'phone_number','husband_address','wife_address','results','no','created_at')->where('husband_name', 'LIKE','%'.$term.'%')->orwhere('wife_name', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
+        $data = Profile::where('name', 'LIKE','%'.$term.'%')->orwhere('wife_name', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
         return response()->json($data);
     }
 
     public function getProfilesCompleted(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::select('id','user_accepted','husband_name', 'wife_name', 'phone_number','husband_address','wife_address','results','no','created_at')->where('husband_name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('wife_name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('invoice_number',$term)->where('results',3)->paginate(10);
+        $data = Profile::where('name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('wife_name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('invoice_number',$term)->where('results',3)->paginate(10);
         return response()->json($data); 
     }
 

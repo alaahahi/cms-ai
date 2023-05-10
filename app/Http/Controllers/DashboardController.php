@@ -14,11 +14,8 @@ class DashboardController extends Controller
 {
     
     public function __construct(){
-        if ( App::environment('local') ) {
-            $this->url = App::environment('FRONTEND_URL');
-        } else if(App::environment('development')){
-            $this->url =App::environment('FRONTEND_URL');
-        } 
+        $this->url = env('FRONTEND_URL');
+
      
 
     }
