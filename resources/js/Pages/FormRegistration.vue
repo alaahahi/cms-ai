@@ -10,18 +10,13 @@ import { ref } from "vue";
 import { WebCamUI } from "vue-camera-lib";
 
 const form = useForm({
-  husband_name: "",
-  husband_birthdate: "",
-  husband_certification: "",
-  husband_job: "",
-  husband_address: "",
-  husband_image: "",
-  wife_name: "",
-  wife_birthdate: "",
-  wife_certification: "",
-  wife_job: "",
-  wife_address: "",
-  wife_image: "",
+  card_number:"",
+  name: "",
+  birthdate: "",
+  certification: "",
+  job: "",
+  address: "",
+  image: "",
   phone_number: "",
   invoice_number: "",
   relatives: "",
@@ -53,9 +48,8 @@ let certification = ref([
   { key: "دكتوراه", name: "دكتوراه" },
 ]);
 let relativesType = ref([
-  { key: "اقارب-درجة اولى", name: "اقارب-درجة اولى" },
-  { key: "اقارب", name: "اقارب" },
-  { key: "ليس اقارب", name: "ليس اقارب" },
+  { key: "1", name: "الهلال الأحمر" },
+
 ]);
 let dayList = ref([
   { key: "01", name: "01" },
@@ -103,7 +97,7 @@ const submit = () => {
 };
 
 const photoHusband = (data) => {
-  form.husband_image = data.image_data_url;
+  form.image = data.image_data_url;
   showHusband.value = false;
 };
 const photoWife = (data) => {
@@ -118,7 +112,7 @@ const createBase64Image = (fileObject) => {
   const reader = new FileReader();
 
   reader.onload = (e) => {
-    form.husband_image = e.target.result;
+    form.image = e.target.result;
     //this.uploadImage();
   };
   reader.readAsDataURL(fileObject);
@@ -150,7 +144,7 @@ const createBase64ImageWife = (fileObject) => {
     </template>
     <form name="createForm" @submit.prevent="submit">
       <div class="flex flex-row">
-        <div class="basis-1/2">
+        <div class="grow">
           <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
               <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -159,7 +153,7 @@ const createBase64ImageWife = (fileObject) => {
                   <div className="flex flex-col">
                     <div className="mb-4">
                       <InputLabel for="name" value="الصورة الشخصية" />
-                      <img :src="form.husband_image" />
+                      <img :src="form.image" />
                       <button
                         @click.prevent="showHusband = true"
                         class="
@@ -191,7 +185,7 @@ const createBase64ImageWife = (fileObject) => {
                       />
                       <span
                         className="text-red-600"
-                        v-if="form.errors.husband_image"
+                        v-if="form.errors.image"
                       >
                         الصورة الشخصية حقل مطلوب
                       </span>
@@ -203,20 +197,20 @@ const createBase64ImageWife = (fileObject) => {
                         id="name"
                         type="text"
                         class="mt-1 block w-full"
-                        v-model="form.husband_name"
+                        v-model="form.name"
                         autofocus
                       />
 
                       <span
                         className="text-red-600"
-                        v-if="form.errors.husband_name"
+                        v-if="form.errors.name"
                       >
                         الأسم حقل مطلوب
                       </span>
                     </div>
                     <div className="mb-4">
                       <InputLabel
-                        for="husband_birthdate"
+                        for="birthdate"
                         value="تاريخ الميلاد"
                       />
                       <div class="flex flex-row">
@@ -224,7 +218,7 @@ const createBase64ImageWife = (fileObject) => {
                           <select
                             v-model="day"
                             @change="
-                              form.husband_birthdate =
+                              form.birthdate =
                                 year + '/' + month + '/' + day
                             "
                             class="
@@ -265,7 +259,7 @@ const createBase64ImageWife = (fileObject) => {
                           <select
                             v-model="month"
                             @change="
-                              form.husband_birthdate =
+                              form.birthdate =
                                 year + '/' + month + '/' + day
                             "
                             class="
@@ -306,7 +300,7 @@ const createBase64ImageWife = (fileObject) => {
                           <select
                             v-model="year"
                             @change="
-                              form.husband_birthdate =
+                              form.birthdate =
                                 year + '/' + month + '/' + day
                             "
                             class="
@@ -340,18 +334,18 @@ const createBase64ImageWife = (fileObject) => {
 
                       <span
                         className="text-red-600"
-                        v-if="form.errors.husband_birthdate ||show_birthday_husband"
+                        v-if="form.errors.birthdate ||show_birthday_husband"
                       >
                         حقل تاريخ الميلاد مطلوب
                       </span>
                     </div>
                     <div className="mb-4">
                       <InputLabel
-                        for="husband_certification"
+                        for="certification"
                         value="التحصيل العلمي"
                       />
                       <select
-                        v-model="form.husband_certification"
+                        v-model="form.certification"
                         id="userType"
                         class="
                           pr-8
@@ -382,44 +376,44 @@ const createBase64ImageWife = (fileObject) => {
                       </select>
                       <span
                         className="text-red-600"
-                        v-if="form.errors.husband_certification"
+                        v-if="form.errors.certification"
                       >
                         التحصيل العلمي حقل مطلوب
                       </span>
                     </div>
                     <div className="mb-4">
-                      <InputLabel for="husband_job" value="المهنة" />
+                      <InputLabel for="job" value="المهنة" />
 
                       <TextInput
-                        id="husband_job"
+                        id="job"
                         type="text"
                         class="mt-1 block w-full"
-                        v-model="form.husband_job"
+                        v-model="form.job"
                         autofocus
                       />
 
                       <span
                         className="text-red-600"
-                        v-if="form.errors.husband_job"
+                        v-if="form.errors.job"
                       >
                         المهنة حقل مطلوب
                       </span>
                     </div>
 
                     <div className="mb-4">
-                      <InputLabel for="husband_address" value="العنوان" />
+                      <InputLabel for="address" value="العنوان" />
 
                       <TextInput
-                        id="husband_address"
+                        id="address"
                         type="text"
                         class="mt-1 block w-full"
-                        v-model="form.husband_address"
+                        v-model="form.address"
                         autofocus
                       />
 
                       <span
                         className="text-red-600"
-                        v-if="form.errors.husband_address"
+                        v-if="form.errors.address"
                       >
                         العنوان حقل مطلوب
                       </span>
@@ -430,285 +424,7 @@ const createBase64ImageWife = (fileObject) => {
             </div>
           </div>
         </div>
-        <div class="basis-1/2">
-          <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-              <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                  <h2 class="text-center text-xl py-2">معلومات الزوجة</h2>
 
-                  <div className="flex flex-col">
-                    <div className="mb-4">
-                      <InputLabel for="name" value="الصورة الشخصية" />
-                      <img :src="form.wife_image" />
-                      <button
-                        @click.prevent="showWife = true"
-                        class="
-                          px-12
-                          mt-3
-                          mx-2
-                          py-2
-                          font-bold
-                          text-white
-                          bg-rose-500
-                          rounded
-                        "
-                      >
-                        الكاميرة
-                      </button>
-                      <input
-                        @change="handleImageWife"
-                        type="file"
-                        accept="image/*"
-                        class="
-                          px-2
-                          mt-3
-                          py-1
-                          font-bold
-                          text-white
-                          bg-rose-500
-                          rounded
-                        "
-                      />
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.wife_image"
-                      >
-                        الصورة الشخصية حقل مطلوب
-                      </span>
-                    </div>
-                    <div className="mb-4">
-                      <InputLabel for="wife_name" value="الأسم" />
-
-                      <TextInput
-                        id="wife_name"
-                        type="text"
-                        class="mt-1 block w-full"
-                        v-model="form.wife_name"
-                        autofocus
-                      />
-
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.wife_name"
-                      >
-                        الأسم حقل مطلوب
-                      </span>
-                    </div>
-                    <div className="mb-4">
-                      <InputLabel for="wife_birthdate" value="تاريخ الميلاد" />
-
-                      <div class="flex flex-row">
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="dayW"
-                            @change="
-                              form.wife_birthdate =
-                                yearW + '/' + monthW + '/' + dayW
-                            "
-                            class="
-                              m-1
-                              pr-8
-                              bg-gray-50
-                              border border-gray-300
-                              text-gray-900 text-sm
-                              rounded-lg
-                              focus:ring-blue-500 focus:border-blue-500
-                              block
-                              w-full
-                              p-2.5
-                              dark:bg-gray-700
-                              dark:border-gray-600
-                              dark:placeholder-gray-400
-                              dark:text-white
-                              dark:focus:ring-blue-500
-                              dark:focus:border-blue-500
-                            "
-                          >
-                            <option :value="dayW" selected disabled>
-                              {{ dayW }}
-                            </option>
-                            <option
-                              :value="d.key"
-                              v-for="d in dayList"
-                              :key="d.key"
-                            >
-                              {{ d.name }}
-                            </option>
-                            <option :value="n + 9" v-for="n in 22" :key="n">
-                              {{ n + 9 }}
-                            </option>
-                          </select>
-                        </div>
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="monthW"
-                            @change="
-                              form.wife_birthdate =
-                                yearW + '/' + monthW + '/' + dayW
-                            "
-                            class="
-                              m-1
-                              pr-8
-                              bg-gray-50
-                              border border-gray-300
-                              text-gray-900 text-sm
-                              rounded-lg
-                              focus:ring-blue-500 focus:border-blue-500
-                              block
-                              w-full
-                              p-2.5
-                              dark:bg-gray-700
-                              dark:border-gray-600
-                              dark:placeholder-gray-400
-                              dark:text-white
-                              dark:focus:ring-blue-500
-                              dark:focus:border-blue-500
-                            "
-                          >
-                            <option :value="monthW" selected disabled>
-                              {{ monthW }}
-                            </option>
-                            <option
-                              :value="d.key"
-                              v-for="d in dayList"
-                              :key="d.key"
-                            >
-                              {{ d.name }}
-                            </option>
-                            <option :value="n + 9" v-for="n in 3" :key="n + 9">
-                              {{ n + 9 }}
-                            </option>
-                          </select>
-                        </div>
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="yearW"
-                            @change="
-                              form.wife_birthdate =
-                                yearW + '/' + monthW + '/' + dayW
-                            "
-                            class="
-                              m-1
-                              pr-8
-                              bg-gray-50
-                              border border-gray-300
-                              text-gray-900 text-sm
-                              rounded-lg
-                              focus:ring-blue-500 focus:border-blue-500
-                              block
-                              w-full
-                              p-2.5
-                              dark:bg-gray-700
-                              dark:border-gray-600
-                              dark:placeholder-gray-400
-                              dark:text-white
-                              dark:focus:ring-blue-500
-                              dark:focus:border-blue-500
-                            "
-                          >
-                            <option :value="yearW" selected disabled>
-                              {{ yearW }}
-                            </option>
-                            <option :value="n + 1949" v-for="n in 60" :key="n">
-                              {{ n + 1949 }}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.wife_birthdate || show_birthday_wife"
-                      >
-                        حقل تاريخ الميلاد مطلوب
-                      </span>
-                    </div>
-                    <div className="mb-4">
-                      <InputLabel
-                        for="wife_certification"
-                        value="التحصيل العلمي"
-                      />
-                      <select
-                        v-model="form.wife_certification"
-                        id="wife_certification"
-                        class="
-                          pr-8
-                          bg-gray-50
-                          border border-gray-300
-                          text-gray-900 text-sm
-                          rounded-lg
-                          focus:ring-blue-500 focus:border-blue-500
-                          block
-                          w-full
-                          p-2.5
-                          dark:bg-gray-700
-                          dark:border-gray-600
-                          dark:placeholder-gray-400
-                          dark:text-white
-                          dark:focus:ring-blue-500
-                          dark:focus:border-blue-500
-                        "
-                      >
-                        <option selected disabled>التحصيل العلمي</option>
-                        <option
-                          :key="type.key"
-                          v-for="type in certification"
-                          :value="type.key"
-                        >
-                          {{ type.name }}
-                        </option>
-                      </select>
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.wife_certification"
-                      >
-                        التحصيل العلمي حقل مطلوب
-                      </span>
-                    </div>
-                    <div className="mb-4">
-                      <InputLabel for="wife_job" value="المهنة" />
-
-                      <TextInput
-                        id="wife_job"
-                        type="text"
-                        class="mt-1 block w-full"
-                        v-model="form.wife_job"
-                        autofocus
-                      />
-
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.wife_job"
-                      >
-                        المهنة حقل مطلوب
-                      </span>
-                    </div>
-
-                    <div className="mb-4">
-                      <InputLabel for="wife_address" value="العنوان" />
-
-                      <TextInput
-                        id="wife_address"
-                        type="text"
-                        class="mt-1 block w-full"
-                        v-model="form.wife_address"
-                        autofocus
-                      />
-
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.wife_address"
-                      >
-                        العنوان حقل مطلوب
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="flex flex-row">
         <div class="grow">
@@ -757,7 +473,7 @@ const createBase64ImageWife = (fileObject) => {
                     </div>
                     <div class="basis-1/3">
                       <div className="mb-4 mx-5">
-                        <InputLabel for="relatives" value="صلة القرابة" />
+                        <InputLabel for="relatives" value="البطاقة" />
                         <select
                           v-model="form.relatives"
                           id="relatives"
@@ -779,7 +495,7 @@ const createBase64ImageWife = (fileObject) => {
                             dark:focus:border-blue-500
                           "
                         >
-                          <option selected disabled>تحديد صلة القرابة</option>
+                          <option selected disabled>تحديد البطاقة</option>
                           <option
                             :key="type.key"
                             v-for="type in relativesType"
@@ -792,7 +508,7 @@ const createBase64ImageWife = (fileObject) => {
                           className="text-red-600"
                           v-if="form.errors.relatives"
                         >
-                          صلة القرابة حقل مطلوب
+                          البطاقة حقل مطلوب
                         </span>
                       </div>
                     </div>
