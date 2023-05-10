@@ -107,7 +107,7 @@ const createBase64ImageWife = (fileObject) => {
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        دائرة صحة كركوك - استمارة الزواج
+        محافظة كركوك - العقد الإلكتروني
       </h2>
       <WebCamUI @photoTaken="photoHusband" v-if="showHusband" />
       <WebCamUI @photoTaken="photoWife" v-if="showWife" />

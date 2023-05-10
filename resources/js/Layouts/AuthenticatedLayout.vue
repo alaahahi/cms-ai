@@ -36,7 +36,7 @@ const showingNavigationDropdown = ref(false);
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"  v-if="$page.props.auth.user.type_id!=5">
                                 <NavLink :href="route('formRegistration')" :active="route().current('formRegistration')">
-                                     استمارة الزواج
+                                     العقد الإلكتروني
                                 </NavLink>
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4" >
@@ -116,7 +116,7 @@ const showingNavigationDropdown = ref(false);
                                     المستخدمين
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('formRegistration')" :active="route().current('formRegistration')" v-if="$page.props.auth.user.type_id!=5">
-                                     استمارة الزواج
+                                     العقد الإلكتروني
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('FormRegistrationCompleted')" :active="route().current('FormRegistrationCompleted')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4">
                                     استمارة المنجزة

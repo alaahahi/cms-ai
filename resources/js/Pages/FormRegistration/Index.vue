@@ -46,7 +46,7 @@ let showModal =  ref(false);
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                إدارة استمارات الزواج
+                إدارة العقود الإلكترونية
             </h2>
         </template>
 
@@ -71,7 +71,7 @@ let showModal =  ref(false);
                                         <Link  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2"
                                             className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
                                             :href="route('تسجيل-الاستمارة')">
-                                            إنشاء استمارة زوج جديدة
+                                            إنشاء  عقد بطاقة جديدة
                                         </Link>
                                     </div>
                             </div>

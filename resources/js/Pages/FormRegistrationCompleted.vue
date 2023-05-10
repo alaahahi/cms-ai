@@ -56,7 +56,7 @@ function method1(id) {
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        استمارات الزواج - الاستمارات المنجزة
+          البطاقات المنجزة
       </h2>
     </template>
     <modal

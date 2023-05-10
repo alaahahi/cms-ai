@@ -49,7 +49,7 @@ function method1 (id)  {
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                 استمارات الزواج - المحكمة
+                 البطاقات - المحكمة
             </h2>
         </template>
         <modal :show="showModal ? true : false" :data="showModal.toString()" @a="method1($event, arg1)"  @close="showModal = false">

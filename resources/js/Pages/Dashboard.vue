@@ -82,7 +82,7 @@ const props =  defineProps({
                             </div>
                       
                             <div class="mr-4">
-                              <h2 class="font-semibold">استمارة زواج</h2>
+                              <h2 class="font-semibold">البطاقات</h2>
                               <p class="mt-2 text-sm text-gray-500">{{profile}}</p>
                             </div>
                           </div>
@@ -94,7 +94,7 @@ const props =  defineProps({
                             </div>
                       
                             <div class="mr-4">
-                              <h2 class="font-semibold">استمارة قيد العمل</h2>
+                              <h2 class="font-semibold">البطاقات قيد العمل</h2>
                               <p class="mt-2 text-sm text-gray-500">{{working}}</p>
                             </div>
                           </div>

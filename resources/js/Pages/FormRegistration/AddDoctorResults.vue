@@ -75,7 +75,7 @@ function open1() {
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        دائرة صحة كركوك - نتائج الطبيب
+        محافظة كركوك - نتائج الطبيب
       </h2>
     </template>
     <ModaSave

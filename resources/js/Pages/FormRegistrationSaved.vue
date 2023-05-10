@@ -61,12 +61,12 @@ function method1 (id)  {
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                 استمارات الزواج - الأرشيف
+                 البطاقات - الأرشيف
             </h2>
         </template>
         <modal :show="showModal ? true : false" :data="showModal.toString()" @a="method1($event, arg1)"  @close="showModal = false">
         <template #header>
-            <h3 class="text-center"> إدارة الاستمارات</h3>
+            <h3 class="text-center"> إدارة البطاقات</h3>
         </template>
         </modal>
         <div v-if="$page.props.success">
