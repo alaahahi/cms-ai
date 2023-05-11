@@ -95,14 +95,16 @@ let showModal =  ref(false);
                         <table  class="w-full my-5">      
                             <thead class="700 bg-rose-500 text-white text-center rounded-l-lg">
                                 <tr  class="bg-rose-500  rounded-l-lg  mb-2 sm:mb-0">
-                                    <th className="px-4 py-2 w-20">الرقم</th>
-                                    <th className="px-4 py-2">اسم الزوج</th>
-                                    <th className="px-4 py-2">اسم الزوجة</th>
+                                    <th className="px-4 py-2 w-20">تسلسل</th>
+                                    <th className="px-4 py-2">رقم البطاقة</th>
+                                    <th className="px-4 py-2">الأسم كامل</th>
                                     <th className="px-4 py-2">رقم الموبايل</th>
-                                    <th className="px-4 py-2">عنوان الزوج</th>
-                                    <th className="px-4 py-2">عنوان الزوجة</th>   
-                                    <th className="px-4 py-2">تاريخ الإدخال</th>
-                                    <th className="px-4 py-2">الحالة</th>
+                                    <th className="px-4 py-2">العنوان</th>
+                                    <th className="px-4 py-2">التحصيل العلمي</th>
+                                    <th className="px-4 py-2">العمل</th>
+                                    <th className="px-4 py-2">تاريخ التسجيل</th>
+                                    <th className="px-4 py-2">أفراد العائلة</th>   
+    
                                     <th className="px-4 py-2" v-if="$page.props.auth.user.type_id!=2">تنفيذ</th>          
                                 </tr>
                             </thead>
@@ -110,34 +112,19 @@ let showModal =  ref(false);
                               
                                 <tr v-for="user in laravelData.data" :key="user.id"  class="mb-2 sm:mb-0 hover:bg-gray-100  text-center">
                                     <td className="border px-4 py-2">{{ user.no }}</td>
-                                    <td className="border px-4 py-2 td">{{ user.husband_name }}</td>
-                                    <td className="border px-4 py-2 td">{{ user.wife_name }}</td>
+                                    <td className="border px-4 py-2 td">{{ user.card_number }}</td>
+                                    <td className="border px-4 py-2 td">{{ user.name }}</td>
                                     <td className="border px-4 py-2 td">{{ user.phone_number  }}</td>
-                                    <td className="border px-4 py-2 td">{{ user.husband_address }}</td>
-                                    <td className="border px-4 py-2 td">{{ user.wife_address }}</td>
+                                    <td className="border px-4 py-2 td">{{ user.address }}</td>
+                                    <td className="border px-4 py-2 td">{{ user.certification }}</td>
+                                    <td className="border px-4 py-2 td">{{ user.job }}</td>
                                     <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
-                                    <td className="border px-4 py-2">{{ results(user.results) }}</td>
+                                    <td className="border px-4 py-2 td">{{ user.family_name }}</td>
                                     <td className="border px-2 py-2"  v-if="$page.props.auth.user.type_id!=2">
-                                        <span  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==3" >
-                                        <Link  v-if="user.results==0 || user.results==2"
-                                            tabIndex="-1"
-                                            className="mx-1 px-2 py-1 text-sm text-white bg-orange-500 rounded"
-                                            :href="route('labResults', user.id)"
-                                        >
-                                             نتائج التحليل
-                                        </Link>
-                                        </span>
-                                        <span  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==4" >
-                                        <Link  v-if="user.results==1"
-                                            tabIndex="-1"
-                                            className="mx-1 px-2 py-1 text-sm text-white bg-teal-400 rounded"
-                                            :href="route('doctorResults', user.id)"
-                                        >
-                                             نتائج الطبيب
-                                        </Link>
-                                        </span>
+                  
+                             
                                         
-                                        <a  v-if="user.user_accepted"
+                                        <a 
                                             tabIndex="-1"
                                             className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
                                             :href="route('document', user.id)"
@@ -153,15 +140,7 @@ let showModal =  ref(false);
                                         >
                                             تعديل
                                         </Link>
-                  
-                                        <Link
-                                            tabIndex="1"
-                                            className="px-2 py-1 text-sm text-white bg-orange-500 rounded"
-                                            :href="route('labResultsEdit', user.id)"
-                                            v-if="$page.props.auth.user.type_id==1 && user.results==1 || $page.props.auth.user.type_id==3 && user.results==1"
-                                        >
-                                            تعديل نتائج التحليل 
-                                        </Link>
+                 
                 
                                     </td>
                                 </tr>

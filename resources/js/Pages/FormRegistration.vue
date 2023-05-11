@@ -78,6 +78,7 @@ const submit = () => {
     .finally(() => {
       isLoading.value = false;
     });
+
 };
 
 const photoHusband = (data) => {
@@ -388,13 +389,7 @@ const createBase64ImageWife = (fileObject) => {
                           class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
                           <option selected disabled>تحديد البطاقة</option>
-                          <option
-                            :key="type.key"
-                            v-for="type in relativesType"
-                            :value="type.key"
-                          >
-                            {{ type.name }}
-                          </option>
+                          <option  v-for="type in relativesType" :key="type.key" :value="type.key" > {{ type.name }} </option>
                         </select>
                         <span
                           className="text-red-600"
