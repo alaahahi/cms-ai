@@ -22,7 +22,7 @@ class UserController extends Controller
          $this->url = env('FRONTEND_URL');
          $this->userAdmin =  UserType::where('name', 'admin')->first()->id;
          $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
-         $this->userLab =  UserType::where('name', 'lab')->first()->id;
+         $this->userSeles =  UserType::where('name', 'seles')->first()->id;
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
          $this->useCourt=  UserType::where('name', 'court')->first()->id;
 

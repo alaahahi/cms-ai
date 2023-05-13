@@ -27,7 +27,7 @@ class ResultsController extends Controller
 
          $this->userAdmin =  UserType::where('name', 'admin')->first()->id;
          $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
-         $this->userLab =  UserType::where('name', 'lab')->first()->id;
+         $this->userSeles =  UserType::where('name', 'seles')->first()->id;
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
          $this->useCourt=  UserType::where('name', 'court')->first()->id;
 
@@ -65,7 +65,7 @@ class ResultsController extends Controller
     public function store(Request $request)
     {
         $user_id = Auth::user();     
-        if($this->userLab!=$user_id->type_id && $this->userAdmin!=$user_id->type_id){
+        if($this->userSeles!=$user_id->type_id && $this->userAdmin!=$user_id->type_id){
             return back()->with('message', 'المعذرة لا تملك صلاحيات القيام بالعملية المطلوبة',['show'=>true]);
         }
         Validator::make($request->all(), [
@@ -127,7 +127,7 @@ class ResultsController extends Controller
     {
 
         $user_id = Auth::user();     
-        if($this->userLab!=$user_id->type_id && $this->userAdmin!=$user_id->type_id){
+        if($this->userSeles!=$user_id->type_id && $this->userAdmin!=$user_id->type_id){
             return back()->with('message', 'المعذرة لا تملك صلاحيات القيام بالعملية المطلوبة',['show'=>true]);
         }
         Validator::make($request->all(), [

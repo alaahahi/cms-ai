@@ -28,10 +28,10 @@ const form = useForm();
 
 const  results = (id) => {
     if(id==0){
-        return 'إنتظار التحليل';
+        return 'إنتظار تسليم الصندوق';
     }
     if(id==1){
-        return 'إنتظار الطبيب';
+        return 'تم التسليم';
     }
     if(id==2){
         return 'الملف مرفوض';
@@ -68,7 +68,7 @@ let showModal =  ref(false);
                         <div class="flex flex-row">
                         <div class="basis-1/2">
                             <div className="flex items-center justify-between mb-6">
-                                        <Link  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2"
+                                        <Link  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2 || $page.props.auth.user.type_id==3"
                                             className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
                                             :href="route('تسجيل-الاستمارة')">
                                             إنشاء  عقد بطاقة جديدة
@@ -104,7 +104,7 @@ let showModal =  ref(false);
                                     <th className="px-4 py-2">العمل</th>
                                     <th className="px-4 py-2">تاريخ التسجيل</th>
                                     <th className="px-4 py-2">أفراد العائلة</th>   
-    
+                                    <th className="px-4 py-2">الحالة</th>
                                     <th className="px-4 py-2" v-if="$page.props.auth.user.type_id!=2">تنفيذ</th>          
                                 </tr>
                             </thead>
@@ -120,10 +120,8 @@ let showModal =  ref(false);
                                     <td className="border px-4 py-2 td">{{ user.job }}</td>
                                     <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
                                     <td className="border px-4 py-2 td">{{ user.family_name }}</td>
+                                    <td className="border px-4 py-2"> {{ results(user.results) }}</td>
                                     <td className="border px-2 py-2"  v-if="$page.props.auth.user.type_id!=2">
-                  
-                             
-                                        
                                         <a 
                                             tabIndex="-1"
                                             className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
@@ -140,8 +138,6 @@ let showModal =  ref(false);
                                         >
                                             تعديل
                                         </Link>
-                 
-                
                                     </td>
                                 </tr>
                             </tbody>

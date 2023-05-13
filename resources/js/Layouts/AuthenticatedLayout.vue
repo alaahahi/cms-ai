@@ -41,7 +41,7 @@ const showingNavigationDropdown = ref(false);
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4" >
                                 <NavLink :href="route('FormRegistrationCompleted')" :active="route().current('FormRegistrationCompleted')">
-                                    استمارة المنجزة
+                                     استلام البطاقات
                                 </NavLink>
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >

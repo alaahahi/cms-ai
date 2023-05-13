@@ -6,10 +6,11 @@ import { ref } from "vue";
 import { TailwindPagination } from "laravel-vue-pagination";
 
 const laravelData = ref({});
-const userLocation = ref({});
+const user_id = ref(0);
+const showReceiveBtn = ref(0);
 const getResults = async (page = 1) => {
   const response = await fetch(
-    `/getIndexFormRegistrationCompleted?page=${page}`
+    `/getIndexFormRegistrationCompleted?page=${page}&user_id=${user_id.value}`
   );
   laravelData.value = await response.json();
 };
@@ -18,6 +19,7 @@ getResults();
 
 const props = defineProps({
   url: String,
+  users:Array
 });
 const search = async (q) => {
   laravelData.value = [];
@@ -27,13 +29,21 @@ const search = async (q) => {
 const form = useForm();
 
 let showModal = ref(false);
+const receive = async (id) => {
+  const response = await fetch(`/receiveCard?id=${id}`);
+  let userButton = document.querySelector('.user-' + id);
+      userButton.style.display = 'none';
+
+};
+
+
 const results = (id) => {
-  if (id == 0) {
-    return "انتظار التحليل";
-  }
-  if (id == 1) {
-    return "انتظار الطبيب";
-  }
+  if(id==0){
+        return 'إنتظار تسليم الصندوق';
+    }
+    if(id==1){
+        return 'تم التسليم';
+    }
   if (id == 2) {
     return "مرفوض";
   }
@@ -85,8 +95,13 @@ function method1(id) {
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
             <div class="flex flex-row">
-              <div class="basis-1/2"></div>
-              <div class="basis-1/2">
+              <div class="basis-1/2 px-4">
+                <select @change="getResults()" v-model="user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
+                  <option value="0">الجميع</option>
+                  <option v-for="(user, index) in users" :key="index" :value="user.id">{{ user.name }}</option>
+                </select>
+              </div>
+              <div class="basis-1/2 px-4">
                 <form class="flex items-center max-w-5xl">
                   <label for="simple-search" class="sr-only">بحث</label>
                   <div class="relative w-full">
@@ -151,15 +166,17 @@ function method1(id) {
                   class="700 bg-rose-500 text-white text-center rounded-l-lg"
                 >
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
-                    <th className="px-4 py-2 w-20">الرقم</th>
-                    <th className="px-4 py-2">اسم الزوج</th>
-                    <th className="px-4 py-2">اسم الزوجة</th>
+                    <th className="px-4 py-2 w-20">تسلسل</th>
+                    <th className="px-4 py-2">رقم البطاقة</th>
+                    <th className="px-4 py-2">الأسم كامل</th>
                     <th className="px-4 py-2">رقم الموبايل</th>
-                    <th className="px-4 py-2">عنوان الزوج</th>
-                    <th className="px-4 py-2">عنوان الزوجة</th>
-                    <th className="px-4 py-2">تاريخ الإدخال</th>
+                    <th className="px-4 py-2">العنوان</th>
+                    <th className="px-4 py-2">التحصيل العلمي</th>
+                    <th className="px-4 py-2">العمل</th>
+                    <th className="px-4 py-2">تاريخ التسجيل</th>
+                    <th className="px-4 py-2">أفراد العائلة</th>   
                     <th className="px-4 py-2">الحالة</th>
-                    <th className="px-4 py-2">تنفيذ</th>
+                    <th className="px-4 py-2" v-if="$page.props.auth.user.type_id!=2">تنفيذ</th>     
                   </tr>
                 </thead>
                 <tbody>
@@ -168,58 +185,32 @@ function method1(id) {
                     :key="user.id"
                     class="hover:bg-gray-100 text-center"
                   >
-                    <td className="border px-4 py-2">{{ user.no }}</td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.husband_name }}
-                    </td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.wife_name }}
-                    </td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.phone_number }}
-                    </td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.husband_address }}
-                    </td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.wife_address }}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {{ user.created_at.substring(0, 10) }}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {{ results(user.results) }}
-                    </td>
-                    <td className="border px-2 py-2">
-                      <span v-if="user.user_accepted">
-                        <a
-                          v-if="$page.props.auth.user.type_id != 4"
-                          tabIndex="-1"
-                          className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
-                          :href="route('document', user.id)"
-                          target="_self"
-                        >
-                          طباعة
-                        </a>
-                        <a
-                          v-if="$page.props.auth.user.type_id != 4"
-                          tabIndex="-1"
-                          className="mx-1 px-2 py-1 text-sm text-white bg-blue-400 rounded"
-                          :href="route('show', user.id)"
-                          target="_blank"
-                        >
-                          عرض
-                        </a>
-                        <Link
-                          tabIndex="1"
-                          className="px-2 py-1 text-sm text-white bg-teal-500 mx-1 rounded"
-                          :href="route('doctorResultsEdit', user.id)"
-                          v-if="$page.props.auth.user.type_id == 1 || $page.props.auth.user.type_id == 4"
-                        >
-                          تعديل نتائج الطبيب
-                        </Link>
-                      </span>
-                    </td>
+                  <td className="border px-4 py-2">{{ user.no }}</td>
+                  <td className="border px-4 py-2 td">{{ user.card_number }}</td>
+                  <td className="border px-4 py-2 td">{{ user.name }}</td>
+                  <td className="border px-4 py-2 td">{{ user.phone_number  }}</td>
+                  <td className="border px-4 py-2 td">{{ user.address }}</td>
+                  <td className="border px-4 py-2 td">{{ user.certification }}</td>
+                  <td className="border px-4 py-2 td">{{ user.job }}</td>
+                  <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
+                  <td className="border px-4 py-2 td">{{ user.family_name }}</td>
+                  <td className="border px-4 py-2"> {{ results(user.results) }}</td>
+                  <td className="border px-2 py-2"  v-if="$page.props.auth.user.type_id!=2">
+                  <a 
+                    tabIndex="-1"
+                    className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
+                    :href="route('document', user.id)"
+                    target="_self">
+                    طباعة
+                   </a>
+                   <button
+                    tabIndex="1"
+                    :className="'px-2 py-1 text-sm text-white mx-1 bg-slate-500 rounded user-' + user.id  "
+                     @click="receive(user.id)"
+                    v-if="$page.props.auth.user.type_id==1">
+                    استلام الأن
+                  </button>
+                  </td>
                   </tr>
                 </tbody>
               </table>

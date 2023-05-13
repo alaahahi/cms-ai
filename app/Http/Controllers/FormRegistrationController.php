@@ -33,7 +33,7 @@ class FormRegistrationController extends Controller
         $this->url = env('FRONTEND_URL');
          $this->userAdmin =  UserType::where('name', 'admin')->first()->id;
          $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
-         $this->userLab =  UserType::where('name', 'lab')->first()->id;
+         $this->userSeles =  UserType::where('name', 'seles')->first()->id;
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
          $this->useCourt=  UserType::where('name', 'court')->first()->id;
 
@@ -66,7 +66,8 @@ class FormRegistrationController extends Controller
     }
     public function completed()
     {
-        return Inertia::render('FormRegistrationCompleted', ['url'=>$this->url]);
+        $users = User::where('type_id', $this->userSeles)->get();
+        return Inertia::render('FormRegistrationCompleted', ['url'=>$this->url,'users'=>$users]);
     }
     public function show ()
     {
@@ -84,7 +85,13 @@ class FormRegistrationController extends Controller
     }
     public function getIndexCompleted()
     {
-        $data = Profile::where('results',3)->orderBy('no', 'DESC')->paginate(10);
+
+        $user_id = $_GET['user_id'] ?? 0;
+        if($user_id){
+            $data = Profile::where('user_id',$user_id)->orderBy('no', 'DESC')->paginate(10);
+        }else{
+            $data = Profile::orderBy('no', 'DESC')->paginate(10);
+        }
         return Response::json($data, 200);
     }
     public function getIndexCourt()

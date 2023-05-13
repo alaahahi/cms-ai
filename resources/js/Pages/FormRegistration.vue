@@ -60,23 +60,26 @@ let dayList = ref([
 const isLoading = ref(false);
 
 const submit = () => {
-  isLoading.value = true;
-  show_birthday.value = false;
+    isLoading.value = true;
+    show_birthday.value = false;
   if (day.value == "اليوم" || month.value == "الشهر" || year.value == "السنة") {
     show_birthday.value = true;
     isLoading.value = false;
     return 0;
   }
+  isLoading.value = true;
+  show_birthday.value = true;
 
-  form.post(route("formRegistration")).then((response) => {
-      isLoading.value = false;
+  form.post(route("formRegistration"))
+    .then(response => {
+      console.log(response);
     })
-    .catch((error) => {
-      isLoading.value = false;
-      show_birthday.value = false;
+    .catch(error => {
+      console.error(error);
     })
     .finally(() => {
       isLoading.value = false;
+      show_birthday.value = false;
     });
 
 };
@@ -389,7 +392,7 @@ const createBase64ImageWife = (fileObject) => {
                           class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
                           <option selected disabled>تحديد البطاقة</option>
-                          <option  v-for="type in relativesType" :key="type.key" :value="type.key" > {{ type.name }} </option>
+                          <option v-for="(user, index) in relativesType" :key="index" :value="user.key">{{ user.name }}</option>
                         </select>
                         <span
                           className="text-red-600"
