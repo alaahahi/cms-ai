@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Info;
 use App\Models\User;
 use App\Models\Profile;
+use App\Models\Wallet;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -35,9 +36,11 @@ class DashboardController extends Controller
 
         $results = null;
         $user=  User::all()->count();
+        $wallet = Wallet::where('user_id',$authUser->id)->first();
+        
         $profile=  Profile::all();
         $profileUser=  $profile->where('user_id', $authUser->id)->count();
-        return Inertia::render('Dashboard', ['url'=>$this->url,'user'=> $user,'profile'=> $profile->count(),'cardCompany'=>$profileUser,'comp'=> $profile->where('user_accepted','!=',null)->count(),'working'=> $profile->where('user_accepted',null)->count()]);   
+        return Inertia::render('Dashboard', ['url'=>$this->url,'user'=> $user,'profile'=> $profile->count(),'cardCompany'=>$wallet->card??'','comp'=> $profile->where('user_accepted','!=',null)->count(),'working'=> $profile->where('user_accepted',null)->count(),'cardRegister'=>$profileUser,'balance'=>$wallet->balance??'']);   
 
     }
     public function getcountComp(Request $request)

@@ -60,28 +60,10 @@ let dayList = ref([
 const isLoading = ref(false);
 
 const submit = () => {
-    isLoading.value = true;
-    show_birthday.value = false;
-  if (day.value == "اليوم" || month.value == "الشهر" || year.value == "السنة") {
-    show_birthday.value = true;
-    isLoading.value = false;
-    return 0;
-  }
+
   isLoading.value = true;
-  show_birthday.value = true;
-
   form.post(route("formRegistration"))
-    .then(response => {
-      console.log(response);
-    })
-    .catch(error => {
-      console.error(error);
-    })
-    .finally(() => {
-      isLoading.value = false;
-      show_birthday.value = false;
-    });
-
+  isLoading.value = false;
 };
 
 const photoHusband = (data) => {
@@ -172,7 +154,7 @@ const createBase64ImageWife = (fileObject) => {
                         className="text-red-600"
                         v-if="form.errors.card_number"
                       >
-                        رقم البطاقة حقل مطلوب
+                        رقم البطاقة  غير صحيح أو مستخدم من قبل
                       </span>
                     </div>
                     <div className="mb-4">
@@ -189,80 +171,7 @@ const createBase64ImageWife = (fileObject) => {
                         الأسم حقل مطلوب
                       </span>
                     </div>
-                    <div className="mb-4">
-                      <InputLabel for="birthdate" value="تاريخ الميلاد" />
-                      <div class="flex flex-row">
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="day"
-                            @change="
-                              form.birthdate = year + '/' + month + '/' + day
-                            "
-                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          >
-                            <option :value="day" selected disabled>
-                              {{ day }}
-                            </option>
-                            <option
-                              :value="d.key"
-                              v-for="d in dayList"
-                              :key="d.key"
-                            >
-                              {{ d.name }}
-                            </option>
-                            <option :value="n + 9" v-for="n in 22" :key="n">
-                              {{ n + 9 }}
-                            </option>
-                          </select>
-                        </div>
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="month"
-                            @change="
-                              form.birthdate = year + '/' + month + '/' + day
-                            "
-                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          >
-                            <option :value="month" selected disabled>
-                              {{ month }}
-                            </option>
-                            <option
-                              :value="d.key"
-                              v-for="d in dayList"
-                              :key="d.key"
-                            >
-                              {{ d.name }}
-                            </option>
-                            <option :value="n + 9" v-for="n in 3" :key="n + 9">
-                              {{ n + 9 }}
-                            </option>
-                          </select>
-                        </div>
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="year"
-                            @change="
-                              form.birthdate = year + '/' + month + '/' + day
-                            "
-                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          >
-                            <option :value="year" selected disabled>
-                              {{ year }}
-                            </option>
-                            <option :value="n + 1949" v-for="n in 60" :key="n">
-                              {{ n + 1949 }}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
 
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.birthdate || show_birthday"
-                      >
-                        حقل تاريخ الميلاد مطلوب
-                      </span>
-                    </div>
                     <div className="mb-4">
                       <InputLabel for="certification" value="التحصيل العلمي" />
                       <select

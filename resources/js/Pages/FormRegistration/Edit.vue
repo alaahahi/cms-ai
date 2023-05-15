@@ -170,7 +170,7 @@ const createBase64ImageWife = (fileObject) => {
                         الأسم حقل مطلوب
                       </span>
                     </div>
-                    <div className="mb-4">
+                    <!-- <div className="mb-4">
                       <InputLabel for="birthdate" value="تاريخ الميلاد" />
                       <div class="flex flex-row">
                         <div class="basis-1/3 px-2">
@@ -243,7 +243,7 @@ const createBase64ImageWife = (fileObject) => {
                       >
                         حقل تاريخ الميلاد مطلوب
                       </span>
-                    </div>
+                    </div> -->
                     <div className="mb-4">
                       <InputLabel for="certification" value="التحصيل العلمي" />
                       <select

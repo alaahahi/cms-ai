@@ -9,6 +9,7 @@ use App\Models\Card;
 use App\Models\User;
 use App\Models\Profile;
 use App\Models\UserType;
+use App\Models\Wallet;
 use App\Models\Results;
 use App\Models\DoctorResults;
 use App\Models\SystemConfig;
@@ -47,7 +48,10 @@ class FormRegistrationController extends Controller
      */
     public function index()
     {
-        return Inertia::render('FormRegistration/Index', ['url'=>$this->url]);
+        $authUser = auth()->user();
+        $wallet = Wallet::where('user_id', $authUser->id)->first();
+        $card = $wallet->card ??'';
+        return Inertia::render('FormRegistration/Index', ['url'=>$this->url,'card'=>$card]);
     }
 
     public function formRegistrationEdit($id)
@@ -59,7 +63,9 @@ class FormRegistrationController extends Controller
      
     public function saved()
     {
-        return Inertia::render('FormRegistrationSaved', ['url'=>$this->url]);
+        $users = User::where('type_id', $this->userSeles)->get();
+
+        return Inertia::render('FormRegistrationSaved', ['url'=>$this->url,'users'=>$users]);
     }
     public function court()
     {
@@ -90,7 +96,7 @@ class FormRegistrationController extends Controller
 
         $user_id = $_GET['user_id'] ?? 0;
         if($user_id){
-            $data = Profile::where('user_id',$user_id)->orderBy('no', 'DESC')->paginate(10);
+            $data = Profile::where('user_id',$user_id)->where('results',0)->orderBy('no', 'DESC')->paginate(10);
         }else{
             $data = Profile::orderBy('no', 'DESC')->paginate(10);
         }
@@ -98,7 +104,12 @@ class FormRegistrationController extends Controller
     }
     public function getIndexCourt()
     {
-        $data = Profile::where('results',4)->orderBy('no', 'DESC')->paginate(10);
+        $user_id = $_GET['user_id'] ?? 0;
+        if($user_id){
+            $data = Profile::where('user_id',$user_id)->orderBy('no', 'DESC')->paginate(10);
+        }else{
+            $data = Profile::orderBy('no', 'DESC')->paginate(10);
+        }
         return Response::json($data, 200);
     }
     public function create()
@@ -121,7 +132,6 @@ class FormRegistrationController extends Controller
         Validator::make($request->all(), [
                     'card_number' =>'required|string|max:255|unique:profile,card_number',
                     'name' => 'required|string|max:255',
-                    'birthdate' => 'required|string|max:255',
                     'address' => 'required|string|max:255',
                     'phone_number' => 'required|string|max:255',
                     'invoice_number' => 'required|string|max:255',
@@ -151,13 +161,9 @@ class FormRegistrationController extends Controller
         Validator::make($request->all(), [
             'card_number' =>'required|string|max:255',
             'name' => 'required|string|max:255',
-            'birthdate' => 'required|string|max:255',
-            'certification' => 'required|string|max:255',
-            'job' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'phone_number' => 'required|string|max:255',
             'invoice_number' => 'required|string|max:255',
-            'relatives' => 'required|string|max:255',
                      ])->validate();
                 Profile::where('id',$id)->update([
                     'card_number'=> $request->card_number,
@@ -166,7 +172,6 @@ class FormRegistrationController extends Controller
                     'certification' => $request->certification,
                     'job' => $request->job,
                     'address' => $request->address,
-                    // 'image' =>  Image::make($request->image)->resize(100,75)->encode('data-url'),
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
                     'relatives' => $request->relatives,

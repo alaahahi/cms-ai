@@ -33,6 +33,7 @@ const receive = async (id) => {
   const response = await fetch(`/receiveCard?id=${id}`);
   let userButton = document.querySelector('.user-' + id);
       userButton.style.display = 'none';
+      getResults();
 
 };
 
