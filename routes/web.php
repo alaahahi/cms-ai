@@ -7,7 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FormRegistrationController;
 use App\Http\Controllers\ResultsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AccountingController;
 use App\Models\SystemConfig;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -81,5 +83,11 @@ Route::get('/livesearchSaved', [FormRegistrationController::class, 'getProfilesS
 Route::get('/livesearchCompleted', [FormRegistrationController::class, 'getProfilesCompleted'])->name('livesearchCompleted');
 
 Route::get('/getcount', [DashboardController::class, 'getcountComp'])->name('getcount');
+
+Route::get('/addUserCard/{card_id}/{card}/{user_id}', [UserController::class, 'addUserCard'])->name('addUserCard');
+
+Route::get('/receiveCard', [AccountingController::class, 'receiveCard'])->name('receiveCard');
+
+
 
 require __DIR__.'/auth.php';

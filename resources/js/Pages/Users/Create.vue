@@ -12,11 +12,13 @@ const form = useForm({
     email: '',
     password: '',
     userType:'',
-    parent_id:''
+    parent_id:'',
+    percentage:''
 });
 defineProps({
     usersType: Array,
-    coordinators :Array
+    coordinators :Array,
+    userSeles:String,
 });
 
 const submit = () => {
@@ -99,14 +101,23 @@ const submit = () => {
                                     <InputLabel for="userType" value="صلاجيات المستخدم" />
                                     <select   v-model="form.userType"  id="userType" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option selected disabled>صلاحيات المستخدم المتاحة</option>
-                                    <option v-for="type in usersType" :value=type.id>{{type.name}}</option>
+                                    <option v-for="(user, index) in usersType" :key="index" :value="user.id">{{ user.name }}</option>
                                     </select>
                                     <span className="text-red-600" v-if="form.errors.email">
                                             صلاحيات المستخدم حقل مطلوب
                                     </span>
                                     </div>
+                                    <div className="mb-4" v-if="form.userType == userSeles">
 
-                  
+                                    <InputLabel for="percentage" value="نسبة المبيعات" />
+
+                                    <TextInput 
+                                        id="percentage" 
+                                        type="number" 
+                                        class="mt-1 block w-full" 
+                                        v-model="form.percentage" 
+                                         />                     
+                                    </div>
 
                                 </div>
   

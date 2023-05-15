@@ -14,4 +14,7 @@ Route::get('/getUserMassages/{id}/{user}',[UserController::class, 'getUserMassag
 Route::middleware('auth:api')->get('/user', function (Request $request) { return $request->user();});
 Route::post('login',[UserController::class, 'login']);
 Route::get('getcontact/{id}',[UserController::class, 'getcontact']);
+Route::get('receiveCard',[UserController::class, 'receiveCard']);
+
+
 Route::get('ackUserMassages/{sender}/{receiver}/{date}',[UserController::class, 'ackUserMassages']);

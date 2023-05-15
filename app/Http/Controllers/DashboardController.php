@@ -31,11 +31,13 @@ class DashboardController extends Controller
     }
     public function index(Request $request)
     {
+        $authUser = auth()->user();
+
         $results = null;
         $user=  User::all()->count();
         $profile=  Profile::all();
-
-        return Inertia::render('Dashboard', ['url'=>$this->url,'user'=> $user,'profile'=> $profile->count(),'comp'=> $profile->where('user_accepted','!=',null)->count(),'working'=> $profile->where('user_accepted',null)->count()]);   
+        $profileUser=  $profile->where('user_id', $authUser->id)->count();
+        return Inertia::render('Dashboard', ['url'=>$this->url,'user'=> $user,'profile'=> $profile->count(),'cardCompany'=>$profileUser,'comp'=> $profile->where('user_accepted','!=',null)->count(),'working'=> $profile->where('user_accepted',null)->count()]);   
 
     }
     public function getcountComp(Request $request)

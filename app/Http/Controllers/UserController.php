@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Wallet;
 use App\Models\User;
+use App\Models\Card;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
@@ -35,7 +37,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Users/Index', ['url'=>$this->url]);
+        $cards= Card::all();
+        return Inertia::render('Users/Index', ['url'=>$this->url,'cards'=>$cards]);
     }
     public function show ()
     {
@@ -43,7 +46,7 @@ class UserController extends Controller
     }
     public function getIndex()
     {
-        $data = User::with('userType:id,name','getParentUser:id,name')->paginate(10);
+        $data = User::with('userType:id,name','wallet')->paginate(10);
         return Response::json($data, 200);
     }
     public function create()
@@ -51,7 +54,8 @@ class UserController extends Controller
   
 
         $usersType = UserType::all();
-        return Inertia::render('Users/Create',['usersType'=>$usersType]);
+        $userSeles=$this->userSeles;
+        return Inertia::render('Users/Create',['usersType'=>$usersType,'userSeles'=>$userSeles]);
     }
     
     /**
@@ -73,8 +77,11 @@ class UserController extends Controller
                     'type_id' => $request->userType,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
+                    'percentage' => $request->percentage
                 ]);
-            
+            if($this->userSeles ==  $user->type_id){
+                Wallet::create(['user_id' => $user->id]);
+            }
         return Inertia::render('Users/Index', ['url'=>$this->url]);
     }
 
@@ -93,10 +100,12 @@ class UserController extends Controller
     public function edit(User $User)
     {
         $usersType = UserType::all();
+        $userSeles=$this->userSeles;
+
        //$coordinators =User::where('type_id', $this->userCoordinator )->get();
        // $chief =User::where('type_id', $this->userChief )->get();
         return Inertia::render('Users/Edit', [
-            'user' => $User,'usersType'=>$usersType
+            'user' => $User,'usersType'=>$usersType,'userSeles'=>$userSeles
         ]);
     }
     
@@ -107,55 +116,61 @@ class UserController extends Controller
      */
     public function update($id, Request $request)
     {
-        $username =User::where('id',$id)->first()->email;
-        //return Response::json($request->parent_id);
-        if($username ==$request->email){
-            if($request->password){
-                $request->validate([
-                    'name' => 'required|string|max:255',
-                    'password' => [Rules\Password::defaults()],
-                ]);
-                $user = User::find($id)->update([
-                    'name' => $request->name,
-                    'password' => Hash::make($request->password),
-                    'type_id' => $request->userType,
-                ]);
-            }
-            else{
-                $request->validate([
-                    'name' => 'required|string|max:255',
+        $username = User::where('id', $id)->first()->email;
 
-                ]);
-                $user = User::find($id)->update([
-                    'name' => $request->name,
-                    'type_id' => $request->userType,
-                ]);
-            }
-        }else{
-            if($request->password){
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|max:255|unique:users',
-            ]);
-            $user = User::find($id)->update([
-                'name' => $request->name,
-                'email' => $request->email,
-            ]);
-        }else{
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|max:255|unique:users',
-                'password' => [Rules\Password::defaults()],
-            ]);
-            $user = User::find($id)->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
-        }
+        switch ($username) {
+            case $request->email:
+                if ($request->password) {
+                    $request->validate([
+                        'name' => 'required|string|max:255',
+                        'password' => [Rules\Password::defaults()],
+                    ]);
+                    $user = User::find($id)->update([
+                        'name' => $request->name,
+                        'password' => Hash::make($request->password),
+                        'type_id' => $request->userType,
+                        'percentage' => $request->percentage
+                    ]);
+                } else {
+                    $request->validate([
+                        'name' => 'required|string|max:255',
+                    ]);
+                    $user = User::find($id)->update([
+                        'name' => $request->name,
+                        'type_id' => $request->userType,
+                        'percentage' => $request->percentage
+                    ]);
+                }
+                break;
+                
+            default:
+                if ($request->password) {
+                    $request->validate([
+                        'name' => 'required|string|max:255',
+                        'email' => 'required|string|max:255|unique:users',
+                    ]);
+                    $user = User::find($id)->update([
+                        'name' => $request->name,
+                        'email' => $request->email,
+                        'percentage' => $request->percentage
+                    ]);
+                } else {
+                    $request->validate([
+                        'name' => 'required|string|max:255',
+                        'email' => 'required|string|max:255|unique:users',
+                        'password' => [Rules\Password::defaults()],
+                    ]);
+                    $user = User::find($id)->update([
+                        'name' => $request->name,
+                        'email' => $request->email,
+                        'password' => Hash::make($request->password),
+                        'percentage' => $request->percentage
+                    ]);
+                }
+                break;
         }
         
-        return Inertia::render('Users/Index', ['url'=>$this->url]); 
+        return Inertia::render('Users/Index', ['url'=>$this->url]);
 
     }
     
@@ -287,6 +302,23 @@ class UserController extends Controller
                     return  Response::json(['status' => 400,'massage' => 'massage not found'],400);
             }
     }
+    public function addUserCard($card_id,$card,$user_id)
+    {
+        // date('Y-m-d H:i:s', strtotime($data['datetime']))
+            try {
+                $wallet = Wallet::where('user_id', $user_id)->first();
+                $old_card = $wallet->card; 
+                $new_card = $card; 
+                $wallet->update(['card' => $old_card+$new_card]);
+            
+                 return Response::json(['status' => 200,'massage' => 'massage','data' =>   $wallet],200);
+
+            } catch (\Throwable $th) {
+                return $th;
+                    return  Response::json(['status' => 400,'massage' => 'massage not found'],400);
+            }
+    }
+    
     public function Authorization($request){
         $token = substr($request->header('Authorization') ,7);;
         try {

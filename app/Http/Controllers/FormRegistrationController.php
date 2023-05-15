@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Card;
 use App\Models\User;
 use App\Models\Profile;
 use App\Models\UserType;
@@ -75,7 +76,8 @@ class FormRegistrationController extends Controller
     }
     public function getIndex()
     {
-        $data = Profile::where('user_accepted',null)->orderBy('no', 'DESC')->paginate(10);
+        $authUser = auth()->user();
+        $data = Profile::where('user_id',$authUser->id)->orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
     }
     public function getIndexSaved()
@@ -101,8 +103,9 @@ class FormRegistrationController extends Controller
     }
     public function create()
     {
-        $usersType = UserType::all();
-        return Inertia::render('FormRegistration', ['url'=>$this->url]);
+        //$usersType = UserType::all();
+        $cards= Card::all();
+        return Inertia::render('FormRegistration', ['url'=>$this->url,'cards'=> $cards]);
     }
     
     /**
@@ -114,18 +117,15 @@ class FormRegistrationController extends Controller
     {
         $maxNo = Profile::max('no');
         $no = $maxNo + 1;
-
         $user = Auth::user();
         Validator::make($request->all(), [
                     'card_number' =>'required|string|max:255|unique:profile,card_number',
                     'name' => 'required|string|max:255',
                     'birthdate' => 'required|string|max:255',
-                    'certification' => 'required|string|max:255',
-                    'job' => 'required|string|max:255',
                     'address' => 'required|string|max:255',
                     'phone_number' => 'required|string|max:255',
                     'invoice_number' => 'required|string|max:255',
-                    'relatives' => 'required|string|max:255',
+                    'card_id' => 'required|int|max:255',
                      ])->validate();
                 $user = Profile::create([
                     'card_number'=> $request->card_number,
@@ -137,7 +137,7 @@ class FormRegistrationController extends Controller
                     // 'image' =>  Image::make($request->image)->resize(100,75)->encode('data-url'),
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
-                    'relatives' => $request->relatives,
+                    'card_id' => $request->card_id,
                     'user_id' =>$user->id,
                     'family_name'=> $request->family_name,
                     'no'=> $no 

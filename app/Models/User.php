@@ -28,6 +28,7 @@ class User extends Authenticatable
         'publickey_receiver',
         'parent_id',
         'is_band',
+        'percentage',
         'device'
     ];
 
@@ -69,5 +70,9 @@ class User extends Authenticatable
     public function getTokenAttribute()
     {
         return Crypt::encryptString($this->id);
+    }
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
     }
 }

@@ -19,12 +19,12 @@ const form = useForm({
   image: "",
   phone_number: "",
   invoice_number: "",
-  relatives: "",
+  card_id: "",
   family_name: "",
 });
 defineProps({
   usersType: Array,
-  coordinators: Array,
+  cards: Array,
 });
 //
 let show_birthday = ref(false);
@@ -44,7 +44,7 @@ let certification = ref([
   { key: "ماجستير", name: "ماجستير" },
   { key: "دكتوراه", name: "دكتوراه" },
 ]);
-let relativesType = ref([{ key: "1", name: "الهلال الأحمر" }]);
+let card_idType = ref([{ key: "1", name: "الهلال الأحمر" }]);
 let dayList = ref([
   { key: "01", name: "01" },
   { key: "02", name: "02" },
@@ -125,7 +125,7 @@ const createBase64ImageWife = (fileObject) => {
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        محافظة كركوك - العقد الإلكتروني
+        العقد الإلكتروني
       </h2>
       <!-- <WebCamUI @photoTaken="photoHusband" v-if="showHusband" />
       <WebCamUI @photoTaken="photoWife" v-if="showWife" /> -->
@@ -385,18 +385,18 @@ const createBase64ImageWife = (fileObject) => {
                     </div>
                     <div class="basis-1/3">
                       <div className="mb-4 mx-5">
-                        <InputLabel for="relatives" value="البطاقة" />
+                        <InputLabel for="card_id" value="البطاقة" />
                         <select
-                          v-model="form.relatives"
-                          id="relatives"
+                          v-model="form.card_id"
+                          id="card_id"
                           class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
                           <option selected disabled>تحديد البطاقة</option>
-                          <option v-for="(user, index) in relativesType" :key="index" :value="user.key">{{ user.name }}</option>
+                          <option v-for="(card, index) in cards" :key="index" :value="card.id">{{ card.name }}</option>
                         </select>
                         <span
                           className="text-red-600"
-                          v-if="form.errors.relatives"
+                          v-if="form.errors.card_id"
                         >
                           البطاقة حقل مطلوب
                         </span>

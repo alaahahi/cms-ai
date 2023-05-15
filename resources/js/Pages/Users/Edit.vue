@@ -12,8 +12,8 @@ const props = defineProps({
     user: Array,
     url:String,
     usersType: Array,
-    coordinators :Array,
-    chiefs:Array,
+    userSeles:String,
+
 });
 
 const form = useForm({
@@ -22,6 +22,7 @@ const form = useForm({
     password: props.user.password,
     userType:props.user.userType,
     parent_id:props.user.parent_id,
+    percentage:props.user.percentage,
 });
 
 const submit = () => {
@@ -106,10 +107,20 @@ const submit = () => {
                                     <InputLabel for="getCoordinator" value="صلاحيات المستخدم" />
                                     <select  v-model="form.userType"  id="userType" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option selected disabled>تغير صلاحيات المستخدم</option>
-                                    <option v-for="type in usersType" :value=type.id>{{type.name}}</option>
+                                    <option v-for="(user, index) in usersType" :key="index" :value="user.id">{{ user.name }}</option>
                                     </select>
                                     </div>
+                                    <div className="mb-4" v-if="form.userType == userSeles">
 
+                                    <InputLabel for="percentage" value="نسبة المبيعات" />
+
+                                    <TextInput 
+                                        id="percentage" 
+                                        type="number" 
+                                        class="mt-1 block w-full" 
+                                        v-model="form.percentage" 
+                                        />                     
+                                    </div>
      
 
                                 </div>
