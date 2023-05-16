@@ -44,16 +44,17 @@ const showingNavigationDropdown = ref(false);
                                      استلام البطاقات
                                 </NavLink>
                             </div>
+                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >
+                                <NavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')">
+                                    حسابات المندوبين
+                                </NavLink>
+                            </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >
                                 <NavLink :href="route('FormRegistrationSaved')" :active="route().current('FormRegistrationSaved')">
                                      الأرشفة
                                 </NavLink>
                             </div>
-                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="false" >
-                                <NavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')">
-                                    المحكمة
-                                </NavLink>
-                            </div>
+               
                         </div>
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
                             <!-- Settings Dropdown -->

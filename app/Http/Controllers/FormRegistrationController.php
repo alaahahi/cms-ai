@@ -69,7 +69,8 @@ class FormRegistrationController extends Controller
     }
     public function court()
     {
-        return Inertia::render('FormRegistrationCourt', ['url'=>$this->url]);
+        $users = User::where('type_id', $this->userSeles)->get();
+        return Inertia::render('FormRegistrationCourt', ['url'=>$this->url,'users'=>$users]);
     }
     public function completed()
     {
