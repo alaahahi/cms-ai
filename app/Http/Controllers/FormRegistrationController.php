@@ -122,7 +122,7 @@ class FormRegistrationController extends Controller
         if($user_id){
             $data = Profile::with('user')->where('user_id',$user_id)->where('results',0)->orderBy('no', 'DESC')->paginate(10);
         }else{
-            $data = Profile::with('user')->orderBy('no', 'DESC')->paginate(10);
+            $data = Profile::with('user')->orderBy('no', 'DESC')->where('results',0)->paginate(10);
         }
         return Response::json($data, 200);
     }

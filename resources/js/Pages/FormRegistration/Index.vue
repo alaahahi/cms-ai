@@ -113,10 +113,10 @@ let showModal =  ref(false);
                                 <tr v-for="user in laravelData.data" :key="user.id"  class="mb-2 sm:mb-0 hover:bg-gray-100  text-center">
                                     <td className="border px-4 py-2">{{ user.no }}</td>
                                     <td className="border px-4 py-2 td">{{ user.card_number }}</td>
-                                    <td className="border px-4 py-2 td">{{ user.name ? user.name:''}}</td>
+                                    <td className="border px-4 py-2 td">{{ user.name}}</td>
                                     <td className="border px-4 py-2 td">{{ user.phone_number  }}</td>
                                     <td className="border px-4 py-2 td">{{ user.address }}</td>
-                                    <td className="border px-4 py-2 td">{{ user.user.name }}</td>
+                                    <td className="border px-4 py-2 td">{{ user.user?.name }}</td>
                                     <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
                                     <td className="border px-4 py-2 td">{{ user.family_name }}</td>
                                     <td className="border px-4 py-2"> {{ results(user.results) }}</td>
