@@ -39,12 +39,12 @@ const showingNavigationDropdown = ref(false);
                                      العقد الإلكتروني
                                 </NavLink>
                             </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4" >
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4||$page.props.auth.user.type_id==5" >
                                 <NavLink :href="route('FormRegistrationCompleted')" :active="route().current('FormRegistrationCompleted')">
                                      استلام البطاقات
                                 </NavLink>
                             </div>
-                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >
+                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5" >
                                 <NavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')">
                                     حسابات المندوبين
                                 </NavLink>
