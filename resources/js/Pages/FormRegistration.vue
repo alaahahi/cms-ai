@@ -10,6 +10,7 @@ import { ref } from "vue";
 import { WebCamUI } from "vue-camera-lib";
 
 const form = useForm({
+  saler_id:"",
   card_number: "",
   name: "",
   birthdate: "",
@@ -24,6 +25,7 @@ const form = useForm({
 });
 defineProps({
   usersType: Array,
+  sales : Array,
   cards: Array,
 });
 //
@@ -172,7 +174,7 @@ const createBase64ImageWife = (fileObject) => {
                       </span>
                     </div>
 
-                    <div className="mb-4">
+                    <!-- <div className="mb-4">
                       <InputLabel for="certification" value="التحصيل العلمي" />
                       <select
                         v-model="form.certification"
@@ -181,8 +183,8 @@ const createBase64ImageWife = (fileObject) => {
                       >
                         <option selected disabled>التحصيل العلمي</option>
                         <option
-                          :key="type.key"
-                          v-for="type in certification"
+                          v-for="(type ,index) in certification"
+                          :key="index"
                           :value="type.key"
                         >
                           {{ type.name }}
@@ -208,8 +210,31 @@ const createBase64ImageWife = (fileObject) => {
                       <span className="text-red-600" v-if="form.errors.job">
                         المهنة حقل مطلوب
                       </span>
-                    </div>
+                    </div> -->
 
+                    <div className="mb-4">
+                      <InputLabel for="sales_id" value="المندوب" />
+                      <select
+                        v-model="form.saler_id"
+                        id="userType"
+                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      >
+                        <option selected disabled>المندوب</option>
+                        <option
+                          v-for="(type ,index) in sales"
+                          :key="index"
+                          :value="type.id"
+                        >
+                          {{ type.name }}
+                        </option>
+                      </select>
+                      <span
+                        className="text-red-600"
+                        v-if="form.errors.saler_id"
+                      >
+                         اسم المندوب حقل مطلوب
+                      </span>
+                    </div>
                     <div className="mb-4">
                       <InputLabel for="address" value="العنوان" />
 

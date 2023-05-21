@@ -84,7 +84,7 @@ class FormRegistrationController extends Controller
     public function getIndex()
     {
         $authUser = auth()->user();
-        $data = Profile::where('user_id',$authUser->id)->orderBy('no', 'DESC')->paginate(10);
+        $data = Profile::with('user')->orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
     }
     public function getIndexSaved()
@@ -117,7 +117,8 @@ class FormRegistrationController extends Controller
     {
         //$usersType = UserType::all();
         $cards= Card::all();
-        return Inertia::render('FormRegistration', ['url'=>$this->url,'cards'=> $cards]);
+        $sales = User::where('type_id', $this->userSeles)->get();
+        return Inertia::render('FormRegistration', ['url'=>$this->url,'cards'=> $cards,'sales'=> $sales]);
     }
     
     /**
@@ -137,6 +138,8 @@ class FormRegistrationController extends Controller
                     'phone_number' => 'required|string|max:255',
                     'invoice_number' => 'required|string|max:255',
                     'card_id' => 'required|int|max:255',
+                    'saler_id'=> 'required|int|max:255',
+
                      ])->validate();
                 $user = Profile::create([
                     'card_number'=> $request->card_number,
@@ -149,7 +152,7 @@ class FormRegistrationController extends Controller
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
                     'card_id' => $request->card_id,
-                    'user_id' =>$user->id,
+                    'user_id' =>$user->saler_id ? $user->saler_id : $user->id,
                     'family_name'=> $request->family_name,
                     'no'=> $no 
                      ]);
@@ -165,6 +168,7 @@ class FormRegistrationController extends Controller
             'address' => 'required|string|max:255',
             'phone_number' => 'required|string|max:255',
             'invoice_number' => 'required|string|max:255',
+            'saler_id'=> 'required|string|max:255',
                      ])->validate();
                 Profile::where('id',$id)->update([
                     'card_number'=> $request->card_number,
@@ -176,7 +180,7 @@ class FormRegistrationController extends Controller
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
                     'relatives' => $request->relatives,
-                    'user_id' =>$user->id,
+                    'user_id' =>$user->saler_id ? $user->saler_id : $user->id,
                     'family_name'=> $request->family_name,
                      ]);
             
