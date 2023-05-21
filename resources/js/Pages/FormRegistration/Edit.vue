@@ -18,16 +18,14 @@ const form = useForm({
   phone_number:  props.data.phone_number,
   invoice_number:  props.data.invoice_number,
   relatives:  props.data.relatives,
-
+  saler_id:  props.data.saler_id,
   card_number:props.data.card_number,
-
   family_name: props.data.family_name,
-
-
 });
 const props = defineProps({
   data: Array,
   url: String,
+  sales:Array
 });
 let showWife = ref(false);
 let day = ref("اليوم");
@@ -244,43 +242,31 @@ const createBase64ImageWife = (fileObject) => {
                         حقل تاريخ الميلاد مطلوب
                       </span>
                     </div> -->
+
                     <div className="mb-4">
-                      <InputLabel for="certification" value="التحصيل العلمي" />
+                      <InputLabel for="sales_id" value="المندوب" />
                       <select
-                        v-model="form.certification"
+                        v-model="form.saler_id"
                         id="userType"
                         class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       >
-                        <option selected disabled>التحصيل العلمي</option>
+                        <option selected disabled>المندوب</option>
                         <option
-                          :key="type.key"
-                          v-for="type in certification"
-                          :value="type.key"
+                          v-for="(type ,index) in sales"
+                          :key="index"
+                          :value="type.id"
                         >
                           {{ type.name }}
                         </option>
                       </select>
                       <span
                         className="text-red-600"
-                        v-if="form.errors.certification"
+                        v-if="form.errors.saler_id"
                       >
-                        التحصيل العلمي حقل مطلوب
+                         اسم المندوب حقل مطلوب
                       </span>
                     </div>
-                    <div className="mb-4">
-                      <InputLabel for="job" value="المهنة" />
 
-                      <TextInput
-                        id="job"
-                        type="text"
-                        class="mt-1 block w-full"
-                        v-model="form.job"
-                      />
-
-                      <span className="text-red-600" v-if="form.errors.job">
-                        المهنة حقل مطلوب
-                      </span>
-                    </div>
 
                     <div className="mb-4">
                       <InputLabel for="address" value="العنوان" />

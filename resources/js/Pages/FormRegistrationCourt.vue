@@ -152,7 +152,7 @@ function method1(id) {
                         dark:focus:ring-blue-500
                         dark:focus:border-blue-500
                       "
-                      placeholder="بحث حسب رقم الوصل او اسم الزوج او اسم الزوجة"
+                      placeholder="بحث حسب رقم الوصل او رقم البطاقة او اسم المشترك "
                       required
                     />
                   </div>

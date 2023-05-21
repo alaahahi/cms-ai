@@ -110,8 +110,8 @@ function open(id) {
                                 </thead>
                                 <tbody class="flex-1 sm:flex-none">
                                 
-                                    <tr v-for="user,index in laravelData.data" :key="user.id"  class="text-center mb-2 sm:mb-0 hover:bg-gray-100">
-                                        <td className="border px-4 py-2">{{ index+1 }}</td>
+                                    <tr v-for="user in laravelData.data" :key="user.id"  class="text-center mb-2 sm:mb-0 hover:bg-gray-100">
+                                        <td className="border px-4 py-2"> {{user.id }}</td>
                                         <td className="border px-4 py-2">{{ user.name }}</td>
                                         <td className="border px-4 py-2">{{ user.email }}<span v-if="user.device" class="text-sm text-green-500 font-bold  py-2 px-2 hover:text-red-500">{{user.device}}</span></td>
                                         <td className="border px-4 py-2">{{ user.user_type ? user.user_type['name'] :"" }}</td>
