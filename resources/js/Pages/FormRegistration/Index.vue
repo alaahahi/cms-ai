@@ -22,7 +22,7 @@ const props = defineProps({
 });
 const search =async (q) => {
     laravelData.value=[]
-    const response = await fetch(`/livesearchlivesearch?q=${q}`);
+    const response = await fetch(`/livesearch?q=${q}`);
     laravelData.value = await response.json();
 };
 const form = useForm();

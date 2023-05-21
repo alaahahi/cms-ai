@@ -171,8 +171,7 @@ function method1(id) {
                     <th className="px-4 py-2">الأسم كامل</th>
                     <th className="px-4 py-2">رقم الموبايل</th>
                     <th className="px-4 py-2">العنوان</th>
-                    <th className="px-4 py-2">التحصيل العلمي</th>
-                    <th className="px-4 py-2">العمل</th>
+                    <th className="px-4 py-2">المندوب</th>
                     <th className="px-4 py-2">تاريخ التسجيل</th>
                     <th className="px-4 py-2">أفراد العائلة</th>   
                     <th className="px-4 py-2">الحالة</th>
@@ -190,8 +189,7 @@ function method1(id) {
                   <td className="border px-4 py-2 td">{{ user.name }}</td>
                   <td className="border px-4 py-2 td">{{ user.phone_number  }}</td>
                   <td className="border px-4 py-2 td">{{ user.address }}</td>
-                  <td className="border px-4 py-2 td">{{ user.certification }}</td>
-                  <td className="border px-4 py-2 td">{{ user.job }}</td>
+                  <td className="border px-4 py-2 td">{{ user?.user?.name }}</td>
                   <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
                   <td className="border px-4 py-2 td">{{ user.family_name }}</td>
                   <td className="border px-4 py-2"> {{ results(user.results) }}</td>

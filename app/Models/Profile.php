@@ -27,7 +27,7 @@ class Profile extends Model
         'card_number',
         'card_id',
         'user_id',
-        'user_add_lab',
+        'user_add',
         'user_doctor',
         'user_accepted',
         'user_rejected',

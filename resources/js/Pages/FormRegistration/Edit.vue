@@ -243,7 +243,7 @@ const createBase64ImageWife = (fileObject) => {
                       </span>
                     </div> -->
 
-                    <div className="mb-4">
+                    <!-- <div className="mb-4">
                       <InputLabel for="sales_id" value="المندوب" />
                       <select
                         v-model="form.saler_id"
@@ -266,7 +266,7 @@ const createBase64ImageWife = (fileObject) => {
                          اسم المندوب حقل مطلوب
                       </span>
                     </div>
-
+ -->
 
                     <div className="mb-4">
                       <InputLabel for="address" value="العنوان" />
@@ -314,7 +314,7 @@ const createBase64ImageWife = (fileObject) => {
               <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                   <div class="flex flex-row">
-                    <div class="basis-1/3">
+                    <div class="basis-1/2">
                       <div className="mb-4 mx-5">
                         <InputLabel for="invoice_number" value="رقم الوصل" />
                         <TextInput
@@ -332,7 +332,7 @@ const createBase64ImageWife = (fileObject) => {
                         </span>
                       </div>
                     </div>
-                    <div class="basis-1/3">
+                    <div class="basis-1/2">
                       <div className="mb-4 mx-5">
                         <InputLabel for="phone_number" value="رقم الهاتف" />
                         <TextInput
@@ -347,25 +347,6 @@ const createBase64ImageWife = (fileObject) => {
                           v-if="form.errors.phone_number"
                         >
                           رقم الهاتف حقل مطلوب
-                        </span>
-                      </div>
-                    </div>
-                    <div class="basis-1/3">
-                      <div className="mb-4 mx-5">
-                        <InputLabel for="relatives" value="البطاقة" />
-                        <select
-                          v-model="form.relatives"
-                          id="relatives"
-                          class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        >
-                          <option selected disabled>تحديد البطاقة</option>
-                          <option  v-for="type in relativesType" :key="type.key" :value="type.key" > {{ type.name }} </option>
-                        </select>
-                        <span
-                          className="text-red-600"
-                          v-if="form.errors.relatives"
-                        >
-                          البطاقة حقل مطلوب
                         </span>
                       </div>
                     </div>

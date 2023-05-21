@@ -89,7 +89,7 @@ class FormRegistrationController extends Controller
     }
     public function getIndexSaved()
     {
-        $data = Profile::orderBy('no', 'DESC')->paginate(10);
+        $data = Profile::with('user')->orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
     }
     public function getIndexCompleted()
@@ -97,9 +97,9 @@ class FormRegistrationController extends Controller
 
         $user_id = $_GET['user_id'] ?? 0;
         if($user_id){
-            $data = Profile::where('user_id',$user_id)->where('results',0)->orderBy('no', 'DESC')->paginate(10);
+            $data = Profile::with('user')->where('user_id',$user_id)->where('results',0)->orderBy('no', 'DESC')->paginate(10);
         }else{
-            $data = Profile::orderBy('no', 'DESC')->paginate(10);
+            $data = Profile::with('user')->orderBy('no', 'DESC')->paginate(10);
         }
         return Response::json($data, 200);
     }
@@ -107,9 +107,9 @@ class FormRegistrationController extends Controller
     {
         $user_id = $_GET['user_id'] ?? 0;
         if($user_id){
-            $data = Profile::where('user_id',$user_id)->orderBy('no', 'DESC')->paginate(10);
+            $data = Profile::with('user')->where('user_id',$user_id)->orderBy('no', 'DESC')->paginate(10);
         }else{
-            $data = Profile::orderBy('no', 'DESC')->paginate(10);
+            $data = Profile::with('user')->orderBy('no', 'DESC')->paginate(10);
         }
         return Response::json($data, 200);
     }
@@ -152,9 +152,10 @@ class FormRegistrationController extends Controller
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
                     'card_id' => $request->card_id,
-                    'user_id' =>$user->saler_id ? $user->saler_id : $user->id,
+                    'user_id' =>$request->saler_id ? $request->saler_id :$user->id,
                     'family_name'=> $request->family_name,
-                    'no'=> $no 
+                    'user_add'=>$user->id,
+                    'no'=> $no
                      ]);
             
         return Inertia::render('FormRegistration/Index', ['url'=>$this->url]);
@@ -168,7 +169,6 @@ class FormRegistrationController extends Controller
             'address' => 'required|string|max:255',
             'phone_number' => 'required|string|max:255',
             'invoice_number' => 'required|string|max:255',
-            'saler_id'=> 'required|string|max:255',
                      ])->validate();
                 Profile::where('id',$id)->update([
                     'card_number'=> $request->card_number,
@@ -180,7 +180,6 @@ class FormRegistrationController extends Controller
                     'phone_number' => $request->phone_number,
                     'invoice_number' => $request->invoice_number,
                     'relatives' => $request->relatives,
-                    'user_id' =>$user->saler_id ? $user->saler_id : $user->id,
                     'family_name'=> $request->family_name,
                      ]);
             
@@ -258,7 +257,7 @@ class FormRegistrationController extends Controller
     public function getProfiles(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::orwhere('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
+        $data = Profile::with('user')->orwhere('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
         return response()->json($data); 
 
     }
@@ -266,14 +265,14 @@ class FormRegistrationController extends Controller
     public function getProfilesSaved(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::where('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
+        $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
         return response()->json($data);
     }
 
     public function getProfilesCompleted(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::where('name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('card_number', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('invoice_number',$term)->where('results',3)->paginate(10);
+        $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('card_number', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('invoice_number',$term)->where('results',3)->paginate(10);
         return response()->json($data); 
     }
 
