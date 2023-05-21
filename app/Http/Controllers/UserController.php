@@ -26,7 +26,7 @@ class UserController extends Controller
          $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
          $this->userSeles =  UserType::where('name', 'seles')->first()->id;
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
-         $this->useCourt=  UserType::where('name', 'court')->first()->id;
+         $this->useCourt=  UserType::where('name', 'account')->first()->id;
 
     }
 
