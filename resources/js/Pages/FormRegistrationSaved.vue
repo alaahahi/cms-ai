@@ -212,6 +212,7 @@ function method1(id) {
               <TailwindPagination
                 :data="laravelData"
                 @pagination-change-page="getResults"
+                :limit ="10"
               />
             </div>
           </div>
