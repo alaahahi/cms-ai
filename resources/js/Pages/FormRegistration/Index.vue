@@ -11,7 +11,7 @@ const getResults = async (page = 1) => {
     const response = await fetch(`/getIndexFormRegistration?page=${page}`);
     laravelData.value = await response.json();
 }
-
+const searchTerm = ref('');
 
 getResults();
 
@@ -35,7 +35,7 @@ const  results = (id) => {
         return 'تم التسليم';
     }
     if(id==2){
-        return 'الملف مرفوض';
+        return 'مكتمل';
     }
 }
 let showModal =  ref(false);

@@ -4,35 +4,34 @@ import Modal from "@/Components/Modal.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 import { TailwindPagination } from "laravel-vue-pagination";
+import InputLabel from "@/Components/InputLabel.vue";
+import TextInput from "@/Components/TextInput.vue";
 
 const laravelData = ref({});
 const user_id = ref(0);
+const isLoading = ref(0);
+
+
 const showReceiveBtn = ref(0);
 const getResults = async (page = 1) => {
   const response = await fetch(
-    `/getIndexFormRegistrationCompleted?page=${page}&user_id=${user_id.value}`
+    `/getIndexAccountsSelas?page=${page}&user_id=${user_id.value}`
   );
   laravelData.value = await response.json();
 };
 
-getResults();
 
 const props = defineProps({
   url: String,
   users:Array
 });
-const search = async (q) => {
-  laravelData.value = [];
-  const response = await fetch(`/livesearchCompleted?q=${q}`);
-  laravelData.value = await response.json();
-};
+
 const form = useForm();
 
 let showModal = ref(false);
-const receive = async (id) => {
-  const response = await fetch(`/receiveCard?id=${id}`);
-  let userButton = document.querySelector('.user-' + id);
-      userButton.style.display = 'none';
+const pay = async (id) => {
+  const response = await fetch(`/paySelse/${id}`);
+  getResults();
 
 };
 
@@ -45,11 +44,9 @@ const results = (id) => {
         return 'تم التسليم';
     }
   if (id == 2) {
-    return "مرفوض";
-  }
-  if (id == 3) {
     return "مكتمل";
   }
+
 };
 function sendToCourt(id) {
   showModal.value = id;
@@ -97,113 +94,132 @@ function method1(id) {
             <div class="flex flex-row">
               <div class="basis-1/2 px-4">
                 <select @change="getResults()" v-model="user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
-                  <option value="0">الجميع</option>
+                  <option value="0" disabled>اختار المندوب</option>
                   <option v-for="(user, index) in users" :key="index" :value="user.id">{{ user.name }}</option>
                 </select>
               </div>
-              <div class="basis-1/2 px-4">
-                <form class="flex items-center max-w-5xl">
-                  <label for="simple-search" class="sr-only">بحث</label>
-                  <div class="relative w-full">
-                    <div
-                      class="
-                        absolute
-                        inset-y-0
-                        left-0
-                        flex
-                        items-center
-                        pl-3
-                        pointer-events-none
-                      "
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="w-5 h-5 text-gray-500 dark:text-gray-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                          clip-rule="evenodd"
-                        ></path>
-                      </svg>
+
+            </div>
+            <div class="flex flex-row">
+              <div class="grow">
+                <div class="pb-3">
+                  <div class="mx-auto mx-7">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                      <div class="p-6 bg-white border-b border-gray-200">
+                        <div class="flex flex-row">
+                          <div class="basis-1/3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="invoice_number" value="المندوب" />
+                              <TextInput
+                                id="invoice_number"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="laravelData.sales?.name"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                          <div class="basis-1/3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="percentage" value="نسبة البيع" />
+                              <TextInput
+                                id="percentage"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="laravelData.sales?.percentage"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                          <div class="basis-1/3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="percentage" value="عدد البطاقة تم استلامها" />
+                              <TextInput
+                                id="percentage"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="laravelData.count"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <input
-                      v-model="searchTerm"
-                      @input="search(searchTerm)"
-                      type="text"
-                      id="simple-search"
-                      class="
-                        bg-gray-50
-                        border border-gray-300
-                        text-gray-900 text-sm
-                        rounded-lg
-                        focus:ring-blue-500 focus:border-blue-500
-                        block
-                        w-full
-                        pl-10
-                        p-2.5
-                        dark:bg-gray-700
-                        dark:border-gray-600
-                        dark:placeholder-gray-400
-                        dark:text-white
-                        dark:focus:ring-blue-500
-                        dark:focus:border-blue-500
-                      "
-                      placeholder="بحث حسب رقم الوصل او رقم البطاقة او اسم المشترك "
-                      required
-                    />
                   </div>
-                </form>
+                </div>
               </div>
             </div>
-
+            <div class="flex flex-row">
+              <div class="grow">
+                <div class="pb-3">
+                  <div class="mx-auto mx-7">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                      <div class="p-6 bg-white border-b border-gray-200">
+                        <div class="flex flex-row">
+                          <div class="basis-1/3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="date" value="بتاريخ" />
+                              <TextInput
+                                id="date"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="laravelData.date"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                          <div class="basis-1/3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="totalAmount" value="المجموع بالدينار العراقي" />
+                              <TextInput
+                                id="totalAmount"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="laravelData.totalAmount"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                          <div class="basis-1/3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="pay" value="تأكيد الدفع" />
+                              <button
+                              @click.prevent="pay(laravelData.sales?.id)"
+                              :disabled="isLoading || !parseInt(laravelData.totalAmount)"
+                              class="px-6 mb-12 mx-2 py-2 mt-1 font-bold text-white bg-green-500 rounded" style="width: 100%"
+                            >
+                              <span v-if="!isLoading">دفع</span>
+                              <span v-else>جاري الحفظ...</span>
+                            </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="overflow-x-auto shadow-md">
               <table class="w-full my-5">
                 <thead
-                  class="700 bg-rose-500 text-white text-center rounded-l-lg"
-                >
+                  class="700 bg-rose-500 text-white text-center rounded-l-lg">
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
-                    <th className="px-4 py-2 w-20">تسلسل</th>
-                    <th className="px-4 py-2">رقم البطاقة</th>
-                    <th className="px-4 py-2">الأسم كامل</th>
-                    <th className="px-4 py-2">رقم الموبايل</th>
-                    <th className="px-4 py-2">العنوان</th>
-                    <th className="px-4 py-2">التحصيل العلمي</th>
-                    <th className="px-4 py-2">العمل</th>
-                    <th className="px-4 py-2">تاريخ التسجيل</th>
-                    <th className="px-4 py-2">أفراد العائلة</th>   
-                    <th className="px-4 py-2">الحالة</th>
-                    <th className="px-4 py-2" v-if="$page.props.auth.user.type_id!=2">تنفيذ</th>     
+                    <th className="px-4 py-2">تم الدفع</th>
+                    <th className="px-4 py-2">النوع</th>
+                    <th className="px-4 py-2">الوصف</th>
+                    <th className="px-4 py-2">المبلغ</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
                     v-for="user in laravelData.data"
-                    :key="user.id"
-                    class="hover:bg-gray-100 text-center"
-                  >
-                  <td className="border px-4 py-2">{{ user.no }}</td>
-                  <td className="border px-4 py-2 td">{{ user.card_number }}</td>
-                  <td className="border px-4 py-2 td">{{ user.name }}</td>
-                  <td className="border px-4 py-2 td">{{ user.phone_number  }}</td>
-                  <td className="border px-4 py-2 td">{{ user.address }}</td>
-                  <td className="border px-4 py-2 td">{{ user.certification }}</td>
-                  <td className="border px-4 py-2 td">{{ user.job }}</td>
-                  <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
-                  <td className="border px-4 py-2 td">{{ user.family_name }}</td>
-                  <td className="border px-4 py-2"> {{ results(user.results) }}</td>
-                  <td className="border px-2 py-2"  v-if="$page.props.auth.user.type_id!=2">
-                  <a 
-                    tabIndex="-1"
-                    className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
-                    :href="route('document', user.id)"
-                    target="_self">
-                    طباعة
-                   </a>
-                  </td>
+                    :key="user.id"  class="hover:bg-gray-100 text-center">
+                  <td className="border px-4 py-2">{{ user.is_pay ? 'نعم' :'لا' }}</td>
+                  <td className="border px-4 py-2 td">{{ user.type }}</td>
+                  <td className="border px-4 py-2 td">{{ user.description }}</td>
+                  <td className="border px-4 py-2 td">{{ user.amount  }}</td>
                   </tr>
                 </tbody>
               </table>

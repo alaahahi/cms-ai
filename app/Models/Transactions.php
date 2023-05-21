@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Transaction extends Model
+class Transactions extends Model
 {
     use HasFactory;
     protected $fillable = [
@@ -13,6 +13,7 @@ class Transaction extends Model
         'amount',
         'type',
         'description',
+        'is_pay'
     ];
 
     public function wallet()

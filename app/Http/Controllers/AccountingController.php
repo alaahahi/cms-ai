@@ -9,7 +9,7 @@ use App\Models\Card;
 use App\Models\User;
 use App\Models\Profile;
 use App\Models\UserType;
-use App\Models\Transaction;
+use App\Models\Transactions;
 use App\Models\Results;
 use App\Models\DoctorResults;
 use App\Models\SystemConfig;
@@ -46,7 +46,18 @@ class AccountingController extends Controller
      *
      * @return Response
      */
+    
+    public function paySelse(Request $request,$id)
+    {
+        $user=  User::with('wallet')->find($id);
+        $transactions =Transactions ::where('wallet_id', $user?->wallet?->id)->where('is_pay',0);
+        $amount=$transactions->sum('amount');
+        $transactions->update(['is_pay' => 1]);
+        $profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
+        $this->decreaseWallet($amount*-1,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id);
+        return Response::json('ok', 200);
 
+    }
     public function receiveCard(Request $request)
     {
         $authUser = auth()->user();
@@ -73,7 +84,7 @@ class AccountingController extends Controller
 
         $new_balance =  $old_balance + $percentage;
 
-        $this->increaseWallet($percentage,'نسبة على البطاقة رقم'.$card->card_number,$user->id);
+        $this->increaseWallet($percentage,' نسبة على البطاقة رقم '.$profile?->card_number,$user->id);
 
         $wallet->update(['card' => $old_card-1,'balance'=>$new_balance]);
 
@@ -85,8 +96,8 @@ class AccountingController extends Controller
         $user=  User::with('wallet')->find($user_id);
       
         if($id = $user->wallet->id){
-        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount];
-        Transaction::create($transactionDetils);
+        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,];
+        Transactions::create($transactionDetils);
         $wallet = Wallet::find($id);
         $wallet->increment('balance', $amount);
         }
@@ -97,17 +108,17 @@ class AccountingController extends Controller
         return $wallet;
     }
 
-    public function decreaseWallet(int $amount,$desc) 
+    public function decreaseWallet(int $amount,$desc,$user_id) 
     {
-        $user=  User::with('wallet')->find($this->user->id) ;
+        $user=  User::with('wallet')->find($user_id);
 
         if($id = $user->wallet->id){
  
         $wallet = Wallet::find($id);
         if( $wallet->balance   >= $amount){
             $wallet->decrement('balance', $amount);
-            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount];
-            Transaction::create($transactionDetils);
+            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'is_pay'=>1];
+            Transactions::create($transactionDetils);
          
         }
         else{
@@ -119,7 +130,7 @@ class AccountingController extends Controller
             return null;
         }
         // Finally return the updated wallet.
-        return $this->getByID($wallet->id);
+        return $wallet;
     }
     
     }

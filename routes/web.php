@@ -67,6 +67,9 @@ Route::get('getIndexFormRegistrationCompleted',[FormRegistrationController::clas
 Route::get('labResults/{id}',[FormRegistrationController::class, 'labResults'])->name('labResults');
 Route::get('labResultsEdit/{id}',[FormRegistrationController::class, 'labResultsEdit'])->name('labResultsEdit');
 
+Route::get('getIndexAccountsSelas',[FormRegistrationController::class, 'getIndexAccountsSelas'])->name('getIndexAccountsSelas');
+
+
 Route::get('doctorResults/{id}',[FormRegistrationController::class, 'doctorResults'])->name('doctorResults');
 Route::get('doctorResultsEdit/{id}',[FormRegistrationController::class, 'doctorResultsEdit'])->name('doctorResultsEdit');
 
@@ -87,6 +90,7 @@ Route::get('/getcount', [DashboardController::class, 'getcountComp'])->name('get
 Route::get('/addUserCard/{card_id}/{card}/{user_id}', [UserController::class, 'addUserCard'])->name('addUserCard');
 
 Route::get('/receiveCard', [AccountingController::class, 'receiveCard'])->name('receiveCard');
+Route::get('/paySelse/{id}', [AccountingController::class, 'paySelse'])->name('paySelse');
 
 
 

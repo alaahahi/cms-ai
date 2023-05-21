@@ -12,6 +12,7 @@ use App\Models\UserType;
 use App\Models\Wallet;
 use App\Models\Results;
 use App\Models\DoctorResults;
+use App\Models\Transactions;
 use App\Models\SystemConfig;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
@@ -91,6 +92,28 @@ class FormRegistrationController extends Controller
     {
         $data = Profile::with('user')->orderBy('no', 'DESC')->paginate(10);
         return Response::json($data, 200);
+    }
+    public function getIndexAccountsSelas()
+    { 
+        $user_id = $_GET['user_id'] ?? 0;
+        $sales = User::with('wallet')->where('id', $user_id)->first();
+        $transactions = Transactions ::where('wallet_id', $sales?->wallet?->id);
+
+        $data = $transactions->paginate(10);
+        $profile_count = Profile::where('user_id', $sales?->id)->where('results',1)->count();
+        // Additional logic to retrieve sales data
+        $salesData = [
+            'totalAmount' =>  $transactions->sum('amount'),
+            'count' => $profile_count,
+            'total_sales' => $data?->total(),
+            'current_page' => $data?->currentPage(),
+            'per_page' => $data?->perPage(),
+            'last_page' => $data?->lastPage(),
+            'data' => $data?->items(),
+            'sales'=>$sales,
+            'date'=> Carbon::now()->format('Y-m-d')
+        ];
+        return Response::json($salesData, 200);
     }
     public function getIndexCompleted()
     {

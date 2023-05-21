@@ -7,6 +7,9 @@ import { TailwindPagination } from "laravel-vue-pagination";
 
 const laravelData = ref({});
 const user_id = ref(0);
+const searchTerm = ref('');
+
+
 const showReceiveBtn = ref(0);
 const getResults = async (page = 1) => {
   const response = await fetch(
@@ -31,8 +34,7 @@ const form = useForm();
 let showModal = ref(false);
 const receive = async (id) => {
   const response = await fetch(`/receiveCard?id=${id}`);
-  let userButton = document.querySelector('.user-' + id);
-      userButton.style.display = 'none';
+
       getResults();
 
 };
@@ -46,9 +48,6 @@ const results = (id) => {
         return 'تم التسليم';
     }
   if (id == 2) {
-    return "مرفوض";
-  }
-  if (id == 3) {
     return "مكتمل";
   }
 };
