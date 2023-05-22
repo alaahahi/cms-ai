@@ -28,7 +28,7 @@
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px">
     @include('logo')
     
-       <br> معلومات العقد الإلكتروني
+       <br>بطاقة الهلال الأحمر
     </th>
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
         {{$config['first_title_kr']}}
@@ -70,12 +70,6 @@
             بطاقة رقم:   {{ $profile->card_number }}
             <br>
             الاسم:   {{ $profile->name }}
-            <br>
-            التولد:   {{ $profile->birthdate  }}
-            <br>
-            التحصيل الدراسي:   {{ $profile->certification }}
-            <br>
-            المهنة:   {{ $profile->job }}
             <br>
             العنوان:   {{ $profile->address }}    
             <br>
