@@ -71,14 +71,14 @@ const submit = () => {
                                     </div>
                                     <div className="mb-4">
 
-                                        <InputLabel for="email" value="اسم المسنخدم" />
+                                        <InputLabel for="email" value="اسم المستخدم" />
                                         
                                         <TextInput 
                                             id="email" 
                                             type="text" 
                                             class="mt-1 block w-full" 
                                             v-model="form.email" 
-                                            autofocus />
+                                             />
 
                                         <span className="text-red-600" v-if="form.errors.email">
                                             اسم المستخدم هذا غير متاح
@@ -93,7 +93,7 @@ const submit = () => {
                                         type="text" 
                                         class="mt-1 block w-full" 
                                         v-model="form.password" 
-                                        autofocus />
+                                         />
 
                                     <span className="text-red-600" v-if="form.errors.password">
                                        كلمة المرور حقل مطلوب
@@ -108,7 +108,7 @@ const submit = () => {
                                     <span className="text-red-600" v-if="form.errors.email">
                                             صلاحيات المستخدم حقل مطلوب
                                     </span>
-                                    </div>{{ userDoctour }}
+                                    </div>
                                     <div className="mb-4" v-if="form.userType == userSeles || form.userType == userHospital || form.userType == userDoctor">
                                     <InputLabel for="percentage" value="نسبة المبيعات" />
                                     <TextInput 
