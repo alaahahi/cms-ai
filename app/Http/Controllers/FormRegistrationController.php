@@ -73,23 +73,67 @@ class FormRegistrationController extends Controller
      
     public function saved()
     {
-        $users = User::where('type_id', $this->userSeles)->get();
+        try {
+            $authUser = auth()?->user();
+            if($authUser){
+                $users = User::where('type_id', $this->userSeles)->get();
+                return Inertia::render('FormRegistrationSaved', ['url'=>$this->url,'users'=>$users]);
+            }
+            else {
+                return Inertia::render('Auth/Login');
+            }
+        } catch (\Throwable $th) {
+            return Inertia::render('Auth/Login');
+        }
 
-        return Inertia::render('FormRegistrationSaved', ['url'=>$this->url,'users'=>$users]);
     }
     public function court()
     {
-        $users = User::where('type_id', $this->userSeles)->get();
-        return Inertia::render('FormRegistrationCourt', ['url'=>$this->url,'users'=>$users]);
+        try {
+            $authUser = auth()?->user();
+            if($authUser){
+            $users = User::where('type_id', $this->userSeles)->get();
+            return Inertia::render('FormRegistrationCourt', ['url'=>$this->url,'users'=>$users]);
+            }
+            else {
+                return Inertia::render('Auth/Login');
+            }
+        } catch (\Throwable $th) {
+            return Inertia::render('Auth/Login');
+        }
+
     }
     public function completed()
     {
-        $users = User::where('type_id', $this->userSeles)->get();
-        return Inertia::render('FormRegistrationCompleted', ['url'=>$this->url,'users'=>$users]);
+        try {
+            $authUser = auth()?->user();
+            if($authUser){
+                $users = User::where('type_id', $this->userSeles)->get();
+                return Inertia::render('FormRegistrationCompleted', ['url'=>$this->url,'users'=>$users]);
+            }
+            else {
+                return Inertia::render('Auth/Login');
+            }
+        } catch (\Throwable $th) {
+            return Inertia::render('Auth/Login');
+        }
+
+
     }
     public function show ()
     {
-        return Inertia::render('Users/Index', ['url'=>$this->url]);
+        try {
+            $authUser = auth()?->user();
+            if($authUser){
+                return Inertia::render('Users/Index', ['url'=>$this->url]);
+            }
+            else {
+                return Inertia::render('Auth/Login');
+            }
+        } catch (\Throwable $th) {
+            return Inertia::render('Auth/Login');
+        }
+
     }
     public function getIndex()
     {
@@ -147,10 +191,21 @@ class FormRegistrationController extends Controller
     }
     public function create()
     {
-        //$usersType = UserType::all();
-        $cards= Card::all();
-        $sales = User::where('type_id', $this->userSeles)->get();
-        return Inertia::render('FormRegistration', ['url'=>$this->url,'cards'=> $cards,'sales'=> $sales]);
+
+        try {
+            $authUser = auth()?->user();
+            if($authUser){
+                                //$usersType = UserType::all();
+                $cards= Card::all();
+                $sales = User::where('type_id', $this->userSeles)->get();
+                return Inertia::render('FormRegistration', ['url'=>$this->url,'cards'=> $cards,'sales'=> $sales]);
+            }
+            else {
+                return Inertia::render('Auth/Login');
+            }
+        } catch (\Throwable $th) {
+            return Inertia::render('Auth/Login');
+        }
     }
     
     /**
