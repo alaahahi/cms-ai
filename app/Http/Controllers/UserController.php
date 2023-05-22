@@ -95,11 +95,12 @@ class UserController extends Controller
     {
         $usersType = UserType::all();
         $userSeles=$this->userSeles;
-
+        $userDoctor =  $this->userDoctor;
+        $userHospital = $this->userHospital;
        //$coordinators =User::where('type_id', $this->userCoordinator )->get();
        // $chief =User::where('type_id', $this->userChief )->get();
         return Inertia::render('Users/Edit', [
-            'user' => $User,'usersType'=>$usersType,'userSeles'=>$userSeles
+            'user' => $User,'usersType'=>$usersType,'userSeles'=>$userSeles,'userDoctor'=>$userDoctor,'userHospital'=>$userHospital
         ]);
     }
     

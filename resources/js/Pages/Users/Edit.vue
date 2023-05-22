@@ -13,7 +13,8 @@ const props = defineProps({
     url:String,
     usersType: Array,
     userSeles:String,
-
+    userHospital:String,
+    userDoctor:String,
 });
 
 const form = useForm({
@@ -110,7 +111,7 @@ const submit = () => {
                                     <option v-for="(user, index) in usersType" :key="index" :value="user.id">{{ user.name }}</option>
                                     </select>
                                     </div>
-                                    <div className="mb-4" v-if="form.userType == userSeles">
+                                    <div className="mb-4" v-if="form.userType == userSeles || form.userType == userHospital || form.userType == userDoctor">
 
                                     <InputLabel for="percentage" value="نسبة المبيعات" />
 
