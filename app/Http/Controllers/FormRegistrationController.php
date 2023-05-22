@@ -39,6 +39,7 @@ class FormRegistrationController extends Controller
          $this->userSeles =  UserType::where('name', 'seles')->first()->id;
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
          $this->userAccount=  UserType::where('name', 'account')->first()->id;
+         $this->userHospital =  UserType::where('name', 'hospital')->first()->id;
 
     }
 
