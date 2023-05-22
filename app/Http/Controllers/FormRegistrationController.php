@@ -187,7 +187,6 @@ class FormRegistrationController extends Controller
     {
         $user = Auth::user();
         Validator::make($request->all(), [
-            'card_number' =>'required|int|max:255',
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'phone_number' => 'required|string|max:255',
