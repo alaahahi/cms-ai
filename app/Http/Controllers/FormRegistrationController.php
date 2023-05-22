@@ -48,11 +48,15 @@ class FormRegistrationController extends Controller
      * @return Response
      */
     public function index()
-    {
-        $authUser = auth()->user();
-        $wallet = Wallet::where('user_id', $authUser->id)->first();
-        $card = $wallet->card ??'';
-        return Inertia::render('FormRegistration/Index', ['url'=>$this->url,'card'=>$card]);
+    {   
+        try {
+            $authUser = auth()->user();
+            $wallet = Wallet::where('user_id', $authUser->id)->first();
+            $card = $wallet->card ??'';
+            return Inertia::render('FormRegistration/Index', ['url'=>$this->url,'card'=>$card]);
+        } catch (\Throwable $th) {
+            return Inertia::render('Auth/Login');
+        }
     }
 
     public function formRegistrationEdit($id)
