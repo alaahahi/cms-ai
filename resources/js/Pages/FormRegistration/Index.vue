@@ -105,7 +105,7 @@ let showModal =  ref(false);
                                     <th className="px-4 py-2">تاريخ التسجيل</th>
                                     <th className="px-4 py-2">أفراد العائلة</th>   
                                     <th className="px-4 py-2">الحالة</th>
-                                    <th className="px-4 py-2" v-if="$page.props.auth.user.type_id!=2">تنفيذ</th>          
+                                    <th className="px-4 py-2">تنفيذ</th>          
                                 </tr>
                             </thead>
                             <tbody class="flex-1 sm:flex-none">
@@ -120,7 +120,7 @@ let showModal =  ref(false);
                                     <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
                                     <td className="border px-4 py-2 td">{{ user.family_name }}</td>
                                     <td className="border px-4 py-2"> {{ results(user.results) }}</td>
-                                    <td className="border px-2 py-2"  v-if="$page.props.auth.user.type_id!=2">
+                                    <td className="border px-2 py-2" >
                                         <a 
                                             tabIndex="-1"
                                             className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
@@ -133,7 +133,7 @@ let showModal =  ref(false);
                                             tabIndex="1"
                                             className="px-2 py-1 text-sm text-white mx-1 bg-slate-500 rounded"
                                             :href="route('formRegistrationEdit', user.id)"
-                                            v-if="$page.props.auth.user.type_id==1"
+                                            v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2"
                                         >
                                             تعديل
                                         </Link>
