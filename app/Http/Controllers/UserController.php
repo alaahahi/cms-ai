@@ -26,8 +26,8 @@ class UserController extends Controller
          $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
          $this->userSeles =  UserType::where('name', 'seles')->first()->id;
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
-         $this->useCourt=  UserType::where('name', 'account')->first()->id;
-
+         $this->userHospital =  UserType::where('name', 'hospital')->first()->id;
+         $this->userAccount=  UserType::where('name', 'account')->first()->id;
     }
 
     /**
@@ -51,18 +51,12 @@ class UserController extends Controller
     }
     public function create()
     {
-  
-
         $usersType = UserType::all();
         $userSeles=$this->userSeles;
-        return Inertia::render('Users/Create',['usersType'=>$usersType,'userSeles'=>$userSeles]);
+        $userDoctor =  $this->userDoctor;
+        $userHospital = $this->userHospital;
+        return Inertia::render('Users/Create',['usersType'=>$usersType,'userSeles'=>$userSeles,'userDoctor'=>$userDoctor,'userHospital'=>$userHospital]);
     }
-    
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
     public function store(Request $request)
     {
         Validator::make($request->all(), [

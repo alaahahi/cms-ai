@@ -19,6 +19,8 @@ defineProps({
     usersType: Array,
     coordinators :Array,
     userSeles:String,
+    userHospital:String,
+    userDoctour:String,
 });
 
 const submit = () => {
@@ -107,10 +109,8 @@ const submit = () => {
                                             صلاحيات المستخدم حقل مطلوب
                                     </span>
                                     </div>
-                                    <div className="mb-4" v-if="form.userType == userSeles">
-
+                                    <div className="mb-4" v-if="form.userType == userSeles || form.userType == userHospital || form.userType == userDoctour">
                                     <InputLabel for="percentage" value="نسبة المبيعات" />
-
                                     <TextInput 
                                         id="percentage" 
                                         type="number" 
