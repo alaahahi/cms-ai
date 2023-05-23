@@ -23,8 +23,7 @@ use App\Models\Massage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use PDF;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -50,12 +49,23 @@ class AccountingController extends Controller
     
     public function paySelse(Request $request,$id)
     {
-        $user=  User::with('wallet')->find($id);
-        $transactions =Transactions ::where('wallet_id', $user?->wallet?->id)->where('is_pay',0);
-        $amount=$transactions->sum('amount');
-        $transactions->update(['is_pay' => 1]);
-        $profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
-        $this->decreaseWallet($amount*-1,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id);
+        try {
+            DB::beginTransaction();
+            // Perform your database operations with Eloquent
+            $user=  User::with('wallet')->find($id);
+            $transactions =Transactions ::where('wallet_id', $user?->wallet?->id)->where('is_pay',0);
+            $amount=$transactions->sum('amount');
+            $transactions->update(['is_pay' => 1]);
+            $profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
+            $this->decreaseWallet($amount*-1,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id);
+            // If everything is successful, commit the transaction
+            DB::commit();
+            // Return a response or perform other actions
+        } catch (\Exception $e) {
+            // Something went wrong, rollback the transaction
+            DB::rollBack();
+            // Handle the exception or return an error response
+        }
         return Response::json('ok', 200);
 
     }
@@ -66,8 +76,6 @@ class AccountingController extends Controller
         $profile_id = $_GET['id'] ?? 0;
 
         $profile = Profile::find($profile_id);
-        
-        $profile->update(['results'=>1,'user_accepted'=>$authUser->id]);
 
         $wallet = Wallet::where('user_id', $profile->user_id)->first();
 
@@ -85,9 +93,20 @@ class AccountingController extends Controller
 
         $new_balance =  $old_balance + $percentage;
 
-        $this->increaseWallet($percentage,' نسبة على البطاقة رقم '.$profile?->card_number,$user->id);
+        try {
+            DB::beginTransaction();
 
-        $wallet->update(['card' => $old_card-1,'balance'=>$new_balance]);
+            $profile->update(['results'=>1,'user_accepted'=>$authUser->id]);
+            $this->increaseWallet($percentage,' نسبة على البطاقة رقم '.$profile?->card_number,$user->id);
+            $wallet->update(['card' => $old_card-1,'balance'=>$new_balance]);
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+        }
 
         return Response::json($new_balance, 200);
 

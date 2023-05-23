@@ -77,6 +77,13 @@
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
   ),
+  'scottlaurent/accounting' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Scottlaurent\\Accounting\\Providers\\AccountingServiceProvider',
+    ),
+  ),
   'simplesoftwareio/simple-qrcode' => 
   array (
     'providers' => 
