@@ -8,6 +8,7 @@ use App\Http\Controllers\FormRegistrationController;
 use App\Http\Controllers\ResultsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AccountingController;
+use App\Http\Controllers\HospitalController;
 use App\Models\SystemConfig;
 
 /*
@@ -92,6 +93,10 @@ Route::get('/addUserCard/{card_id}/{card}/{user_id}', [UserController::class, 'a
 Route::get('/receiveCard', [AccountingController::class, 'receiveCard'])->name('receiveCard');
 Route::get('/paySelse/{id}', [AccountingController::class, 'paySelse'])->name('paySelse');
 
+Route::get('hospital',[HospitalController::class, 'index'])->name('hospital');
+Route::get('hospitalAdd',[HospitalController::class, 'create'])->name('hospitalAdd');
+Route::post('appointmentAdd',[HospitalController::class, 'store'])->name('appointmentAdd');
+Route::get('getIndexAppointment',[HospitalController::class, 'getIndex'])->name("getIndexAppointment");
 
 
 require __DIR__.'/auth.php';

@@ -49,6 +49,11 @@ const showingNavigationDropdown = ref(false);
                                     حسابات المندوبين
                                 </NavLink>
                             </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==6" >
+                                <NavLink :href="route('hospital')" :active="route().current('hospital')">
+                                     الحجوزات
+                                </NavLink>
+                            </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >
                                 <NavLink :href="route('FormRegistrationSaved')" :active="route().current('FormRegistrationSaved')">
                                      الأرشفة
