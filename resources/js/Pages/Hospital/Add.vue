@@ -43,13 +43,13 @@ const isSlotAvailable = (slot) => {
   if (!form.date) return false; // disable all slots if no date selected
   if (new Date(form.date).getDay() === 5) return false; // disable all slots if Friday
 
-  const today = new Date();
+  // const today = new Date();
 
-  const selected = new Date(form.date);
+  // const selected = new Date(form.date);
 
-  if (selected < today) {
-    return false; // disable slots for past dates
-  }
+  // if (selected < today) {
+  //   return false; // disable slots for past dates
+  // }
 
     const start = new Date(`${form.date} ${slot.split('-')[0]}:00`);
     const end = new Date(`${form.date} ${slot.split('-')[1]}:00`);
@@ -71,6 +71,7 @@ const resetBookedSlots = () => {
 };
 
 const bookAppointment = (slot, type) => {
+  alert(new Date())
   appointments.value=[];
   const start = new Date(`${form.date} ${slot.split('-')[0]}:00`);
   const end = new Date(`${form.date} ${slot.split('-')[1]}:00`);
