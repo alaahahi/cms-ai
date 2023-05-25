@@ -97,11 +97,11 @@ function method1(id) {
                 <div class="basis-1/2 px-4">
 
             <div className="flex items-center justify-between mb-6">
-                                        <Link  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==6"
+              <Link  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==6"
                                             className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
                                             :href="route('hospitalAdd')">
                                             إنشاء حجز جديدة
-                                        </Link>
+              </Link>
              </div>
             </div>
              </div>
@@ -179,7 +179,8 @@ function method1(id) {
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
                     <th className="px-4 py-2">الطبيب</th>
                     <th className="px-4 py-2">رقم البطاقة</th>
-                    <th className="px-4 py-2">التاريخ والساعة</th>  
+                    <th className="px-4 py-2">التاريخ والساعة</th>
+                    <th className="px-4 py-2">تنفيذ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,6 +192,32 @@ function method1(id) {
                   <td className="border px-4 py-2">{{ user?.user?.name }}</td>
                   <td className="border px-4 py-2">{{ user.card_id }}</td>
                   <td className="border px-4 py-2">{{ user.start }}</td>
+                  <td className="border px-4 py-2">
+                    <button 
+                      @click="alert('done')"
+                      tabIndex="-1"
+                      type="button"
+                      className="mx-1 px-2 py-1 text-sm text-white bg-green-500 rounded"
+                      v-if="!user.is_band && user.email!='admin@admin.com'">
+                      تأكيد الموعد
+                    </button>
+                    <button 
+                      @click="alert('done')"
+                      tabIndex="-1"
+                      type="button"
+                      className="mx-1 px-2 py-1 my-1 text-sm text-white bg-red-500 rounded"
+                      v-if="!user.is_band && user.email!='admin@admin.com'">
+                      إلغاء الموعد
+                    </button>
+                    <button 
+                      @click="alert('done')"
+                      tabIndex="-1"
+                      type="button"
+                      className="mx-1 px-2 py-1 text-sm text-white bg-blue-500 rounded"
+                      v-if="!user.is_band && user.email!='admin@admin.com'">
+                      تعديل الموعد
+                    </button>
+                  </td>
                   </tr>
                 </tbody>
               </table>

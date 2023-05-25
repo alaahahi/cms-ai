@@ -67,20 +67,26 @@ class HospitalController extends Controller
     public function store(Request $request)
     {
 
+        $userDoctor = User::where('type_id',$this->userDoctor)->get();
 
 
         Validator::make($request->all(), [
-        'user_id'=> 'required|int|max:255',
-        'card_id'=> 'required|int|max:255',
+        'user_id'=> 'required|int|max:50000',
+        'card_id'=> 'required|int|max:50000',
        ])->validate();
-        $appointment = Appointment::create([
-                    'user_id' =>$request->user_id,
-                    'card_id' => $request->card_id,
-                    'start' => $this->convertToTimestamp($request->start),
-                    'end' => $this->convertToTimestamp($request->end),
-                     ]);
-                    Profile::where('card_id',$request->card_id)->update(['user_rejected'=>$appointment->id]);
-        return Inertia::render('Hospital/Index', ['url'=>$this->url])->with('success', 'شكراّ,تمت العملية بنجاح');
+
+        $profile = Profile::where('card_number',$request->card_id)->first();
+        if($profile){
+            $appointment = Appointment::create([
+                'user_id' =>$request->user_id,
+                'card_id' => $request->card_id,
+                'start' => $this->convertToTimestamp($request->start),
+                'end' => $this->convertToTimestamp($request->end),
+                 ]);
+                 $profile->update(['user_rejected'=>$appointment->id]);
+                 return Inertia::render('Hospital/Index', ['url'=>$this->url])->with('success', 'شكراّ,تمت العملية بنجاح');
+        }else
+        return Inertia::render('Hospital/Add', ['url'=>$this->url,'userDoctor'=>$userDoctor])->with('success', 'رقم البطاقة غير صالح او لم يتم تسجيل البطاقة');
     }
     public function storeEdit(Request $request,$id)
     {

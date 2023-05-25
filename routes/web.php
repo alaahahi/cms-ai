@@ -95,7 +95,7 @@ Route::get('/paySelse/{id}', [AccountingController::class, 'paySelse'])->name('p
 
 Route::get('hospital',[HospitalController::class, 'index'])->name('hospital');
 Route::get('hospitalAdd',[HospitalController::class, 'create'])->name('hospitalAdd');
-Route::post('appointmentAdd',[HospitalController::class, 'store'])->name('appointmentAdd');
+Route::post('hospital',[HospitalController::class, 'store'])->name('hospital');
 Route::get('getIndexAppointment',[HospitalController::class, 'getIndex'])->name("getIndexAppointment");
 
 

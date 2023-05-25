@@ -27,7 +27,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('appointmentAdd'));
+    form.post(route('hospital'));
 };
 
 
@@ -71,15 +71,13 @@ const resetBookedSlots = () => {
 };
 
 const bookAppointment = (slot, type) => {
-  alert(new Date())
   appointments.value=[];
-  const start = new Date(`${form.date} ${slot.split('-')[0]}:00`);
-  const end = new Date(`${form.date} ${slot.split('-')[1]}:00`);
+  const start = form.date+' '+slot.split('-')[0]+':00';
+  const end =  form.date+' '+slot.split('-')[1]+':00';
   form.start = start
   form.end = end
   appointments.value.push({ start, end });
   bookedSlots.value.push(slot);
-
   const slots = slot.split('-')[0]; // "9:00"
   const hour = slots.split(':')[0]; // "9"
   resetBookedSlots()
@@ -96,18 +94,29 @@ const bookAppointment = (slot, type) => {
          حجز وتثبيت موعد للمستخدمين 
       </h2>
     </template>
+    <div v-if="$page.props.success">
+      <div
+        id="alert-2"
+        class="p-4 mb-4 bg-red-100 rounded-lg dark:bg-red-200 text-center"
+        role="alert"
+      >
+        <div class="ml-3 text-sm font-medium text-red-700 dark:text-red-800">
+          {{ $page.props.success }}
+        </div>
+      </div>
+    </div>
     <div class="max-w-8xl mx-auto sm:px-3 lg:px-4 mt-4">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
-            <div class="flex flex-row">
-                <div class="basis-1/2 px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-4">
+                <div class="px-4">
                   <select v-model="form.user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
                     <option value="" disabled>يرجى اختيار طبيب</option>
                     <option v-for="(user, index) in userDoctor" :key="index" :value="user.id">{{ user.name }}</option>
                   </select>
                 </div>
-                <div class="basis-1/2 px-4">
-                  <form class="flex items-center max-w-5xl">
+                <div class=" px-4">
+                  <form class="items-center max-w-5xl">
                     <div class="relative w-full">
                       <div
                         class="
@@ -123,7 +132,7 @@ const bookAppointment = (slot, type) => {
                       </div>
                       <input
                         v-model="form.card_id"
-                        type="text"
+                        type="number"
                         id="simple-search"
                         class="
                           bg-gray-50
@@ -149,25 +158,21 @@ const bookAppointment = (slot, type) => {
                     
                   </form>
                 </div>
-            </div>
-            <div class="flex flex-row">
-                    <div class="basis-1/2 px-5">
+                <div class=" px-5">
                     <h5 class="py-3">اليوم</h5>
                     <input type="date" class="form-control w-full " v-model="form.date" @change="resetBookedSlots" />
                     </div>
-                    <div class="basis-1/2  px-5">
+                    <div class="  px-5">
                     <h5 class="py-3">الموعد</h5>
-                    <div class="flex flex-wrap">
-                        <div class="w-1/2 md:w-1/4 my-1" v-for="(slot, index) in timeSlots" :key="index">
-                        <button class="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none" :disabled="!isSlotAvailable(slot)" @click="bookAppointment(slot, 'vip')">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+                        <div  v-for="(slot, index) in timeSlots" :key="index">
+                        <button class="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none w-full" :disabled="!isSlotAvailable(slot)" @click="bookAppointment(slot, 'vip')">
                             {{ slot }}
                         </button>
                         </div>
                     </div>
-                    </div>
-            </div>
-            <div class="flex flex-row">
-                <div class="basis-1/2 px-5 py-7 m-auto pt-12">
+                  </div>
+                <div class=" px-5 py-7 pt-12 ">
                 <button type="date" class="px-6 py-2 text-white bg-blue-500 rounded-md focus:outline-none w-full"  @click="submit" :disabled="!form.start || !form.end || !form.user_id || !form.card_id">حفظ</button>
                 </div>
             </div>
