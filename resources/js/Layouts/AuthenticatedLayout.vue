@@ -127,6 +127,12 @@ const showingNavigationDropdown = ref(false);
                             <ResponsiveNavLink :href="route('FormRegistrationCompleted')" :active="route().current('FormRegistrationCompleted')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4">
                                     استمارة المنجزة
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
+                                     حسابات المندوبين       
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('hospital')" :active="route().current('hospital')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==6">
+                                    الحجوزات
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('FormRegistrationSaved')" :active="route().current('FormRegistrationSaved')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2">
                                      الأرشفة
                             </ResponsiveNavLink>
