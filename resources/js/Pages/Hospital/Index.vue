@@ -182,6 +182,7 @@ function method1(id) {
                   class="700 bg-rose-500 text-white text-center rounded-l-lg"
                 >
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
+                    <th className="px-4 py-2">التسلسل</th>
                     <th className="px-4 py-2">الطبيب</th>
                     <th className="px-4 py-2">رقم البطاقة</th>
                     <th className="px-4 py-2">التاريخ والساعة</th>
@@ -195,6 +196,7 @@ function method1(id) {
                     :key="user.id"
                     class="hover:bg-gray-100 text-center"
                   >
+                  <td className="border px-4 py-2">{{ user.id }}</td>
                   <td className="border px-4 py-2">{{ user?.user?.name }}</td>
                   <td className="border px-4 py-2">{{ user.card_id }}</td>
                   <td className="border px-4 py-2">{{ user.start }}</td>
