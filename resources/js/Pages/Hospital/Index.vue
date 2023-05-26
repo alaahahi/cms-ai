@@ -10,6 +10,7 @@ const user_id = ref(0);
 const searchTerm = ref('');
 const showReceiveBtn = ref(0);
 const getResults = async (page = 1) => {
+  searchTerm.value = '';
   const response = await fetch(
     `/getIndexAppointment?page=${page}&user_id=${user_id.value}`
   );
@@ -23,21 +24,24 @@ const props = defineProps({
   users:Array
 });
 const search = async (q) => {
+  user_id.value=0;
   laravelData.value = [];
-  const response = await fetch(`/livesearchCompleted?q=${q}`);
+  const response = await fetch(`/livesearchAppointment?q=${q}`);
   laravelData.value = await response.json();
 };
 const form = useForm();
 
 let showModal = ref(false);
-const receive = async (id) => {
-  const response = await fetch(`/receiveCard?id=${id}`);
-  // let userButton = document.querySelector('.user-' + id);
-  //     userButton.style.display = 'none';
+const come = async (id) => {
+  const response = await fetch(`/appointmentCome?id=${id}`);
       getResults();
 
 };
+const cancel = async (id) => {
+  const response = await fetch(`/appointmentCancel?id=${id}`);
+      getResults();
 
+};
 
 const results = (id) => {
   if(id==0){
@@ -58,6 +62,7 @@ function method1(id) {
   getResults();
   showModal.value = false;
 }
+
 </script>
 
 <template>
@@ -163,7 +168,7 @@ function method1(id) {
                         dark:focus:ring-blue-500
                         dark:focus:border-blue-500
                       "
-                      placeholder="بحث حسب رقم الوصل او رقم البطاقة او اسم المشترك "
+                      placeholder="بحث حسب رقم البطاقة "
                       required
                     />
                   </div>
@@ -180,6 +185,7 @@ function method1(id) {
                     <th className="px-4 py-2">الطبيب</th>
                     <th className="px-4 py-2">رقم البطاقة</th>
                     <th className="px-4 py-2">التاريخ والساعة</th>
+                    <th className="px-4 py-2">الحالة</th>
                     <th className="px-4 py-2">تنفيذ</th>
                   </tr>
                 </thead>
@@ -192,31 +198,33 @@ function method1(id) {
                   <td className="border px-4 py-2">{{ user?.user?.name }}</td>
                   <td className="border px-4 py-2">{{ user.card_id }}</td>
                   <td className="border px-4 py-2">{{ user.start }}</td>
+                  <th className="border px-4 py-2">{{ user.is_come==2 ? 'تم التأكيد':user.is_come==0 ? 'تم الإلغاء' : 'في الانتظار' }}</th>
                   <td className="border px-4 py-2">
                     <button 
-                      @click="alert('done')"
+                      @click="come(user.id)"
                       tabIndex="-1"
                       type="button"
                       className="mx-1 px-2 py-1 text-sm text-white bg-green-500 rounded"
-                      v-if="!user.is_band && user.email!='admin@admin.com'">
+                      v-if="user.is_come==1">
                       تأكيد الموعد
                     </button>
                     <button 
-                      @click="alert('done')"
+                      @click="cancel(user.id)"
                       tabIndex="-1"
                       type="button"
                       className="mx-1 px-2 py-1 my-1 text-sm text-white bg-red-500 rounded"
-                      v-if="!user.is_band && user.email!='admin@admin.com'">
+                      v-if="user.is_come==1">
                       إلغاء الموعد
                     </button>
-                    <button 
-                      @click="alert('done')"
+                    <a 
+                      v-if="user.is_come==1 || user.is_come==0"
                       tabIndex="-1"
                       type="button"
+                      :href="route('hospitalEdit', user.id)"
                       className="mx-1 px-2 py-1 text-sm text-white bg-blue-500 rounded"
-                      v-if="!user.is_band && user.email!='admin@admin.com'">
+                      >
                       تعديل الموعد
-                    </button>
+                    </a>
                   </td>
                   </tr>
                 </tbody>
