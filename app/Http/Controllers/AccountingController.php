@@ -46,7 +46,46 @@ class AccountingController extends Controller
      *
      * @return Response
      */
+
+   public function index()
+   {
+       $users = User::where('type_id',$this->userSeles)->get();
+
+       $accounts = User::where('type_id',$this->userHospital)->get();
+
+       return Inertia::render('Accounting/Index', ['url'=>$this->url,'users'=>$users,'accounts'=>$accounts]);
+   }
+   public function payCard()
+   {
     
+    $id = $_GET['id'] ?? 0;
+    $from = $_GET['from'] ?? 0;
+    $to = $_GET['to'] ?? 0;
+    $amount = $_GET['amount'] ?? 0;
+       try {
+           DB::beginTransaction();
+           // Perform your database operations with Eloquent
+           $walletSaler=  User::with('wallet')->find($from);
+           $walletBox=  User::with('wallet')->find($to);
+
+           //$transactions =Transactions ::where('wallet_id', $user?->wallet?->id)->where('is_pay',0);
+           //$amount=$transactions->sum('amount');
+           //$transactions->update(['is_pay' => 1]);
+           $this->increaseWallet($percentage,' نسبة على البطاقة رقم '.$profile?->card_number,$user->id);
+
+           //$profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
+           $this->decreaseWallet($amount*-1,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id);
+           // If everything is successful, commit the transaction
+           DB::commit();
+           // Return a response or perform other actions
+       } catch (\Exception $e) {
+           // Something went wrong, rollback the transaction
+           DB::rollBack();
+           // Handle the exception or return an error response
+       }
+       return Response::json('ok', 200);
+
+   }
     public function paySelse(Request $request,$id)
     {
         try {

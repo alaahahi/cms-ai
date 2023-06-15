@@ -23,6 +23,7 @@
     "dependencies": {
         "@fawmi/vue-google-maps": "^0.9.79",
         "@vitejs/plugin-vue": "^3.1.2",
+        "@vuepic/vue-datepicker": "^5.2.0",
         "laravel-vue-pagination": "^4.0.0",
         "vue": "^3.2.36",
         "vue-camera-lib": "^1.0.4",
