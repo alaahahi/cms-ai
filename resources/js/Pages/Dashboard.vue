@@ -168,7 +168,9 @@ const props =  defineProps({
                             <div class="flex flex-row justify-between items-center">
                               <div>
                                 <h6 class="text-2xl"> البطاقات تم ادخالها </h6>
-                                <h4 class="text-black text-4xl font-bold text-rigth">{{countComp}}</h4>
+                                <h4 class="text-black text-4xl font-bold text-rigth">
+                                  <span class="text-green-600">+</span>
+                                  {{countComp}}</h4>
                               </div>
                               <div>
                                 <svg
