@@ -49,10 +49,10 @@ class DashboardController extends Controller
         $start = $request->get('start');
         $end = $request->get('end');
         if($start && $end ){
-            $countComp =Profile::whereBetween('created_at', [$start, $end])->where('user_accepted','!=',null)->count();
+            $countComp =Profile::whereBetween('created_at', [$start, $end])->count();
         }
         else{
-            $countComp =Profile::where('user_accepted','!=',null)->count();  
+            $countComp =Profile::count();  
         }
         return response()->json($countComp); 
     }
