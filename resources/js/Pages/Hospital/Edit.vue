@@ -26,6 +26,7 @@ const form = useForm({
     date:  (new Date(props.appointment.start)).toISOString().split("T")[0],
     start:props.appointment.start,
     end:props.appointment.end,
+    note:props.appointment.note,
 });
 
 const submit = () => {
@@ -174,6 +175,10 @@ const bookAppointment = (slot, type) => {
                         </div>
                     </div>
                   </div>
+                  <div class=" px-5">
+                <h5 class="py-3">ملاحظة</h5>
+                <TextInput type="text" class="form-control w-full " v-model="form.note"/>
+                </div>
                 <div class=" px-5 py-7 pt-12 ">
                 <button type="date" class="px-6 py-2 text-white bg-blue-500 rounded-md focus:outline-none w-full"  @click="submit" :disabled="!form.start || !form.end || !form.user_id || !form.card_id">حفظ</button>
                 </div>

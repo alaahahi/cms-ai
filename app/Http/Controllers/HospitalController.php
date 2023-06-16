@@ -73,6 +73,7 @@ class HospitalController extends Controller
             $appointment = Appointment::create([
                 'user_id' =>$request->user_id,
                 'card_id' => $request->card_id,
+                'note' => $request->note,
                 'start' => $this->convertToTimestamp($request->start),
                 'end' => $this->convertToTimestamp($request->end),
                  ]);
@@ -108,6 +109,7 @@ class HospitalController extends Controller
         Validator::make($request->all(), [
         'user_id'=> 'required|int|max:50000',
         'card_id'=> 'required|int|max:50000',
+
        ])->validate();
 
         $profile = Profile::where('card_number',$request->card_id)->first();
@@ -117,6 +119,8 @@ class HospitalController extends Controller
                 'card_id' => $request->card_id,
                 'start' => $this->convertToTimestamp($request->start),
                 'end' => $this->convertToTimestamp($request->end),
+                'note' => $request->note,
+
                 'is_come' => 1,
                  ]);
                  return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users])->with('success', 'شكراّ,تمت التعديل بنجاح');

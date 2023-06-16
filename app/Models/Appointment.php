@@ -17,6 +17,7 @@ class Appointment extends Model
         'user_id',
         'start',
         'end',
+        'note',
         'is_come',
         'created_at',
         'updated_at'

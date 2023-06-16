@@ -7,6 +7,7 @@ import TextInput from "@/Components/TextInput.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
+import axios from 'axios';
 
 const selectedDate = ref('');
 const appointments = ref([]);
@@ -24,6 +25,7 @@ const form = useForm({
     date: '',
     start:'' ,
     end:'',
+    note:'',
 });
 
 const submit = () => {
@@ -84,7 +86,27 @@ const bookAppointment = (slot, type) => {
   // Your HTTP request logic here
 };
 
+let timer = null;
+const delay = 1000; // Delay in milliseconds
+const userCard = ref(0);
 
+const handleInput = (v) => {
+  clearTimeout(timer); // Clear the previous timer
+
+  timer = setTimeout(() => {
+    checkCard(v); // Call the function to make the Axios request after the delay
+  }, delay);
+};
+
+const checkCard = (v) => {
+  axios.get('/api/checkCard?card_id='+v)
+  .then(response => {
+    userCard.value=response.data;
+  })
+  .catch(error => {
+    userCard.value=0;
+  })
+};
 </script>
 <template>
       <Head title="Dashboard" />
@@ -117,61 +139,55 @@ const bookAppointment = (slot, type) => {
                 </div>
                 <div class=" px-4">
                   <form class="items-center max-w-5xl">
-                    <div class="relative w-full">
-                      <div
-                        class="
-                          absolute
-                          inset-y-0
-                          left-0
-                          flex
-                          items-center
-                          pl-3
-                          pointer-events-none
-                        "
-                      >
-                      </div>
-                      <input
+                    <div>
+                      <TextInput
+                        @input="handleInput(form.card_id)"
                         v-model="form.card_id"
                         type="number"
                         id="simple-search"
-                        class="
-                          bg-gray-50
-                          border border-gray-300
-                          text-gray-900 text-sm
-                          rounded-lg
-                          focus:ring-blue-500 focus:border-blue-500
-                          block
-                          w-full
-                          pl-10
-                          p-2.5
-                          dark:bg-gray-700
-                          dark:border-gray-600
-                          dark:placeholder-gray-400
-                          dark:text-white
-                          dark:focus:ring-blue-500
-                          dark:focus:border-blue-500
-                        "
+                        class="w-full"
                         placeholder="رقم بطاقة المريض"
                         required
                       />
+                      <span
+                        v-if="userCard"
+                      >
+                      البطاقة تم تسجيلها قبل بأسم 
+                      <span  className="text-red-600">
+                        {{userCard.name}}
+                      </span>
+                        للمندوب
+                      <span  className="text-red-600">
+                        {{userCard.user?.name}}
+                      </span>
+                      أفراد العائلة
+                      <span className="text-red-600">
+                        {{userCard.family_name}}
+                      </span>
+                      </span>
                     </div>
                     
                   </form>
                 </div>
                 <div class=" px-5">
-                    <h5 class="py-3">اليوم</h5>
-                    <input type="date" class="form-control w-full " v-model="form.date" @change="resetBookedSlots" />
+                <h5 class="py-3">اليوم</h5>
+                <TextInput type="date" class="form-control w-full " v-model="form.date" @change="resetBookedSlots" />
+                </div>
+
+                <div class="  px-5">
+                <h5 class="py-3">الموعد</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+                    <div  v-for="(slot, index) in timeSlots" :key="index">
+                    <button class="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none w-full" :disabled="!isSlotAvailable(slot)" @click="bookAppointment(slot, 'vip')">
+                        {{ slot }}
+                    </button>
                     </div>
-                    <div class="  px-5">
-                    <h5 class="py-3">الموعد</h5>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-                        <div  v-for="(slot, index) in timeSlots" :key="index">
-                        <button class="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none w-full" :disabled="!isSlotAvailable(slot)" @click="bookAppointment(slot, 'vip')">
-                            {{ slot }}
-                        </button>
-                        </div>
-                    </div>
-                  </div>
+                </div>
+                </div>
+                <div class=" px-5">
+                <h5 class="py-3">ملاحظة</h5>
+                <TextInput type="text" class="form-control w-full " v-model="form.note"/>
+                </div>
                 <div class=" px-5 py-7 pt-12 ">
                 <button type="date" class="px-6 py-2 text-white bg-blue-500 rounded-md focus:outline-none w-full"  @click="submit" :disabled="!form.start || !form.end || !form.user_id || !form.card_id">حفظ</button>
                 </div>

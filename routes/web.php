@@ -77,8 +77,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::post('resultsEdit/{id}',[ResultsController::class, 'storeEdit'])->name('resultsEdit');
     Route::post('resultsDoctor',[ResultsController::class, 'storeDoctor'])->name('resultsDoctor');
     Route::post('resultsDoctorEdit/{id}',[ResultsController::class, 'storeDoctorEdit'])->name('resultsDoctorEdit');
-    Route::get('document/{id}', [FormRegistrationController::class, 'document'])->name('document');
-    Route::get('show/{id}', [FormRegistrationController::class, 'showfile'])->name('show');
+
     
     
     Route::get('/livesearch', [FormRegistrationController::class, 'getProfiles'])->name('livesearch');
@@ -112,6 +111,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
 
  });
 
-
+ Route::get('document/{id}', [FormRegistrationController::class, 'document'])->name('document');
+ Route::get('show/{id}', [FormRegistrationController::class, 'showfile'])->name('show');
 
 require __DIR__.'/auth.php';
