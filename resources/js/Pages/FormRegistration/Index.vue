@@ -133,7 +133,7 @@ let showModal =  ref(false);
                                             tabIndex="1"
                                             className="px-2 py-1 text-sm text-white mx-1 bg-slate-500 rounded"
                                             :href="route('formRegistrationEdit', user.id)"
-                                            v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2"
+                                            
                                         >
                                             تعديل
                                         </Link>
