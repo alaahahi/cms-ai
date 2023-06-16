@@ -45,16 +45,23 @@ class DashboardController extends Controller
     }
     public function getcountComp(Request $request)
     {
-        $profile=  Profile::all();
+
+
         $start = $request->get('start');
         $end = $request->get('end');
         if($start && $end ){
-            $countComp =Profile::whereBetween('created_at', [$start, $end])->count();
+            $profile =Profile::with('user')->groupBy('user_id')
+            ->select('user_id', \DB::raw('count(*) as count'))
+            ->whereBetween('created_at', [$start, $end])->get();
+
+        return response()->json(['data'=>$profile,'count'=>Profile::whereBetween('created_at', [$start, $end])->count()]); 
+
         }
-        else{
-            $countComp =Profile::count();  
-        }
-        return response()->json($countComp); 
+        $profile=   Profile::with('user')->groupBy('user_id')
+        ->select('user_id', \DB::raw('count(*) as count'))
+        ->get();
+
+        return response()->json(['data'=>$profile,'count'=>Profile::count()]); 
     }
     
 
