@@ -219,7 +219,7 @@ class FormRegistrationController extends Controller
     {
         $maxNo = Profile::max('no');
         $no = $maxNo + 1;
-        $user = Auth::user();
+        $authUser = auth()?->user();
         Validator::make($request->all(), [
                     'card_number' =>'required|string|max:255|unique:profile,card_number',
                     'name' => 'required|string|max:255',
@@ -227,7 +227,7 @@ class FormRegistrationController extends Controller
                     'saler_id'=> 'required|int|max:255',
 
                      ])->validate();
-                $user = Profile::create([
+         $profile = Profile::create([
                     'card_number'=> $request->card_number,
                     'name' => $request->name,
                     'address' => $request->address,
@@ -236,11 +236,12 @@ class FormRegistrationController extends Controller
                     'card_id' => 1,
                     'user_id' =>$request->saler_id,
                     'family_name'=> $request->family_name,
-                    'user_add'=>$user->id,
+                    'user_add'=>$authUser?->id,
                     'no'=> $no
                      ]);
-            
-        return Inertia::render('FormRegistration/Index', ['url'=>$this->url]);
+
+        $sales = User::where('type_id', $this->userSeles)->get();
+        return response()->json($profile);
     }
     public function storeEdit(Request $request,$id)
     {
@@ -353,7 +354,7 @@ class FormRegistrationController extends Controller
     {
         try {
             $card_id = $_GET['card_id'] ?? 0;
-            $profiles=Profile::with('user')->where('id',$card_id)->first();
+            $profiles=Profile::with('user')->where('card_number',$card_id)->first();
             if($profiles)
             return response()->json($profiles);
             else

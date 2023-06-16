@@ -10,20 +10,8 @@ import { ref } from "vue";
 import { WebCamUI } from "vue-camera-lib";
 import axios from 'axios';
 
-const form = useForm({
-  saler_id:"",
-  card_number: "",
-  name: "",
-  birthdate: "",
-  certification: "",
-  job: "",
-  address: "",
-  image: "",
-  phone_number: "",
-  invoice_number: "",
-  card_id: "",
-  family_name: "",
-});
+const form =  ref({});
+
 defineProps({
   usersType: Array,
   sales : Array,
@@ -31,17 +19,27 @@ defineProps({
 });
 
 
-let userCard = ref(0);
+const userCard = ref(0);
 
-let showHusband = ref(false);
+const showHusband = ref(false);
 
+const profileAdded = ref(0);
+const errors = ref(0);
 
 const isLoading = ref(false);
 
 const submit = () => {
-
   isLoading.value = true;
-  form.post(route("formRegistration"))
+  axios.post('/api/formRegistration', form.value)
+  .then(response => {
+    profileAdded.value = response.data;
+    form.value={};
+  })
+  .catch(error => {
+    profileAdded.value=0;
+    errors.value = error.response.data.errors
+    
+  })
   isLoading.value = false;
 };
 
@@ -111,6 +109,31 @@ const checkCard = (v) => {
       <!-- <WebCamUI @photoTaken="photoHusband" v-if="showHusband" />
       <WebCamUI @photoTaken="photoWife" v-if="showWife" /> -->
     </template>
+    <div v-if="profileAdded">
+      <div
+        id="alert-2"
+        class="p-4 mb-4 bg-green-300 rounded-lg dark:bg-green-300 text-center"
+        role="alert"
+      >
+        <div class="ml-3 text-sm font-medium text-green-700 dark:text-green-800">
+          تم ادخال البطاقة بنجاح رقم 
+          {{ profileAdded.card_number }}
+          بأسم الزبون
+          {{ profileAdded.name }}
+        </div>
+      </div>
+    </div>
+    <div v-if="errors && !(profileAdded)">
+      <div
+        id="alert-2"
+        class="p-4 mb-4 bg-red-300 rounded-lg dark:bg-red-300 text-center"
+        role="alert"
+      >
+        <div class="ml-3 text-sm font-medium text-red-700 dark:text-red-800">
+        يرجى ادخال المعلومات المطلوبة 
+        </div>
+      </div>
+    </div>
     <form name="createForm" @submit.prevent="submit">
       <div class="flex flex-row">
         <div class="grow">
@@ -151,12 +174,7 @@ const checkCard = (v) => {
                         v-model="form.card_number"
                       />
 
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.card_number"
-                      >
-                        رقم البطاقة  غير صحيح أو مستخدم من قبل
-                      </span>
+                   
                       <span
                         v-if="userCard"
                       >
@@ -169,7 +187,9 @@ const checkCard = (v) => {
                         {{userCard.user?.name}}
                       </span>
                       </span>
-
+                      <div v-if="errors?.card_number">
+                        البطاقةالبطاقة حقل مطلوب
+                      </div>
                     </div>
                     <div className="mb-4">
                       <InputLabel for="name" value="الأسم" />
@@ -180,10 +200,10 @@ const checkCard = (v) => {
                         class="mt-1 block w-full"
                         v-model="form.name"
                       />
-
-                      <span className="text-red-600" v-if="form.errors.name">
-                        الأسم حقل مطلوب
-                      </span>
+                      <div v-if="errors?.name">
+                        البطاقةالبطاقة حقل مطلوب
+                      </div>
+         
                     </div>
 
                     <!-- <div className="mb-4">
@@ -240,12 +260,9 @@ const checkCard = (v) => {
                           {{ type.name }}
                         </option>
                       </select>
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.saler_id"
-                      >
-                         اسم المندوب حقل مطلوب
-                      </span>
+                      <div v-if="errors?.saler_id">
+                        المندوب حقل مطلوب
+                      </div>
                     </div>
                     <div className="mb-4">
                       <InputLabel for="address" value="العنوان" />
@@ -257,9 +274,7 @@ const checkCard = (v) => {
                         v-model="form.address"
                       />
 
-                      <span className="text-red-600" v-if="form.errors.address">
-                        العنوان حقل مطلوب
-                      </span>
+           
                     </div>
 
                     <div className="mb-4">
@@ -272,12 +287,6 @@ const checkCard = (v) => {
                         v-model="form.family_name"
                       />
 
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.family_name"
-                      >
-                        أفراد العائلة حقل مطلوب
-                      </span>
                     </div>
                     <div className="mb-4">
                         <InputLabel for="phone_number" value="رقم الهاتف" />
@@ -287,13 +296,10 @@ const checkCard = (v) => {
                           class="mt-1 block w-full"
                           v-model="form.phone_number"
                         />
-
-                        <span
-                          className="text-red-600"
-                          v-if="form.errors.phone_number"
-                        >
-                          رقم الهاتف حقل مطلوب
-                        </span>
+                        <div v-if="errors?.phone_number">
+                        رقم الهاتف حقل مطلوب
+                        </div>
+       
                       </div>
                   </div>
                 </div>
@@ -313,6 +319,7 @@ const checkCard = (v) => {
 
         <button
           @click.prevent="submit"
+          @keyup.enter="submit" 
           :disabled="isLoading"
           class="px-6 mb-12 mx-2 py-2 font-bold text-white bg-rose-500 rounded"
         >
