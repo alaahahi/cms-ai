@@ -8,6 +8,7 @@ import Dropdown from "@/Components/Dropdown.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 import { WebCamUI } from "vue-camera-lib";
+import axios from 'axios';
 
 const form = useForm({
   saler_id:"",
@@ -28,36 +29,12 @@ defineProps({
   sales : Array,
   cards: Array,
 });
-//
-let show_birthday = ref(false);
 
-let day = ref("اليوم");
-let month = ref("الشهر");
-let year = ref("السنة");
+
+let userCard = ref(0);
 
 let showHusband = ref(false);
-let certification = ref([
-  { key: "بدون", name: "بدون" },
-  { key: "ابتدائي", name: "ابتدائي" },
-  { key: "متوسطة", name: "متوسطة" },
-  { key: "اعدادي", name: "اعدادي" },
-  { key: "دبلوم", name: "دبلوم" },
-  { key: "بكالوريوس", name: "بكالوريوس" },
-  { key: "ماجستير", name: "ماجستير" },
-  { key: "دكتوراه", name: "دكتوراه" },
-]);
-let card_idType = ref([{ key: "1", name: "الهلال الأحمر" }]);
-let dayList = ref([
-  { key: "01", name: "01" },
-  { key: "02", name: "02" },
-  { key: "03", name: "03" },
-  { key: "04", name: "04" },
-  { key: "05", name: "05" },
-  { key: "06", name: "06" },
-  { key: "07", name: "07" },
-  { key: "08", name: "08" },
-  { key: "09", name: "09" },
-]);
+
 
 const isLoading = ref(false);
 
@@ -84,7 +61,7 @@ const createBase64Image = (fileObject) => {
   const reader = new FileReader();
 
   reader.onload = (e) => {
-    form.image = e.target.result;
+   // form.image = e.target.result;
     //this.uploadImage();
   };
   reader.readAsDataURL(fileObject);
@@ -97,11 +74,31 @@ const createBase64ImageWife = (fileObject) => {
   const reader = new FileReader();
 
   reader.onload = (e) => {
-    form.wife_image = e.target.result;
+    //form.wife_image = e.target.result;
     //this.uploadImage();
   };
   reader.readAsDataURL(fileObject);
 };
+let timer = null;
+const delay = 1000; // Delay in milliseconds
+
+const handleInput = (v) => {
+  clearTimeout(timer); // Clear the previous timer
+
+  timer = setTimeout(() => {
+    checkCard(v); // Call the function to make the Axios request after the delay
+  }, delay);
+};
+const checkCard = (v) => {
+  axios.get('/api/checkCard?card_id='+v)
+  .then(response => {
+    userCard.value=response.data;
+  })
+  .catch(error => {
+    userCard.value=0;
+  })
+};
+
 </script>
 
 <template>
@@ -150,6 +147,7 @@ const createBase64ImageWife = (fileObject) => {
                         type="number"
                         class="mt-1 block w-full"
                         autofocus
+                        @input="handleInput(form.card_number)"
                         v-model="form.card_number"
                       />
 
@@ -159,6 +157,19 @@ const createBase64ImageWife = (fileObject) => {
                       >
                         رقم البطاقة  غير صحيح أو مستخدم من قبل
                       </span>
+                      <span
+                        v-if="userCard"
+                      >
+                      البطاقة تم تسجيلها قبل بأسم 
+                      <span  className="text-red-600">
+                        {{userCard.name}}
+                      </span>
+                        للمندوب
+                      <span  className="text-red-600">
+                        {{userCard.user?.name}}
+                      </span>
+                      </span>
+
                     </div>
                     <div className="mb-4">
                       <InputLabel for="name" value="الأسم" />

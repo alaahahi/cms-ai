@@ -349,6 +349,19 @@ class FormRegistrationController extends Controller
         $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('card_number', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('invoice_number',$term)->where('results',3)->paginate(10);
         return response()->json($data); 
     }
+    public function checkCard()
+    {
+        try {
+            $card_id = $_GET['card_id'] ?? 0;
+            $profiles=Profile::with('user')->where('id',$card_id)->first();
+            if($profiles)
+            return response()->json($profiles);
+            else
+            return response()->json(['error' => 'not found card'], 421);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 421);
+        }
 
+    }
     
     }
