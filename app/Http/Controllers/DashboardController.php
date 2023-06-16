@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
-//use MeiliSearch\Client;
+use App\Models\SystemConfig;
 use App\Models\Info;
 use App\Models\User;
 use App\Models\Profile;
@@ -46,7 +46,7 @@ class DashboardController extends Controller
     public function getcountComp(Request $request)
     {
 
-
+        $config = SystemConfig::first();
         $start = $request->get('start');
         $end = $request->get('end');
         if($start && $end ){
@@ -61,7 +61,7 @@ class DashboardController extends Controller
         ->select('user_id', \DB::raw('count(*) as count'))
         ->get();
 
-        return response()->json(['data'=>$profile,'count'=>Profile::count()]); 
+        return response()->json(['data'=>$profile,'count'=>Profile::count(),'config'=>$config]); 
     }
     
 
