@@ -54,7 +54,7 @@ class DashboardController extends Controller
             ->select('user_id', \DB::raw('count(*) as count'))
             ->whereBetween('created_at', [$start, $end])->get();
 
-        return response()->json(['data'=>$profile,'count'=>Profile::whereBetween('created_at', [$start, $end])->count()]); 
+        return response()->json(['data'=>$profile,'count'=>Profile::whereBetween('created_at', [$start, $end])->count(),'config'=>$config]); 
 
         }
         $profile=   Profile::with('user')->groupBy('user_id')
