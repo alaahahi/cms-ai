@@ -223,25 +223,18 @@ class FormRegistrationController extends Controller
         Validator::make($request->all(), [
                     'card_number' =>'required|string|max:255|unique:profile,card_number',
                     'name' => 'required|string|max:255',
-                    'address' => 'required|string|max:255',
                     'phone_number' => 'required|string|max:255',
-                    'invoice_number' => 'required|string|max:255',
-                    'card_id' => 'required|int|max:255',
                     'saler_id'=> 'required|int|max:255',
 
                      ])->validate();
                 $user = Profile::create([
                     'card_number'=> $request->card_number,
                     'name' => $request->name,
-                    'birthdate' => $request->birthdate,
-                    'certification' => $request->certification,
-                    'job' => $request->job,
                     'address' => $request->address,
                     // 'image' =>  Image::make($request->image)->resize(100,75)->encode('data-url'),
                     'phone_number' => $request->phone_number,
-                    'invoice_number' => $request->invoice_number,
-                    'card_id' => $request->card_id,
-                    'user_id' =>$request->saler_id ? $request->saler_id :$user->id,
+                    'card_id' => 1,
+                    'user_id' =>$request->saler_id,
                     'family_name'=> $request->family_name,
                     'user_add'=>$user->id,
                     'no'=> $no
@@ -254,20 +247,13 @@ class FormRegistrationController extends Controller
         $user = Auth::user();
         Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
             'phone_number' => 'required|string|max:255',
-            'invoice_number' => 'required|string|max:255',
                      ])->validate();
                 Profile::where('id',$id)->update([
                     'card_number'=> $request->card_number,
                     'name' => $request->name,
-                    'birthdate' => $request->birthdate,
-                    'certification' => $request->certification,
-                    'job' => $request->job,
                     'address' => $request->address,
                     'phone_number' => $request->phone_number,
-                    'invoice_number' => $request->invoice_number,
-                    'relatives' => $request->relatives,
                     'family_name'=> $request->family_name,
                      ]);
             
