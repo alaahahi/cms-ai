@@ -20,4 +20,8 @@ class Transactions extends Model
     {
         return $this->belongsTo(Wallet::class);
     }
+    public function morphed()
+    {
+        return $this->morphTo('morphed', 'morphed_type', 'morphed_id');
+    }
 }

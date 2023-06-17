@@ -86,6 +86,10 @@ class AccountingController extends Controller
        return Response::json('ok', 200);
 
    }
+    public function salesCard(Request $request)
+    {
+            return Response::json($request, 200);
+    }
     public function paySelse(Request $request,$id)
     {
         try {

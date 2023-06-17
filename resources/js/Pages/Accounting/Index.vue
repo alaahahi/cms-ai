@@ -6,6 +6,7 @@ import { ref } from "vue";
 import { TailwindPagination } from "laravel-vue-pagination";
 import VueTailwindDatepicker from 'vue-tailwind-datepicker'
 import ModalAddSales from "@/Components/ModalAddSales.vue";
+import axios from 'axios';
 
 const laravelData = ref({});
 const user_id = ref(0);
@@ -68,6 +69,7 @@ function method1(id) {
   getResults();
   showModal.value = false;
 }
+const errors = ref(0);
 
 const dateValue = ref({
     startDate: '',
@@ -99,14 +101,15 @@ const getcountComp = async () => {
     countComp.value = await response.json();
 }
 function confirm(V) {
-  fetch(`/payCard?from=${V.from}&to=${V.to}&amount=${V.amount}&id=${V.id??0}`)
-    .then(() => {
-      showModal.value = false;
-      getResultsName();
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  axios.post('/api/salesCard',V)
+  .then(response => {
+    showModalAddSales.value=false;
+    console.log(response.data);
+  })
+  .catch(error => {
+
+    errors.value = error.response.data.errors
+  })
 }
 getcountComp()
 </script>

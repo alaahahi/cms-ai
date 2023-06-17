@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\FormRegistrationController;
+use App\Http\Controllers\AccountingController;
+
 
 Route::apiResource('upload', UploadController::class);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {return $request->user();});
@@ -22,3 +24,8 @@ Route::get('/checkCard',[FormRegistrationController::class, 'checkCard']);
 Route::get('ackUserMassages/{sender}/{receiver}/{date}',[UserController::class, 'ackUserMassages']);
 
 Route::post('formRegistration',[FormRegistrationController::class, 'store'])->name('formRegistration');
+
+
+Route::post('salesCard',[AccountingController::class, 'salesCard'])->name('salesCard');
+
+
