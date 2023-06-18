@@ -12,6 +12,8 @@ class Transactions extends Model
         'wallet_id',
         'amount',
         'type',
+        'morphed_id',
+        'morphed_type',
         'description',
         'is_pay'
     ];

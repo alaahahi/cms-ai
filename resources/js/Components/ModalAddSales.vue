@@ -16,13 +16,34 @@ const form = ref({
   date:new Date(),
   card:0,
   amount: 0,
+  box:0,
+  hospital:0,
+  doctor:0,
 
 });
 const calculateAmount = () => {
   form.value.amount = form.value.user.percentage * form.value.card;
+  form.value.hospital = 7000 * form.value.card;
+  form.value.doctor = 20000 * form.value.card;
+  form.value.box = (75000 * form.value.card)-form.value.amount-form.value.hospital-form.value.doctor;
+
+
+
   
 };
 
+const calculateBox = () => {
+  form.value.box = (75000 * form.value.card)-form.value.amount;
+  
+};
+const calculateHospital = () => {
+  form.value.hospital = 7000 * form.value.card;
+  
+};
+const calculateDoctor = () => {
+  form.value.doctor = 20000 * form.value.card;
+  
+};
 
 </script>
   
@@ -35,14 +56,11 @@ const calculateAmount = () => {
               <slot name="header"></slot>
             </div>
             <div class="modal-body">
-                        <h2 class="text-center">
+                        <h2 class="text-center pb-5">
                         إضافة مبيعات البطاقة عبر المندوب
                         </h2>
-                        <div className="mb-4 mx-5">
-                          <label for="card" >التاريخ</label>
-                          <VueDatePicker v-model="form.date"></VueDatePicker>
+                        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
 
-                        </div>
                         <div className="mb-4 mx-5">
                           <label for="account_id" >حساب</label>
                           <select
@@ -55,6 +73,12 @@ const calculateAmount = () => {
                           </select>
                         </div>
                         <div className="mb-4 mx-5">
+                          <label for="card" >التاريخ</label>
+                          <VueDatePicker v-model="form.date"></VueDatePicker>
+
+                        </div>
+   
+                        <div className="mb-4 mx-5">
                           <label for="user_id" >المندوب</label>
                           <select
                             v-model="form.user"
@@ -64,6 +88,8 @@ const calculateAmount = () => {
                             <option v-for="(user, index) in data" :key="index" :value="user">{{ user.name }}</option>
                           </select>
                         </div>
+                        </div>
+                        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">
                         <label for="card" >نسبة المبيع للبطاقة</label>
                         <input
@@ -85,13 +111,46 @@ const calculateAmount = () => {
                           v-model="form.card" />
                         </div>
                         <div className="mb-4 mx-5">
-                        <label for="card" >المجموع</label>
+                        <label for="card" >المجموع نسبة المبيعات للمندوب</label>
                         <input
                           id="card"
                           type="number"
                         
                           class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                           v-model="form.amount" />
+                        </div>
+                        </div>
+                        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
+                        <div className="mb-4 mx-5">
+                        <label for="card" >الدخل للصندوق</label>
+                        <input
+                          id="card"
+                          type="number"
+                          @input="calculateAmount"
+
+                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                          v-model="form.box"   />
+                        </div>
+                        <div className="mb-4 mx-5">
+                        <label for="card" >نسبة للصندوق الأطباء</label>
+                        <input
+                          id="card"
+                          type="number"
+                          @input="calculateAmount"
+ 
+                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                          v-model="form.hospital" />
+                        </div>
+                        <div className="mb-4 mx-5">
+                          <label for="card" >نسبة للصندوق المشفى</label>
+                          <input
+                          id="card"
+                          type="number"
+                          @input="calculateAmount"
+ 
+                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                          v-model="form.doctor" />
+                        </div>
                         </div>
             </div>
   
