@@ -39,4 +39,8 @@ class Profile extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function appointment()
+    {
+        return $this->hasMany(Appointment::class,'card_id','card_id');
+    }
   }

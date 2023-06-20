@@ -4,39 +4,47 @@ import Modal from "@/Components/Modal.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 import { TailwindPagination } from "laravel-vue-pagination";
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import TextInput from "@/Components/TextInput.vue";
+import Dropdown from "@/Components/Dropdown.vue";
+import axios from 'axios';
 
-const laravelData = ref({});
-const user_id = ref(0);
+const userCard = ref({});
 const searchTerm = ref('');
-const showReceiveBtn = ref(0);
-const getResults = async (page = 1) => {
-  const response = await fetch(
-    `/getIndexFormRegistrationCompleted?page=${page}&user_id=${user_id.value}`
-  );
-  laravelData.value = await response.json();
-};
+const errors = ref(0);
 
-getResults();
+let timer = null;
+const delay = 1000; // Delay in milliseconds
+
+const handleInput = (v) => {
+  clearTimeout(timer); // Clear the previous timer
+
+  timer = setTimeout(() => {
+    checkCard(v); // Call the function to make the Axios request after the delay
+  }, delay);
+};
+const checkCard = (v) => {
+  errors.value=0;
+  userCard.value={}
+  if(v){
+    axios.get('/api/checkCard?card_id='+v)
+    .then(response => {
+      userCard.value=response.data;
+    })
+    .catch(error => {
+      errors.value=1
+      userCard.value={}
+    })
+  }
+
+};
 
 const props = defineProps({
   url: String,
   users:Array
 });
-const search = async (q) => {
-  laravelData.value = [];
-  const response = await fetch(`/livesearchCompleted?q=${q}`);
-  laravelData.value = await response.json();
-};
-const form = useForm();
-
-let showModal = ref(false);
-const receive = async (id) => {
-  const response = await fetch(`/receiveCard?id=${id}`);
-  // let userButton = document.querySelector('.user-' + id);
-  //     userButton.style.display = 'none';
-      getResults();
-
-};
 
 
 const results = (id) => {
@@ -50,14 +58,7 @@ const results = (id) => {
     return "مكتمل";
   }
 };
-function sendToCourt(id) {
-  showModal.value = id;
-}
-function method1(id) {
-  form.get(route("sentToCourt", id));
-  getResults();
-  showModal.value = false;
-}
+
 </script>
 
 <template>
@@ -65,19 +66,31 @@ function method1(id) {
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-          البطاقات المنجزة
+      عرض سجل البطاقة  
       </h2>
     </template>
-    <modal
-      :show="showModal ? true : false"
-      :data="showModal.toString()"
-      @a="method1($event, arg1)"
-      @close="showModal = false"
-    >
-      <template #header>
-        <h3 class="text-center">إدارة الاستمارات</h3>
-      </template>
-    </modal>
+    <div v-if="userCard.card_number">
+      <div
+        id="alert-2"
+        class="p-4 mb-4 bg-green-300 rounded-lg dark:bg-green-300 text-center"
+        role="alert"
+      >
+        <div class="ml-3 text-sm font-medium text-green-700 dark:text-green-800">
+          تم العثور على نتيجة البحث . شكرا لك
+        </div>
+      </div>
+    </div>
+    <div v-if="errors">
+      <div
+        id="alert-2"
+        class="p-4 mb-4 bg-pink-300 rounded-lg dark:bg-pink-300 text-center"
+        role="alert"
+      >
+        <div class="ml-3 text-sm font-medium text-pink-700 dark:text-pink-800">
+          لم يتم العثور على نتيجة يرجى التواصل مع الدعم الفني في حالة وجود مشكلة
+        </div>
+      </div>
+    </div>
     <div v-if="$page.props.success">
       <div
         id="alert-2"
@@ -91,17 +104,11 @@ function method1(id) {
     </div>
     <div class="py-12">
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
-            <div class="flex flex-row">
-              <div class="basis-1/2 px-4">
-                <select @change="getResults()" v-model="user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
-                  <option value="0">الجميع</option>
-                  <option v-for="(user, index) in users" :key="index" :value="user.id">{{ user.name }}</option>
-                </select>
-              </div>
-              <div class="basis-1/2 px-4">
-                <form class="flex items-center max-w-5xl">
+        <div class="bg-white overflow-hidden  sm:rounded-lg">
+          <div class="p-6 bg-white">
+            <div class="row m-auto">
+              <div class=" px-4">
+                <form class=" max-w-5xl m-auto">
                   <label for="simple-search" class="sr-only">بحث</label>
                   <div class="relative w-full">
                     <div
@@ -131,8 +138,8 @@ function method1(id) {
                     </div>
                     <input
                       v-model="searchTerm"
-                      @input="search(searchTerm)"
-                      type="text"
+                      @input="handleInput(searchTerm)"
+                      type="number"
                       id="simple-search"
                       class="
                         bg-gray-50
@@ -151,67 +158,121 @@ function method1(id) {
                         dark:focus:ring-blue-500
                         dark:focus:border-blue-500
                       "
-                      placeholder="بحث حسب رقم الوصل او رقم البطاقة او اسم المشترك "
+                      placeholder=" رقم البطاقة او اسم المشترك "
                       required
                     />
                   </div>
                 </form>
               </div>
             </div>
-
-            <div class="overflow-x-auto shadow-md">
+          <div class="flex flex-row">
+              <div class="grow">
+                <div class="pb-3">
+                  <div class="mx-auto mx-7">
+                    <div class="bg-white overflow-hidden sm:rounded-lg">
+                      <div class="p-6 bg-white">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="invoice_number" value="الأسم كامل" />
+                              <TextInput
+                                id="invoice_number"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="userCard?.name"
+                                disabled
+                              />
+                            </div>
+                 
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="percentage" value="رقم الهاتف" />
+                              <TextInput
+                                id="percentage"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="userCard?.phone_number"
+                                disabled
+                              />
+                            </div>
+          
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="percentage" value="المندوب" />
+                              <TextInput
+                                id="percentage"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="userCard.user?.name"
+                                disabled
+                              />
+                  
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-row">
+              <div class="grow">
+                <div class="pb-3">
+                  <div class="mx-auto mx-7">
+                    <div class="bg-white overflow-hidden  sm:rounded-lg">
+                      <div class="px-6 bg-white">
+                        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-3 lg:gap-3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="invoice_number" value="أفراد العائلة" />
+                              <TextInput
+                                id="invoice_number"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="userCard?.family_name"
+                                disabled
+                              />
+                            </div>
+                 
+             
+          
+                
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="overflow-x-auto " v-if="userCard.appointment">
+              <h2 class="text-center text-xl py-4">الأستخدام</h2>
               <table class="w-full my-5">
                 <thead
                   class="700 bg-rose-500 text-white text-center rounded-l-lg"
                 >
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
-                    <th className="px-4 py-2 w-20">تسلسل</th>
+                    <th className="px-4 py-2">التسلسل</th>
+                    <th className="px-4 py-2">الطبيب</th>
                     <th className="px-4 py-2">رقم البطاقة</th>
-                    <th className="px-4 py-2">الأسم كامل</th>
-                    <th className="px-4 py-2">رقم الموبايل</th>
-                    <th className="px-4 py-2">العنوان</th>
-                    <th className="px-4 py-2">المندوب</th>
-                    <th className="px-4 py-2">تاريخ التسجيل</th>
-                    <th className="px-4 py-2">أفراد العائلة</th>   
+                    <th className="px-4 py-2">التاريخ والساعة</th>
+                    <th className="px-4 py-2">ملاحظة</th>
                     <th className="px-4 py-2">الحالة</th>
-                    <th className="px-4 py-2" v-if="$page.props.auth.user.type_id!=2">تنفيذ</th>     
                   </tr>
                 </thead>
                 <tbody>
                   <tr
-                    v-for="user in laravelData.data"
+                    v-for="user in userCard.appointment"
                     :key="user.id"
                     class="hover:bg-gray-100 text-center"
                   >
-                  <td className="border px-4 py-2">{{ user.no }}</td>
-                  <td className="border px-4 py-2 td">{{ user.card_number }}</td>
-                  <td className="border px-4 py-2 td">{{ user.name }}</td>
-                  <td className="border px-4 py-2 td">{{ user.phone_number  }}</td>
-                  <td className="border px-4 py-2 td">{{ user.address }}</td>
-                  <td className="border px-4 py-2 td">{{ user?.user?.name }}</td>
-                  <td className="border px-4 py-2" >{{ (user.created_at).substring(0, 10) }}</td>
-                  <td className="border px-4 py-2 td">{{ user.family_name }}</td>
-                  <td className="border px-4 py-2"> {{ results(user.results) }}</td>
-                  <td className="border px-2 py-2"  v-if="$page.props.auth.user.type_id!=2">
-                  <a 
-                    tabIndex="-1"
-                    className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
-                    :href="route('document', user.id)"
-                    target="_self">
-                    طباعة
-                   </a>
-                  </td>
+                  <td className="border px-4 py-2">{{ user.id }}</td>
+                  <td className="border px-4 py-2">{{ user?.user?.name }}</td>
+                  <td className="border px-4 py-2">{{ user.card_id }}</td>
+                  <td className="border px-4 py-2">{{ user.start }}</td>
+                  <td className="border px-4 py-2 td">{{ user.note }}</td>
+                  <th className="border px-4 py-2">{{ user.is_come==2 ? 'تم التأكيد':user.is_come==0 ? 'تم الإلغاء' : 'في الانتظار' }}</th>
+   
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div class="mt-3 text-center" style="direction: ltr;">
-              <TailwindPagination
-                :data="laravelData"
-                @pagination-change-page="getResults"
-                :limit ="10"
-              />
-            </div>
+
           </div>
         </div>
       </div>

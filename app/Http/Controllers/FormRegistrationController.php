@@ -354,7 +354,7 @@ class FormRegistrationController extends Controller
     {
         try {
             $card_id = $_GET['card_id'] ?? 0;
-            $profiles=Profile::with('user')->where('card_number',$card_id)->first();
+            $profiles=Profile::with('user')->with('appointment.user')->where('card_number',$card_id)->first();
             if($profiles)
             return response()->json($profiles);
             else

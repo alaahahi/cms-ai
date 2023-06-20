@@ -59,9 +59,9 @@ const showingNavigationDropdown = ref(false);
                                      الحجوزات
                                 </NavLink>
                             </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6" >
                                 <NavLink :href="route('FormRegistrationSaved')" :active="route().current('FormRegistrationSaved')">
-                                     الأرشفة
+                                     عرض البطاقات
                                 </NavLink>
                             </div>
                
@@ -141,8 +141,8 @@ const showingNavigationDropdown = ref(false);
                             <ResponsiveNavLink :href="route('hospital')" :active="route().current('hospital')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==6">
                                     الحجوزات
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('FormRegistrationSaved')" :active="route().current('FormRegistrationSaved')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2">
-                                     الأرشفة
+                            <ResponsiveNavLink :href="route('FormRegistrationSaved')" :active="route().current('FormRegistrationSaved')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6">
+                                عرض البطاقات
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 تسجيل الخروج    

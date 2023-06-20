@@ -300,40 +300,7 @@ const createBase64ImageWife = (fileObject) => {
                         أفراد العائلة حقل مطلوب
                       </span>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-row">
-        <div class="grow">
-          <div class="pb-3">
-            <div class="mx-auto mx-7">
-              <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                  <div class="flex flex-row">
-                    <div class="basis-1/2">
-                      <div className="mb-4 mx-5">
-                        <InputLabel for="invoice_number" value="رقم الوصل" />
-                        <TextInput
-                          id="invoice_number"
-                          type="number"
-                          class="mt-1 block w-full"
-                          v-model="form.invoice_number"
-                        />
-
-                        <span
-                          className="text-red-600"
-                          v-if="form.errors.invoice_number"
-                        >
-                          رقم الوصل حقل مطلوب
-                        </span>
-                      </div>
-                    </div>
-                    <div class="basis-1/2">
-                      <div className="mb-4 mx-5">
+                    <div className="mb-4 mx-5">
                         <InputLabel for="phone_number" value="رقم الهاتف" />
                         <TextInput
                           id="phone_number"
@@ -349,7 +316,6 @@ const createBase64ImageWife = (fileObject) => {
                           رقم الهاتف حقل مطلوب
                         </span>
                       </div>
-                    </div>
                   </div>
                 </div>
               </div>
