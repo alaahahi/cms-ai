@@ -170,7 +170,7 @@ function open(id) {
                                     <TailwindPagination
                                     :data="laravelData"
                                     @pagination-change-page="getResults"
-                                    :limit ="10"
+                                    :limit ="7"
                                 />
                             </div>
                         </div>
