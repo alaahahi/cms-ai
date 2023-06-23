@@ -10,7 +10,7 @@
 <body style="direction: rtl;">
 <div class="container">       
 <div class="row">
-    <div class="col-4 text-center py-4">
+    <div class="col-md-4 text-center py-4">
 
         <div>
        {{$config['first_title_ar']}}
@@ -22,14 +22,14 @@
         {{$config['third_title_ar']}}
         </div>
     </div>
-    <div class="col-4 text-center py-4">
+    <div class="col-md-4 text-center py-4">
 
     @include('logo')
     
        
     <p>بطاقة الهلال الأحمر</p>
     </div>
-    <div class="col-4 text-center py-4"> 
+    <div class="col-md-4 text-center py-4"> 
         <div>
        {{$config['first_title_kr']}}
         </div>
@@ -61,7 +61,7 @@
     </div>
   </div>
   <div class="row text-center py-2">
-    <div class="col-6">
+    <div class="col-12">
             <div>
             الاسم:   {{ $profile->husband_name }}
             </div>
