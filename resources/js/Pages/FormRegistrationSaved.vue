@@ -43,7 +43,9 @@ const checkCard = (v) => {
 
 const props = defineProps({
   url: String,
-  users:Array
+  users:Array,
+  config:Object
+
 });
 
 
@@ -53,7 +55,7 @@ const results = (id) => {
     }
     if(id==1){
         return 'تم التسليم';
-    }
+    }``
   if (id == 2) {
     return "مكتمل";
   }
@@ -63,12 +65,16 @@ const results = (id) => {
 
 <template>
   <Head title="Dashboard" />
-  <AuthenticatedLayout>
-    <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-      عرض سجل البطاقة  
-      </h2>
-    </template>
+    <h2 class="text-center text-xl text-white py-4 bg-blue-500">الهدف المباشر - معلومات البطاقة
+      -
+                <span>
+                  {{config?.third_title_ar }}
+                </span>
+                -
+                <span>
+                  {{config?.second_title_ar }}
+                </span>
+    </h2>
     <div v-if="userCard.card_number">
       <div
         id="alert-2"
@@ -139,7 +145,7 @@ const results = (id) => {
                     <input
                       v-model="searchTerm"
                       @input="handleInput(searchTerm)"
-                      type="number"
+                      type="text"
                       id="simple-search"
                       class="
                         bg-gray-50
@@ -171,7 +177,7 @@ const results = (id) => {
                   <div class="mx-auto mx-7">
                     <div class="bg-white overflow-hidden sm:rounded-lg">
                       <div class="p-6 bg-white">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
                             <div className="mb-4 mx-5">
                               <InputLabel for="invoice_number" value="الأسم كامل" />
                               <TextInput
@@ -204,7 +210,16 @@ const results = (id) => {
                                 disabled
                               />
                   
-                          </div>
+                            </div>
+
+                            <div className="mb-4 mx-5" v-if="userCard.id">
+                              <InputLabel for="pay" value="طباعة الوصل" />
+                              <a
+                              :href="route('document', userCard.id ||0)"
+                              class="px-6 mb-12 mx-2 d-block py-2 mt-1 font-bold text-white bg-green-500 rounded w-full" style="display: block;text-align: center;">
+                              طباعة
+                            </a>
+                            </div>
                         </div>
                       </div>
                     </div>
@@ -277,7 +292,6 @@ const results = (id) => {
         </div>
       </div>
     </div>
-  </AuthenticatedLayout>
 </template>
 
 <style>

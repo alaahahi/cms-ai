@@ -66,11 +66,11 @@ const props = defineProps({
               <h2 class="mb-4 text-2xl font-bold">احصائيات
                 -
                 <span>
-                  {{ countComp.config.third_title_ar }}
+                  {{ countComp?.config.third_title_ar }}
                 </span>
                 -
                 <span>
-                  {{ countComp.config.second_title_ar }}
+                  {{ countComp?.config.second_title_ar }}
                 </span>
               </h2>
 
@@ -187,7 +187,7 @@ const props = defineProps({
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <div class="flex items-start rounded-xl bg-white p-4 shadow-lg"   v-for="(user , index) in countComp.data" :key="index">
+                <div class="flex items-start rounded-xl bg-white p-4 shadow-lg"   v-for="(user , index) in countComp?.data" :key="index">
                   <div
                     class="flex h-12 w-12 items-center justify-center rounded-full border border-orange-100 bg-orange-50"
                   >
@@ -255,7 +255,7 @@ const props = defineProps({
                     <div>
                       <h6 class="text-2xl">البطاقات تم ادخالها</h6>
                       <h4 class="text-black text-4xl font-bold text-rigth">
-                        {{countComp.count}}
+                        {{countComp?.count}}
                         <span class="text-green-600">+</span>
                       </h4>
                     </div>

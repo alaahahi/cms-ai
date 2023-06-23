@@ -75,19 +75,9 @@ class FormRegistrationController extends Controller
      
     public function saved()
     {
-        try {
-            $authUser = auth()?->user();
-            if($authUser){
-                $users = User::where('type_id', $this->userSeles)->get();
-                return Inertia::render('FormRegistrationSaved', ['url'=>$this->url,'users'=>$users]);
-            }
-            else {
-                return Inertia::render('Auth/Login');
-            }
-        } catch (\Throwable $th) {
-            return Inertia::render('Auth/Login');
-        }
-
+        $config = SystemConfig::first();
+        $users = User::where('type_id', $this->userSeles)->get();
+        return Inertia::render('FormRegistrationSaved', ['url'=>$this->url,'users'=>$users,'config'=>$config]);
     }
     public function court()
     {
@@ -302,12 +292,10 @@ class FormRegistrationController extends Controller
         public function document($id)
     {
         $config=SystemConfig::first();
-        $profile=Profile::where('id',$id)->first();
-        $results = Results::where('profile_id',$id)->latest()->first();
-        $resultsDoctor = DoctorResults::where('profile_id',$id)->latest()->first();
+        $profile=Profile::with('user')->where('id',$id)->first();
         $url=$this->url;
         //return view('PDF',compact('profile','results','resultsDoctor','url'));
-        $pdf = PDF::loadView('PDF',compact('profile','results','resultsDoctor','url','config'));
+        $pdf = PDF::loadView('PDF',compact('profile','url','config'));
         return $pdf->download('pdf.pdf');
 
        

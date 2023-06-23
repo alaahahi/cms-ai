@@ -28,7 +28,7 @@
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px">
     @include('logo')
     
-       <br>بطاقة الهلال الأحمر
+       <br>
     </th>
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
         {{$config['first_title_kr']}}
@@ -83,13 +83,21 @@
 <table style="width: 100%; margin-top: 0px;">
     <tr>
         <th  style="font-weight: 700;font-size:14px;text-align: center;padding: 0 25px;">
-        توقيع المندوب  
+        توقيع المندوب 
+        <div>
+        {{$profile->user->name}}
+
+        </div>
         </th>
  
         <th   style="font-weight: 700;font-size:14px;text-align: center;padding: 0 25px;">
         </th>
         <th   style="font-weight: 700;font-size:14px;text-align: center;padding: 0 25px;">
         توقيع العميل
+        <div>
+        {{$profile->name}}
+
+        </div>
         </th>
         <th>
             <div style="color: #fff;text-align: left;padding-left: 20px;">
