@@ -146,7 +146,7 @@ let showModal =  ref(false);
                             <TailwindPagination
                                 :data="laravelData"
                                 @pagination-change-page="getResults"
-                                :limit ="7"
+                                :limit ="2"
                             />
                         </div>
                       
