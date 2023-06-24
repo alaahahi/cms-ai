@@ -34,13 +34,16 @@ const submit = () => {
   .then(response => {
     profileAdded.value = response.data;
     form.value={};
+    isLoading.value = false;
+
   })
   .catch(error => {
     profileAdded.value=0;
     errors.value = error.response.data.errors
+    isLoading.value = false;
+
     
   })
-  isLoading.value = false;
 };
 
 const photoHusband = (data) => {
