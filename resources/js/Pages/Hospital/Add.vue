@@ -12,7 +12,7 @@ import axios from 'axios';
 const selectedDate = ref('');
 const appointments = ref([]);
 const bookedSlots = ref([]);
-
+const isLoading = ref(false);
 
 const props = defineProps({
     url:String,
@@ -29,6 +29,7 @@ const form = useForm({
 });
 
 const submit = () => {
+    isLoading.value=true; 
     form.post(route('hospital'));
 };
 
@@ -189,7 +190,10 @@ const checkCard = (v) => {
                 <TextInput type="text" class="form-control w-full " v-model="form.note"/>
                 </div>
                 <div class=" px-5 py-7 pt-12 ">
-                <button type="date" class="px-6 py-2 text-white bg-blue-500 rounded-md focus:outline-none w-full"  @click="submit" :disabled="!form.start || !form.end || !form.user_id || !form.card_id">حفظ</button>
+                <button type="date" class="px-6 py-2 text-white bg-blue-500 rounded-md focus:outline-none w-full"  @click="submit" :disabled="!form.start || !form.end || !form.user_id || !form.card_id">
+                  <span v-if="!isLoading">حفظ</span>
+                  <span v-else>جاري الحفظ...</span>
+                </button>
                 </div>
             </div>
           </div>
