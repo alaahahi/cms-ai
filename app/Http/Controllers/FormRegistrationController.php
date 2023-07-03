@@ -320,7 +320,7 @@ class FormRegistrationController extends Controller
     public function getProfiles(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::with('user')->orwhere('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
+        $data = Profile::with('user')->orwhere('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->paginate(10);
         return response()->json($data); 
 
     }
@@ -328,14 +328,14 @@ class FormRegistrationController extends Controller
     public function getProfilesSaved(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->orwhere('invoice_number',$term)->paginate(10);
+        $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->paginate(10);
         return response()->json($data);
     }
 
     public function getProfilesCompleted(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('card_number', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('invoice_number',$term)->where('results',3)->paginate(10);
+        $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('card_number', 'LIKE','%'.$term.'%')->where('results',3)->where('results',3)->paginate(10);
         return response()->json($data); 
     }
     public function checkCard()
