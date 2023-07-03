@@ -30,7 +30,6 @@ class Profile extends Model
         'user_add',
         'user_doctor',
         'user_accepted',
-        'user_rejected',
         'results_id',
         'created_at',
         'updated_at'

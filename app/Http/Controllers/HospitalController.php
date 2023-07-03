@@ -77,7 +77,6 @@ class HospitalController extends Controller
                 'start' => $this->convertToTimestamp($request->start),
                 'end' => $this->convertToTimestamp($request->end),
                  ]);
-                 $profile->update(['user_rejected'=>$appointment->id]);
                  return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users])->with('success', 'شكراّ,تمت العملية بنجاح');
         }else
         return Inertia::render('Hospital/Add', ['url'=>$this->url,'userDoctor'=>$userDoctor])->with('success', 'رقم البطاقة غير صالح او لم يتم تسجيل البطاقة');
