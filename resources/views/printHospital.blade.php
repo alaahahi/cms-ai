@@ -35,6 +35,9 @@
 <table class="table table-striped table-hover">
 <tr class="text-center">
     <th style=" font-size: 16px;font-weight: 700;padding-right: 20px">
+    تسلسل
+    </th>
+    <th style=" font-size: 16px;font-weight: 700;padding-right: 20px">
     الطبيب
     </th>
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px">
@@ -50,8 +53,12 @@
      ملاحظة
     </th>
 </tr>
+    <?php $i = 1 ?>
     @foreach($appointment as $data)
     <tr class="text-center">
+            <td style="padding-right:20px;font-size:13px">
+            <span>{{$i}}</span>
+            </td>
             <td style="padding-right:20px;font-size:13px">
             <span>{{$data->user?->name}}</span>
             </td>
@@ -70,6 +77,8 @@
                 <span>{{$data->note}}</span>
             </td>
     </tr>
+    <?php $i++ ?>
+
     @endforeach
 </table>
 </body>
