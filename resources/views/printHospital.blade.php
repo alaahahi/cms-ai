@@ -14,7 +14,7 @@
     الطبيب
     </th>
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px">
-   بطاقة رقم
+    مجموع البطاقات
     </th>
 
 </tr>
