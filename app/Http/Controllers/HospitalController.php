@@ -19,6 +19,7 @@ use Illuminate\Validation\Rules;
 use App\Models\Massage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use PDF;
 
 class HospitalController extends Controller
 {
@@ -149,5 +150,13 @@ class HospitalController extends Controller
             'is_come' =>2,
              ]);
              return Response::json($appointment, 200);
+    }
+    public function hospitalPrint(){
+
+        $doctor =Appointment::with('user')->groupBy('user_id')
+        ->select('user_id', \DB::raw('count(*) as count'))->get();
+        $appointment = Appointment::with('user')->orderBy('user_id')->get();
+        return view('printHospital',compact('appointment','doctor'));
+
     }
 }

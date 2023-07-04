@@ -107,7 +107,13 @@ function method1(id) {
                                             :href="route('hospitalAdd')">
                                             إنشاء حجز جديدة
               </Link>
+              <a  
+                                            className="px-6 py-2 text-white bg-green-500 rounded-md focus:outline-none"
+                                            :href="route('hospitalPrint')">
+                                         طباعة
+              </a>
              </div>
+ 
             </div>
              </div>
             <div class="flex flex-row">
