@@ -41,17 +41,29 @@
    بطاقة رقم
     </th>
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
+     اسم الزبون
+    </th>
+    <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
+     هاتف
+    </th>
+    <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
      ملاحظة
     </th>
 </tr>
     @foreach($appointment as $data)
     <tr class="text-center">
             <td style="padding-right:20px;font-size:13px">
-            <span>{{$data->user->name}}</span>
+            <span>{{$data->user?->name}}</span>
             </td>
 
             <td style="padding-right:20px;font-size:13px">
             <span>{{$data->card_id}}</span>
+            </td>
+            <td style="padding-right:20px;font-size:13px">
+            <span>{{$data->profile?->name}}</span>
+            </td>
+            <td style="padding-right:20px;font-size:13px">
+            <span>{{$data->profile?->phone_number}}</span>
             </td>
 
             <td style="padding-right:20px;font-size:13px">

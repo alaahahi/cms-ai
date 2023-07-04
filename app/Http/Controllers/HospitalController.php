@@ -155,7 +155,7 @@ class HospitalController extends Controller
 
         $doctor =Appointment::with('user')->groupBy('user_id')
         ->select('user_id', \DB::raw('count(*) as count'))->get();
-        $appointment = Appointment::with('user')->orderBy('user_id')->get();
+        $appointment = Appointment::with('user')->with('profile')->orderBy('user_id')->get();
         return view('printHospital',compact('appointment','doctor'));
 
     }
