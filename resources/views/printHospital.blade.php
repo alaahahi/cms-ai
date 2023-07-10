@@ -64,7 +64,7 @@
             </td>
 
             <td style="padding-right:20px;font-size:13px">
-            <span>{{$data->card_id}}</span>
+            <span>{{$data->profile?->card_number}}</span>
             </td>
             <td style="padding-right:20px;font-size:13px">
             <span>{{$data->profile?->name}}</span>

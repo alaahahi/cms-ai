@@ -28,7 +28,7 @@ class Appointment extends Model
     }
     public function profile()
     {
-        return $this->belongsTo(Profile::class,'card_id');
+        return $this->belongsTo(Profile::class,'card_id','card_number');
     }
 
   }
