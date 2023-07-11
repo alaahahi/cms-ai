@@ -69,7 +69,9 @@ class FormRegistrationController extends Controller
     public function formRegistrationEdit($id)
     {
         $data = Profile::where('id',$id)->first();
-        return Inertia::render('FormRegistration/Edit', ['url'=>$this->url,'data'=> $data]);
+        $sales = User::where('type_id', $this->userSeles)->get();
+
+        return Inertia::render('FormRegistration/Edit', ['url'=>$this->url,'data'=> $data,'sales'=>$sales]);
     }
 
      

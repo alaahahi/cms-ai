@@ -18,7 +18,7 @@ const form = useForm({
   phone_number:  props.data.phone_number,
   invoice_number:  props.data.invoice_number,
   relatives:  props.data.relatives,
-  saler_id:  props.data.saler_id,
+  saler_id:  props.data.user_id,
   card_number:props.data.card_number,
   family_name: props.data.family_name,
 });
@@ -243,7 +243,7 @@ const createBase64ImageWife = (fileObject) => {
                       </span>
                     </div> -->
 
-                    <!-- <div className="mb-4">
+                    <div className="mb-4">
                       <InputLabel for="sales_id" value="المندوب" />
                       <select
                         v-model="form.saler_id"
@@ -266,7 +266,7 @@ const createBase64ImageWife = (fileObject) => {
                          اسم المندوب حقل مطلوب
                       </span>
                     </div>
- -->
+
 
                     <div className="mb-4">
                       <InputLabel for="address" value="العنوان" />
