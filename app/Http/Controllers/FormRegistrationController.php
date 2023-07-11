@@ -248,6 +248,8 @@ class FormRegistrationController extends Controller
                     'address' => $request->address,
                     'phone_number' => $request->phone_number,
                     'family_name'=> $request->family_name,
+                    'user_id' =>$request->saler_id,
+
                      ]);
             
         return Inertia::render('FormRegistration/Index', ['url'=>$this->url]);
