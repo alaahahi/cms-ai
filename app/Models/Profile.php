@@ -40,6 +40,6 @@ class Profile extends Model
     }
     public function appointment()
     {
-        return $this->hasMany(Appointment::class,'card_id','card_id');
+        return $this->hasMany(Appointment::class,'card_id','card_number');
     }
   }
