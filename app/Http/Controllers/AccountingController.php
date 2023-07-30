@@ -38,14 +38,12 @@ class AccountingController extends Controller
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
          $this->userAccount=  UserType::where('name', 'account')->first()->id;
          $this->userHospital =  UserType::where('name', 'hospital')->first()->id;
-
-         $this->mainAccount= User::with('wallet')->where('type_id', $this->userAccount)->where('email','main@account.com')->first();
-         $this->inAccount= User::with('wallet')->where('type_id', $this->userAccount)->where('email','in@account.com')->first();
-         $this->outAccount= User::with('wallet')->where('type_id', $this->userAccount)->where('email','out@account.com')->first();
-         $this->hospital= User::with('wallet')->where('type_id', $this->userAccount)->where('email','hospital@account.com')->first();
-         $this->doctours= User::with('wallet')->where('type_id', $this->userAccount)->where('email','doctours@account.com')->first();
+         $this->mainAccount= User::with('wallet')->where('type_id', $this->userAccount)->where('email','main@cms.com')->first();
+         $this->inAccount= User::with('wallet')->where('type_id', $this->userAccount)->where('email','in@cms.com')->first();
+         $this->outAccount= User::with('wallet')->where('type_id', $this->userAccount)->where('email','out@cms.com')->first();
+         $this->hospital= User::with('wallet')->where('type_id', $this->userAccount)->where('email','hospital@cms.com')->first();
+         $this->doctours= User::with('wallet')->where('type_id', $this->userAccount)->where('email','doctor@cms.com')->first();
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -58,7 +56,7 @@ class AccountingController extends Controller
 
        $accounts = User::where('type_id',$this->userHospital)->get();
 
-       return Inertia::render('Accounting/Index', ['url'=>$this->url,'users'=>$users,'accounts'=>$accounts]);
+       return Inertia::render('Accounting/Index', ['url'=>$this->url,'users'=>$users,'accounts'=>$this->mainAccount]);
    }
    public function payCard()
    {
@@ -107,7 +105,6 @@ class AccountingController extends Controller
         $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User');
         $this->increaseWallet($hospital, $desc,$this->hospital->id,$this->hospital->id,'App\Models\User');
         $this->increaseWallet($box, $desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User');
-        $this->increaseWallet($amount, $desc,$this->inAccount->id,$this->outAccount->id,'App\Models\User');
         return Response::json($request, 200);
     }
     public function paySelse(Request $request,$id)

@@ -66,16 +66,14 @@ class UserController extends Controller
             'userType' => 'required'
            ])->validate();
            //$userChief_id =User::where('type_id',  $this->userChief)->first()->id ?? 0 ;
-                $user = User::create([
-                    'name' => $request->name,
-                    'type_id' => $request->userType,
-                    'email' => $request->email,
-                    'password' => Hash::make($request->password),
-                    'percentage' => $request->percentage
-                ]);
-            if($this->userSeles ==  $user->type_id){
-                Wallet::create(['user_id' => $user->id]);
-            }
+            $user = User::create([
+                'name' => $request->name,
+                'type_id' => $request->userType,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'percentage' => $request->percentage
+            ]);
+            Wallet::create(['user_id' => $user->id]);
         return Inertia::render('Users/Index', ['url'=>$this->url]);
     }
 

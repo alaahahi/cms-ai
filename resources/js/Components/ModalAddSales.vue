@@ -60,15 +60,14 @@ const calculateDoctor = () => {
                         إضافة مبيعات البطاقة عبر المندوب
                         </h2>
                         <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
-
                         <div className="mb-4 mx-5">
                           <label for="account_id" >حساب</label>
                           <select
                             v-model="form.account_id"
                             id="account_id"
                             class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <template v-for="(user, index) in accounts" :key="index" >
-                              <option :value="user" v-if="user.email == 'super@cms.com'" selected>{{ user.name }}</option>
+                            <template v-for="(user, index) in [accounts]" :key="index" >
+                              <option :value="user.id" selected>{{ user?.name }}</option>
                             </template>
                           </select>
                         </div>
