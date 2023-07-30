@@ -21,6 +21,7 @@ const form = useForm({
   saler_id:  props.data.user_id,
   card_number:props.data.card_number,
   family_name: props.data.family_name,
+  created: props.data.created,
 });
 const props = defineProps({
   data: Array,
@@ -299,6 +300,17 @@ const createBase64ImageWife = (fileObject) => {
                       >
                         أفراد العائلة حقل مطلوب
                       </span>
+                    </div>
+                    <div className="mb-4">
+                      <InputLabel for="created" value="تاريخ البيع" />
+
+                      <TextInput
+                        id="created"
+                        type="date"
+                        class="mt-1 block w-full"
+                        v-model="form.created"
+                      />
+
                     </div>
                     <div className="mb-4 mx-5">
                         <InputLabel for="phone_number" value="رقم الهاتف" />

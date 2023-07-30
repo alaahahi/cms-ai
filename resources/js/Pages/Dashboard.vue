@@ -208,7 +208,7 @@ const props = defineProps({
                   </div>
 
                   <div class="mr-4">
-                    <h2 class="font-semibold">{{ user.user.name }}</h2>
+                    <h2 class="font-semibold">{{ user?.user?.name }}</h2>
                     <p class="mt-2 text-sm text-gray-500">{{ user.count }}</p>
                   </div>
                 </div>

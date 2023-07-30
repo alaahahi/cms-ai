@@ -10,8 +10,17 @@ import { ref } from "vue";
 import { WebCamUI } from "vue-camera-lib";
 import axios from 'axios';
 
-const form =  ref({});
+const form = ref({
+  created: ref(getTodayDate()), // Set the initial value to today's date
+});
 
+function getTodayDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 defineProps({
   usersType: Array,
   sales : Array,
@@ -33,7 +42,9 @@ const submit = () => {
   axios.post('/api/formRegistration', form.value)
   .then(response => {
     profileAdded.value = response.data;
-    form.value={};
+    form.value={
+      created: ref(getTodayDate()), // Set the initial value to today's date
+    };
     isLoading.value = false;
 
   })
@@ -189,6 +200,10 @@ const checkCard = (v) => {
                       <span  className="text-red-600">
                         {{userCard.user?.name}}
                       </span>
+                      أفراد العائلة
+                      <span  className="text-red-600">
+                        {{userCard.family_name}}
+                      </span>
                       </span>
                       <div v-if="errors?.card_number">
                         البطاقةالبطاقة حقل مطلوب
@@ -291,6 +306,19 @@ const checkCard = (v) => {
                       />
 
                     </div>
+                    
+                    <div className="mb-4">
+                      <InputLabel for="created" value="تاريخ البيع" />
+
+                      <TextInput
+                        id="created"
+                        type="date"
+                        class="mt-1 block w-full"
+                        v-model="form.created"
+                      />
+
+                    </div>
+
                     <div className="mb-4">
                         <InputLabel for="phone_number" value="رقم الهاتف" />
                         <TextInput

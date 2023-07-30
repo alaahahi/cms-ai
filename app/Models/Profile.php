@@ -32,11 +32,12 @@ class Profile extends Model
         'user_accepted',
         'results_id',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'created'
     ];
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();;
     }
     public function appointment()
     {

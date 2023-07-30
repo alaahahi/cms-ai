@@ -135,7 +135,6 @@ class AccountingController extends Controller
     public function receiveCard(Request $request)
     {
         $authUser = auth()->user();
-
         $profile_id = $_GET['id'] ?? 0;
 
         $profile = Profile::find($profile_id);
@@ -155,11 +154,11 @@ class AccountingController extends Controller
         $percentage = $user->percentage;
 
         $new_balance =  $old_balance + $percentage;
+        $profile->update(['results'=>1,'user_accepted'=>$authUser->id]);
 
         try {
             DB::beginTransaction();
 
-            $profile->update(['results'=>1,'user_accepted'=>$authUser->id]);
             $this->increaseWallet($percentage,' نسبة على البطاقة رقم '.$profile?->card_number,$user->id);
             $wallet->update(['card' => $old_card-1,'balance'=>$new_balance]);
 

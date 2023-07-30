@@ -185,7 +185,9 @@ class UserController extends Controller
     }
     public function ban($id)
     {
-        User::find($id)->update(['is_band' => 1]);
+        $user=User::find($id);
+        $user->update(['is_band' => 1]);
+        $user->delete();
         return Inertia::render('Users/Index', ['url'=>$this->url]); 
     }
     public function unban($id)

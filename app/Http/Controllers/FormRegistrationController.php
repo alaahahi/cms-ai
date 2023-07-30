@@ -229,6 +229,7 @@ class FormRegistrationController extends Controller
                     'user_id' =>$request->saler_id,
                     'family_name'=> $request->family_name,
                     'user_add'=>$authUser?->id,
+                    'created'=>$request->created,
                     'no'=> $no
                      ]);
 
@@ -249,6 +250,7 @@ class FormRegistrationController extends Controller
                     'phone_number' => $request->phone_number,
                     'family_name'=> $request->family_name,
                     'user_id' =>$request->saler_id,
+                    'created'=>$request->created,
 
                      ]);
             
