@@ -59,6 +59,10 @@ class User extends Authenticatable
     {
         return $this->morphTo();
     }
+    public function transactions()
+    {
+        return $this->morphMany(Transactions::class, 'morphed');
+    }
     public function massage()
     {
         return $this->hasMany(Massage::class,'sender_id');

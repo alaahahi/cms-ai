@@ -16,7 +16,7 @@ let showModalAddSales = ref(false);
 const getResults = async (page = 1) => {
   searchTerm.value = '';
   const response = await fetch(
-    `/getIndexAppointment?page=${page}&user_id=${user_id.value}`
+    `/getIndexAccounting?page=${page}&user_id=${user_id.value}`
   );
   laravelData.value = await response.json();
 };

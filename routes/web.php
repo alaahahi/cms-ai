@@ -105,6 +105,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('appointmentCancel', [HospitalController::class, 'appointmentCancel'])->name('appointmentCancel');
 
     Route::get('accounting',[AccountingController::class, 'index'])->name('accounting');
+    Route::get('getIndexAccounting',[AccountingController::class, 'getIndexAccounting'])->name("getIndexAccounting");
 
     
 

@@ -58,6 +58,20 @@ class AccountingController extends Controller
 
        return Inertia::render('Accounting/Index', ['url'=>$this->url,'users'=>$users,'accounts'=>$this->mainAccount]);
    }
+   public function getIndexAccounting(Request $request)
+   {
+    $term = $request->get('user_id');
+    if($term){
+        $data = User::with('transactions')->where('id',$term)->paginate(10);
+    }
+    else{
+        $data = User::with('transactions')->paginate(10);
+
+    }
+    return response()->json($data); 
+
+   }
+   
    public function payCard()
    {
     
