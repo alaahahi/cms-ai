@@ -21,6 +21,20 @@ const form = ref({
   doctor:0,
 
 });
+const restform =()=>{
+  form.value = {
+  user: {
+    percentage:0,
+  },
+  date:new Date(),
+  card:0,
+  amount: 0,
+  box:0,
+  hospital:0,
+  doctor:0,
+
+};
+}
 const calculateAmount = () => {
   form.value.amount = form.value.user.percentage * form.value.card;
   form.value.hospital = 7000 * form.value.card;
@@ -160,7 +174,7 @@ const calculateDoctor = () => {
                     @click="$emit('close');">تراجع</button>
                   </div>
               <div class="basis-1/2 px-4">
-                <button class="modal-default-button py-3  bg-rose-500 rounded col-6"  @click="$emit('a',form);" :disabled="!(form.user.percentage && form.card)">نعم</button>
+                <button class="modal-default-button py-3  bg-rose-500 rounded col-6"  @click="$emit('a',form);restform();" :disabled="!(form.user.percentage && form.card)">نعم</button>
                 </div>
 
             </div>

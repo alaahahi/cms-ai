@@ -15,9 +15,7 @@ const showReceiveBtn = ref(0);
 let showModalAddSales = ref(false);
 const getResults = async (page = 1) => {
   searchTerm.value = '';
-  const response = await fetch(
-    `/getIndexAccounting?page=${page}&user_id=${user_id.value}`
-  );
+  const response = await fetch(`/getIndexAccounting?page=${page}&user_id=${user_id.value}`);
   laravelData.value = await response.json();
 };
 function openAddSales() {
@@ -193,51 +191,23 @@ getcountComp()
                 >
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
                     <th className="px-4 py-2">التسلسل</th>
-                    <th className="px-4 py-2">الطبيب</th>
-                    <th className="px-4 py-2">رقم البطاقة</th>
-                    <th className="px-4 py-2">التاريخ والساعة</th>
-                    <th className="px-4 py-2">الحالة</th>
-                    <th className="px-4 py-2">تنفيذ</th>
+                    <th className="px-4 py-2">نوع الحركة</th>
+                    <th className="px-4 py-2">التاريخ</th>
+                    <th className="px-4 py-2">الوصف</th>
+                    <th className="px-4 py-2">المبلغ</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
-                    v-for="user in laravelData.data"
+                    v-for="user in laravelData.transactions"
                     :key="user.id"
                     class="hover:bg-gray-100 text-center"
                   >
                   <td className="border px-4 py-2">{{ user.id }}</td>
-                  <td className="border px-4 py-2">{{ user?.user?.name }}</td>
-                  <td className="border px-4 py-2">{{ user.card_id }}</td>
-                  <td className="border px-4 py-2">{{ user.start }}</td>
-                  <th className="border px-4 py-2">{{ user.is_come==2 ? 'تم التأكيد':user.is_come==0 ? 'تم الإلغاء' : 'في الانتظار' }}</th>
-                  <td className="border px-4 py-2">
-                    <button 
-                      @click="come(user.id)"
-                      tabIndex="-1"
-                      type="button"
-                      className="mx-1 px-2 py-1 text-sm text-white bg-green-500 rounded"
-                      v-if="user.is_come==1">
-                      تأكيد الموعد
-                    </button>
-                    <button 
-                      @click="cancel(user.id)"
-                      tabIndex="-1"
-                      type="button"
-                      className="mx-1 px-2 py-1 my-1 text-sm text-white bg-red-500 rounded"
-                      v-if="user.is_come==1">
-                      إلغاء الموعد
-                    </button>
-                    <a 
-                      v-if="user.is_come==1 || user.is_come==0"
-                      tabIndex="-1"
-                      type="button"
-                      :href="route('hospitalEdit', user.id)"
-                      className="mx-1 px-2 py-1 text-sm text-white bg-blue-500 rounded"
-                      >
-                      تعديل الموعد
-                    </a>
-                  </td>
+                  <td className="border px-4 py-2">{{ user?.type }}</td>
+                  <td className="border px-4 py-2">{{ (user.created_at).substring(0, 10) }}</td>
+                  <th className="border px-4 py-2">{{ user.description }}</th>
+                  <td className="border px-4 py-2">{{ user.amount }}</td>
                   </tr>
                 </tbody>
               </table>

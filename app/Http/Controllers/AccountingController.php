@@ -62,10 +62,7 @@ class AccountingController extends Controller
    {
     $term = $request->get('user_id');
     if($term){
-        $data = User::with('transactions')->where('id',$term)->paginate(10);
-    }
-    else{
-        $data = User::with('transactions')->paginate(10);
+        $data = User::with('transactions')->where('id',$term)->first();
     }
     return response()->json($data); 
     }
@@ -110,7 +107,7 @@ class AccountingController extends Controller
         $hospital= $request->hospital??0;
         $doctor= $request->doctor??0;
 
-        $desc=" مبيعات المندوب".$request->user['name'].'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
+        $desc=" مبيعات المندوب"." ".$request->user['name'].' '.'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
         $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User');
         $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User');
         $this->increaseWallet($hospital, $desc,$this->hospital->id,$this->hospital->id,'App\Models\User');
