@@ -49,7 +49,7 @@ const showingNavigationDropdown = ref(false);
                                     حسابات المندوبين
                                 </NavLink>
                             </div>
-                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5" >
+                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >
                                 <NavLink :href="route('accounting')" :active="route().current('accounting')">
                                     المحاسبة
                                 </NavLink>
@@ -135,7 +135,7 @@ const showingNavigationDropdown = ref(false);
                             <ResponsiveNavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')" v-if="$page.props.auth.user.type_id==1">
                                      حسابات المندوبين       
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('accounting')" :active="route().current('accounting')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
+                            <ResponsiveNavLink :href="route('accounting')" :active="route().current('accounting')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2">
                                       المحاسبة       
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('hospital')" :active="route().current('hospital')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==6">
