@@ -66,15 +66,12 @@ class AccountingController extends Controller
     }
     else{
         $data = User::with('transactions')->paginate(10);
-
     }
     return response()->json($data); 
-
-   }
+    }
    
    public function payCard()
    {
-    
     $id = $_GET['id'] ?? 0;
     $from = $_GET['from'] ?? 0;
     $to = $_GET['to'] ?? 0;
@@ -101,7 +98,6 @@ class AccountingController extends Controller
            // Handle the exception or return an error response
        }
        return Response::json('ok', 200);
-
    }
     public function salesCard(Request $request)
     {
