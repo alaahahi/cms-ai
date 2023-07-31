@@ -151,7 +151,7 @@ getcountComp()
                 <div class="basis-1/2 px-4">
 
             <div className="flex items-center justify-between mb-6">
-              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==5" className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
+              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
                                             @click="openAddSales()">
                                             مبيعات جديدة
               </button>
