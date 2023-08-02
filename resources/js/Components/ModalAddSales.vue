@@ -33,7 +33,7 @@ const restform =()=>{
   user: {
     percentage:0,
   },
-  date:new Date(),
+  date:getTodayDate(),
   card:0,
   amount: 0,
   box:0,
