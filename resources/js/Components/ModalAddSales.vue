@@ -13,7 +13,7 @@ const form = ref({
   user: {
     percentage:0,
   },
-  date:new Date(),
+  date:getTodayDate(),
   card:0,
   amount: 0,
   box:0,
@@ -21,6 +21,13 @@ const form = ref({
   doctor:0,
 
 });
+function getTodayDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 const restform =()=>{
   form.value = {
   user: {
@@ -75,20 +82,12 @@ const calculateDoctor = () => {
                         </h2>
                         <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">
-                          <label for="account_id" >حساب</label>
-                          <select
-                            v-model="form.account_id"
-                            id="account_id"
-                            class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <template v-for="(user, index) in [accounts]" :key="index" >
-                              <option :value="user.id" selected>{{ user?.name }}</option>
-                            </template>
-                          </select>
-                        </div>
-                        <div className="mb-4 mx-5">
                           <label for="card" >التاريخ</label>
-                          <VueDatePicker v-model="form.date"></VueDatePicker>
-
+                          <input
+                          id="card"
+                          type="date"
+                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                          v-model="form.date"   />
                         </div>
    
                         <div className="mb-4 mx-5">
