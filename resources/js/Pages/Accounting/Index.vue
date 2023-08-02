@@ -205,7 +205,7 @@ getcountComp()
                   >
                   <td className="border px-4 py-2">{{ user.id }}</td>
                   <td className="border px-4 py-2">{{ user?.type }}</td>
-                  <td className="border px-4 py-2">{{ (user.created_at).substring(0, 10) }}</td>
+                  <td className="border px-4 py-2">{{ user?.created }}</td>
                   <th className="border px-4 py-2">{{ user.description }}</th>
                   <td className="border px-4 py-2">{{ user.amount }}</td>
                   </tr>
