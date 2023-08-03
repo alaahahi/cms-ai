@@ -235,6 +235,16 @@ function method1(id) {
         </div>
       </div>
     </div>
+    <div class="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-row">
+                        <div class="basis-1/2 flex flex-col justify-center">
+                           توقيع قسم المحاسبة
+                        </div>
+                        <div class="basis-1/2">
+                            توقيع المدير
+                        </div>
+                </div>
+   </div>
   </AuthenticatedLayout>
 </template>
 
