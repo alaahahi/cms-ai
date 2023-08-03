@@ -11,9 +11,9 @@ const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
-    <div>
+    <div >
         <div class="min-h-screen bg-gray-100">
-            <nav class="bg-white border-b border-gray-100 ">
+            <nav class="bg-white border-b border-gray-100  print:hidden">
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
@@ -151,12 +151,20 @@ const showingNavigationDropdown = ref(false);
                     </div>
                 </div>
             </nav>
-
             <!-- Page Heading -->
             <header class="bg-white shadow" v-if="$slots.header">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <slot name="header" />
+                <div class="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-row">
+                        <div class="basis-1/2 flex flex-col justify-center">
+                            <slot name="header" />
+                        </div>
+                        <div class="basis-1/2">
+                            <img src="asset/img/logo.jpg" alt="karbala-alhassan"   style="margin-right: auto;width: 200px;" />
+                        </div>
                 </div>
+                </div>
+  
+
             </header>
 
             <!-- Page Content -->
