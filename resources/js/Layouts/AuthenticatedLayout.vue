@@ -159,7 +159,7 @@ const showingNavigationDropdown = ref(false);
                             <slot name="header" />
                         </div>
                         <div class="basis-1/2">
-                            <img src="asset/img/logo.jpg" alt="karbala-alhassan"   style="margin-right: auto;width: 200px;" />
+                            <img src="/asset/img/logo.jpg" alt="karbala-alhassan"   style="margin-right: auto;width: 200px;" />
                         </div>
                 </div>
                 </div>
