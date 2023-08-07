@@ -87,39 +87,40 @@ function method1(id) {
         </div>
       </div>
     </div>
-    <div class="py-12">
+    <div class="py-4">
+      <h2 class="text-center pb-2">فاتورة مبيعات المندوب/ة</h2>
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white  border-gray-200">
             <div class="flex flex-row">
               <div class="basis-1/2 px-4">
+                <InputLabel class="mb-1" for="invoice_number" value="المندوب/ة" />
                 <select @change="getResults()" v-model="user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
                   <option value="0" disabled>اختار المندوب</option>
                   <option v-for="(user, index) in users" :key="index" :value="user.id">{{ user.name }}</option>
                 </select>
               </div>
-
+              <div class="basis-1/2">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="totalAmount" value="المجموع المطلوب بالدينار العراقي" />
+                              <TextInput
+                                id="totalAmount"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="laravelData.sales?.wallet?.balance"
+                                disabled
+                              />
+                            </div>
+                </div>
             </div>
             <div class="flex flex-row">
               <div class="grow">
                 <div class="pb-3">
-                  <div class="mx-auto mx-7">
+                  <div class="mx-auto">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                      <div class="p-6 bg-white  border-gray-200">
+                      <div class=" bg-white  border-gray-200">
                         <div class="flex flex-row">
-                          <div class="basis-1/3">
-                            <div className="mb-4 mx-5">
-                              <InputLabel for="invoice_number" value="المندوب" />
-                              <TextInput
-                                id="invoice_number"
-                                type="text"
-                                class="mt-1 block w-full"
-                                :value="laravelData.sales?.name"
-                                disabled
-                              />
-                            </div>
-                          </div>
-                          <div class="basis-1/3">
+                          <div class="basis-1/2">
                             <div className="mb-4 mx-5">
                               <InputLabel for="percentage" value="نسبة البيع" />
                               <TextInput
@@ -131,33 +132,7 @@ function method1(id) {
                               />
                             </div>
                           </div>
-                          <div class="basis-1/3">
-                            <div className="mb-4 mx-5 print:hidden">
-                              <InputLabel for="percentage" value="عدد البطاقة تم استلامها" />
-                              <TextInput
-                                id="percentage"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="laravelData.count"
-                                disabled
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-row">
-              <div class="grow">
-                <div class="pb-3">
-                  <div class="mx-auto mx-7">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                      <div class="p-6 bg-white border-gray-200">
-                        <div class="flex flex-row">
-                          <div class="basis-1/3">
+                          <div class="basis-1/2">
                             <div className="mb-4 mx-5">
                               <InputLabel for="date" value="بتاريخ" />
                               <TextInput
@@ -169,20 +144,61 @@ function method1(id) {
                               />
                             </div>
                           </div>
+                 
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-row">
+              <div class="grow">
+                <div class="pb-3">
+                  <div class="mx-auto">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                      <div class="bg-white">
+                        <div class="flex flex-row">
                           <div class="basis-1/3">
                             <div className="mb-4 mx-5">
-                              <InputLabel for="totalAmount" value="المجموع بالدينار العراقي" />
+                              <InputLabel for="percentage" value="عدد البطاقة تم بيعها" />
                               <TextInput
-                                id="totalAmount"
+                                id="percentage"
                                 type="text"
                                 class="mt-1 block w-full"
-                                v-model="laravelData.totalAmount"
+                                :value="laravelData.sales?.wallet?.card"
                                 disabled
                               />
                             </div>
                           </div>
                           <div class="basis-1/3">
-                            <div className="mb-4 mx-5  print:hidden">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="totalAmount" value="مجموع المبيعات بالدينار العراقي" />
+                              <TextInput
+                                id="totalAmount"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :value="laravelData.totalAmount"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                          <div class="basis-1/3">
+                            <div className="mb-4 mx-5">
+                              <InputLabel for="debt" value="مجموع السلف" />
+                              <TextInput
+                                id="debt"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="laravelData.debt"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="flex flex-row">
+                          <div class="basis-1/3">
+                            <div className="mb-4  print:hidden">
                               <InputLabel for="pay" value="تأكيد الدفع" />
                               <button
                               @click.prevent="pay(laravelData.sales?.id)"
@@ -206,20 +222,20 @@ function method1(id) {
                 <thead
                   class="700 bg-rose-500 text-white text-center rounded-l-lg">
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
-                    <th className="px-4 py-2">تم الدفع</th>
-                    <th className="px-4 py-2">النوع</th>
-                    <th className="px-4 py-2">الوصف</th>
-                    <th className="px-4 py-2">المبلغ</th>
+                    <th className="px-2 py-2" style="width: 70px;">تم الدفع</th>
+                    <th className="px-2 py-2" style="width: 90px;">التاريخ</th>
+                    <th className="px-4 py-2" style="min-width: 320px;">الوصف</th>
+                    <th className="px-2 py-2">المبلغ</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
                     v-for="user in laravelData.data"
                     :key="user.id"  class="hover:bg-gray-100 text-center">
-                  <td className="border px-4 py-2">{{ user.is_pay ? 'نعم' :'لا' }}</td>
-                  <td className="border px-4 py-2 td">{{ user.type }}</td>
+                  <td className="border px-2 py-2">{{ user.is_pay ? 'نعم' :'لا' }}</td>
+                  <td className="border px-2 py-2 td">{{ user.created }}</td>
                   <td className="border px-4 py-2 td">{{ user.description }}</td>
-                  <td className="border px-4 py-2 td">{{ user.amount  }}</td>
+                  <td className="border px-2 py-2 td">{{ user.amount  }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -237,12 +253,18 @@ function method1(id) {
     </div>
     <div class="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-row">
-                        <div class="basis-1/2 flex flex-col justify-center">
+                      <div class="basis-1/2">
+                            توقيع المندوب/ة
+                            <br>
+                            {{ laravelData.sales?.name }}
+                        </div>
+                        <div class="basis-1/2  text-center">
                            توقيع قسم المحاسبة
                         </div>
-                        <div class="basis-1/2">
+                        <div class="basis-1/2 text-end">
                             توقيع المدير
                         </div>
+         
                 </div>
    </div>
   </AuthenticatedLayout>

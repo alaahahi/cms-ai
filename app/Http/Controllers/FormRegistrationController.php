@@ -144,19 +144,26 @@ class FormRegistrationController extends Controller
     { 
         $user_id = $_GET['user_id'] ?? 0;
         $sales = User::with('wallet')->where('id', $user_id)->first();
-        $transactions = Transactions ::where('wallet_id', $sales?->wallet?->id);
+        $transactions = Transactions::where('wallet_id', $sales?->wallet?->id)->where('is_pay',0)->get();
+        
+        $data = $transactions;
+        $profile_count = Profile::where('user_id', $sales?->id)->where('results', 1)->count();
+        
+        // Calculate the total amount for transactions with pay == 0
+        $totalAmount = $transactions->sum(function ($transaction) {
+            return ($transaction->is_pay == 0 && $transaction->type=='in') ? $transaction->amount : 0;
+        });
 
-        $data = $transactions->paginate(10);
-        $profile_count = Profile::where('user_id', $sales?->id)->where('results',1)->count();
+        $debt = $transactions->sum(function ($transaction) {
+            return ($transaction->is_pay == 0 && $transaction->type=='debt') ? $transaction->amount : 0;
+        });
+
         // Additional logic to retrieve sales data
         $salesData = [
-            'totalAmount' =>  $transactions->sum('amount'),
+            'debt'=>$debt,
+            'totalAmount' =>  $totalAmount,
             'count' => $profile_count,
-            'total_sales' => $data?->total(),
-            'current_page' => $data?->currentPage(),
-            'per_page' => $data?->perPage(),
-            'last_page' => $data?->lastPage(),
-            'data' => $data?->items(),
+            'data' => $data,
             'sales'=>$sales,
             'date'=> Carbon::now()->format('Y-m-d')
         ];

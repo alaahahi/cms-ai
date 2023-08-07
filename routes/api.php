@@ -27,5 +27,6 @@ Route::post('formRegistration',[FormRegistrationController::class, 'store'])->na
 
 
 Route::post('salesCard',[AccountingController::class, 'salesCard'])->name('salesCard');
+Route::post('salesDebt',[AccountingController::class, 'salesDebt'])->name('salesDebt');
 
 

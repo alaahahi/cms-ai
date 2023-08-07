@@ -6,6 +6,9 @@ import { ref } from "vue";
 import { TailwindPagination } from "laravel-vue-pagination";
 import VueTailwindDatepicker from 'vue-tailwind-datepicker'
 import ModalAddSales from "@/Components/ModalAddSales.vue";
+import ModalAddDebt from "@/Components/ModalAddDebt.vue";
+
+
 import axios from 'axios';
 
 const laravelData = ref({});
@@ -13,6 +16,7 @@ const user_id = ref(0);
 const searchTerm = ref('');
 const showReceiveBtn = ref(0);
 let showModalAddSales = ref(false);
+let showModaldebtSales = ref(false);
 const getResults = async (page = 1) => {
   searchTerm.value = '';
   const response = await fetch(`/getIndexAccounting?page=${page}&user_id=${user_id.value}`);
@@ -20,6 +24,9 @@ const getResults = async (page = 1) => {
 };
 function openAddSales() {
   showModalAddSales.value = true;
+}
+function opendebtSales() {
+  showModaldebtSales.value = true;
 }
 getResults();
 
@@ -109,6 +116,18 @@ function confirm(V) {
     errors.value = error.response.data.errors
   })
 }
+function confirmdebt(V) {
+  axios.post('/api/salesDebt',V)
+  .then(response => {
+    showModaldebtSales.value=false;
+    console.log(response.data);
+  })
+  .catch(error => {
+
+    errors.value = error.response.data.errors
+  })
+}
+
 getcountComp()
 </script>
 
@@ -131,7 +150,19 @@ getcountComp()
             <h3 class="text-center">المحاسبة</h3>
             
            </template>
-        </ModalAddSales>
+      </ModalAddSales>
+      <ModalAddDebt
+            :show="showModaldebtSales ? true : false"
+            :data="users"
+            :accounts="accounts"
+            @a="confirmdebt($event)"
+            @close="showModaldebtSales = false"
+            >
+          <template #header>
+            <h3 class="text-center">ادخال سلفة</h3>
+            
+           </template>
+      </ModalAddDebt>
     <div v-if="$page.props.success">
       <div
         id="alert-2"
@@ -154,6 +185,10 @@ getcountComp()
               <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
                                             @click="openAddSales()">
                                             مبيعات جديدة
+              </button>
+              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
+                                            @click="opendebtSales()">
+                                             سلفة
               </button>
              </div>
             </div>

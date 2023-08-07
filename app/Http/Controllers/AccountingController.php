@@ -43,6 +43,8 @@ class AccountingController extends Controller
          $this->outAccount= User::with('wallet')->where('type_id', $this->userAccount)->where('email','out@cms.com')->first();
          $this->hospital= User::with('wallet')->where('type_id', $this->userAccount)->where('email','hospital@cms.com')->first();
          $this->doctours= User::with('wallet')->where('type_id', $this->userAccount)->where('email','doctor@cms.com')->first();
+         $currentDate = Carbon::now();
+         $this->currentDatef = $currentDate->format('Y-m-d');
     }
     /**
      * Show the form for creating a new resource.
@@ -52,9 +54,9 @@ class AccountingController extends Controller
 
    public function index()
    {
-       $users = User::where('type_id',$this->userSeles)->get();
+       $users = User::with('wallet')->where('type_id',$this->userSeles)->get();
 
-       $accounts = User::where('type_id',$this->userHospital)->get();
+       $accounts = User::with('wallet')->where('type_id',$this->userHospital)->get();
 
        return Inertia::render('Accounting/Index', ['url'=>$this->url,'users'=>$users,'accounts'=>$this->mainAccount]);
    }
@@ -96,6 +98,19 @@ class AccountingController extends Controller
        }
        return Response::json('ok', 200);
    }
+   
+   public function salesDebt(Request $request)
+   {
+    $user_id= $request->user['id']??0;
+    $amount= $request->amount??0;
+    $desc=" سلفة للمندوب"." ".$request->user['name'];
+    $authUser = auth()->user();
+    $date= $request->date??0;
+
+    $this->debt($amount,$desc,$user_id,$user_id,'App\Models\User',$authUser,$date);
+    return Response::json($request, 200);
+
+    }
     public function salesCard(Request $request)
     {
         $account_id= $this->mainAccount->id??0;
@@ -106,7 +121,9 @@ class AccountingController extends Controller
         $box = $request->box??0;
         $hospital= $request->hospital??0;
         $doctor= $request->doctor??0;
-
+        $wallet = Wallet::where('user_id', $user_id)->first();
+        $wallet->increment('card',$card);
+        $wallet->increment('card_total',$card);
         $desc=" مبيعات المندوب"." ".$request->user['name'].' '.'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
         $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date);
         $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User',$user_id, $date);
@@ -116,21 +133,33 @@ class AccountingController extends Controller
     }
     public function paySelse(Request $request,$id)
     {
+        $authUser = auth()->user();
         try {
             DB::beginTransaction();
             // Perform your database operations with Eloquent
             $user=  User::with('wallet')->find($id);
             $transactions =Transactions ::where('wallet_id', $user?->wallet?->id)->where('is_pay',0);
             $amount=$transactions->sum('amount');
+            $wallet = Wallet::where('user_id', $id)->first();
+            if($amount>0){
+            $wallet->update(['card' => 0]);
             $transactions->update(['is_pay' => 1]);
             $profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
-            $this->decreaseWallet($amount*-1,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id);
+            $this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id,$user->id,'App\Models\User',$authUser->id,$this->currentDatef);
+            $this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser->id,$this->currentDatef);
+
             // If everything is successful, commit the transaction
             DB::commit();
+            }
+            else
+            return Response::json('no balance', 200);
+
             // Return a response or perform other actions
         } catch (\Exception $e) {
             // Something went wrong, rollback the transaction
             DB::rollBack();
+            return Response::json($e, 200);
+
             // Handle the exception or return an error response
         }
         return Response::json('ok', 200);
@@ -210,5 +239,24 @@ class AccountingController extends Controller
         // Finally return the updated wallet.
         return $wallet;
     }
-    
+    public function debt(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created) 
+    {
+        $user=  User::with('wallet')->find($user_id);
+        if($id = $user->wallet->id){
+        $wallet = Wallet::find($id);
+        if($wallet->balance <= 0){
+            return 'No balance';
+        }
+            $wallet->decrement('balance', $amount);
+            $transactionDetils = ['type' => 'debt','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>0,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created];
+            Transactions::create($transactionDetils);
+         
+        
+        }
+        if (is_null($wallet)) {
+            return null;
+        }
+        // Finally return the updated wallet.
+        return $wallet;
+    }
     }
