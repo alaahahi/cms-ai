@@ -226,6 +226,8 @@ getcountComp()
                 >
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
                     <th className="px-4 py-2">التسلسل</th>
+                    <th className="px-4 py-2">تم الدفع</th>
+
                     <th className="px-4 py-2">نوع الحركة</th>
                     <th className="px-4 py-2">التاريخ</th>
                     <th className="px-4 py-2">الوصف</th>
@@ -239,6 +241,8 @@ getcountComp()
                     class="hover:bg-gray-100 text-center"
                   >
                   <td className="border px-4 py-2">{{ user.id }}</td>
+                  <td className="border px-2 py-2">{{ user.is_pay ? 'نعم' :'لا' }}</td>
+
                   <td className="border px-4 py-2">{{ user?.type }}</td>
                   <td className="border px-4 py-2">{{ user?.created }}</td>
                   <th className="border px-4 py-2">{{ user.description }}</th>
