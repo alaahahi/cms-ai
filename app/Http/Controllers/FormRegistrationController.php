@@ -86,7 +86,12 @@ class FormRegistrationController extends Controller
         try {
             $authUser = auth()?->user();
             if($authUser){
-            $users = User::where('type_id', $this->userSeles)->get();
+                $users = User::with('wallet')
+                ->where('type_id', $this->userSeles)
+                ->whereHas('wallet', function ($query) {
+                    $query->where('balance', '>', 0);
+                })
+                ->get();
             return Inertia::render('FormRegistrationCourt', ['url'=>$this->url,'users'=>$users]);
             }
             else {
