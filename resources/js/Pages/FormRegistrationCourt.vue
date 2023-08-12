@@ -88,13 +88,13 @@ function method1(id) {
       </div>
     </div>
     <div class="py-4">
-      <h2 class="text-center pb-2">فاتورة مبيعات المندوب/ة</h2>
+      <h2 class="text-center pb-2">فاتورة مبيعات</h2>
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white  border-gray-200">
             <div class="flex flex-row">
               <div class="basis-1/2 px-4">
-                <InputLabel class="mb-1" for="invoice_number" value="المندوب/ة" />
+                <InputLabel class="mb-1" for="invoice_number" value="حساب" />
                 <select @change="getResults()" v-model="user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
                   <option value="0" disabled>اختار المندوب</option>
                   <option v-for="(user, index) in users" :key="index" :value="user.id">{{ user.name }}</option>

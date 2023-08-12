@@ -54,7 +54,7 @@ class AccountingController extends Controller
 
    public function index()
    {
-       $users = User::with('wallet')->where('type_id',$this->userSeles)->get();
+       $users = User::with('wallet')->where('type_id',$this->userSeles)->orWhere('email', 'doctor@cms.com')->orWhere('email', 'hospital@cms.com')->orWhere('email', 'main@cms.com')->get();
 
        $accounts = User::with('wallet')->where('type_id',$this->userHospital)->get();
 
@@ -124,6 +124,17 @@ class AccountingController extends Controller
         $wallet = Wallet::where('user_id', $user_id)->first();
         $wallet->increment('card',$card);
         $wallet->increment('card_total',$card);
+
+        $walletHospital = Wallet::where('user_id', $this->hospital->id)->first();
+        $walletDoctours = Wallet::where('user_id', $this->doctours->id)->first();
+
+        $walletHospital->increment('card',$card);
+        $walletHospital->increment('card_total',$card);
+
+        $walletDoctours->increment('card',$card);
+        $walletDoctours->increment('card_total',$card);
+
+        
         $desc=" مبيعات المندوب"." ".$request->user['name'].' '.'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
         $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date);
         $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User',$user_id, $date);
