@@ -152,8 +152,8 @@ class HospitalController extends Controller
              return Response::json($appointment, 200);
     }
     public function hospitalPrint(){
-        $start = $request->get('start');
-        $end = $request->get('end');
+        $start = $_GET['start']??0;
+        $end = $_GET['end']??0;
 
         $doctor =Appointment::with('user')->whereBetween('created_at', [$start, $end])->groupBy('user_id')
         ->select('user_id', \DB::raw('count(*) as count'))->get();
