@@ -154,11 +154,17 @@ class HospitalController extends Controller
     public function hospitalPrint(){
         $start = $_GET['start']??0;
         $end = $_GET['end']??0;
-
-        $doctor =Appointment::with('user')->whereBetween('created_at', [$start, $end])->groupBy('user_id')
-        ->select('user_id', \DB::raw('count(*) as count'))->get();
-        $appointment = Appointment::with('user')->with('profile')->orderBy('card_id')->whereBetween('created_at', [$start, $end])->get();
-        return view('printHospital',compact('appointment','doctor'));
-
+        if($start&&$end){
+            $doctor =Appointment::with('user')->whereBetween('created_at', [$start, $end])->groupBy('user_id')
+            ->select('user_id', \DB::raw('count(*) as count'))->get();
+            $appointment = Appointment::with('user')->with('profile')->orderBy('card_id')->whereBetween('created_at', [$start, $end])->get();
+            return view('printHospital',compact('appointment','doctor'));
+    
+        }else{
+            $doctor =Appointment::with('user')->groupBy('user_id')
+            ->select('user_id', \DB::raw('count(*) as count'))->get();
+            $appointment = Appointment::with('user')->with('profile')->orderBy('card_id')->get();
+            return view('printHospital',compact('appointment','doctor'));
+        }
     }
 }
