@@ -155,9 +155,9 @@ class HospitalController extends Controller
         $start = $request->get('start');
         $end = $request->get('end');
 
-        $doctor =Appointment::with('user')->whereBetween('created', [$start, $end])->groupBy('user_id')
+        $doctor =Appointment::with('user')->whereBetween('created_at', [$start, $end])->groupBy('user_id')
         ->select('user_id', \DB::raw('count(*) as count'))->get();
-        $appointment = Appointment::with('user')->with('profile')->orderBy('card_id')->whereBetween('created', [$start, $end])->get();
+        $appointment = Appointment::with('user')->with('profile')->orderBy('card_id')->whereBetween('created_at', [$start, $end])->get();
         return view('printHospital',compact('appointment','doctor'));
 
     }
