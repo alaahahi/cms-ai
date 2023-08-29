@@ -254,7 +254,7 @@ function method1(id) {
     <div class="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-row">
                       <div class="basis-1/2">
-                            توقيع المندوب/ة
+                            توقيع صاحب الحساب
                             <br>
                             {{ laravelData.sales?.name }}
                         </div>
