@@ -23,12 +23,7 @@ use App\Models\SystemConfig;
 */
 Route::resource('/users', UserController::class)->middleware(['auth', 'verified']);
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'config' => SystemConfig::first(),
-        'canLogin' => Route::has('login'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return view('index');
 });
 
 Route::group(['middleware' => ['auth','verified']], function () {
