@@ -22,6 +22,7 @@ const form = useForm({
   card_number:props.data.card_number,
   family_name: props.data.family_name,
   created: props.data.created,
+  image: props.data.image,
 });
 const props = defineProps({
   data: Array,
@@ -119,25 +120,15 @@ const createBase64ImageWife = (fileObject) => {
                 <div class="p-6 bg-white border-b border-gray-200">
                   <h2 class="text-center text-xl py-2">معلومات البطاقة</h2>
                   <div className="flex flex-col">
-                    <!-- <div className="mb-4">
+                    <div className="mb-4">
                       <InputLabel for="name" value="الصورة الشخصية" />
-                      <img :src="form.image" />
-                      <button
-                        @click.prevent="showHusband = true"
-                        class="px-12 mt-3 mx-2 py-2 font-bold text-white bg-rose-500 rounded"
-                      >
-                        الكاميرة
-                      </button>
                       <input
                         @change="handleImage"
                         type="file"
                         accept="image/*"
                         class="px-2 mt-3 py-1 font-bold text-white bg-rose-500 rounded"
                       />
-                      <span className="text-red-600" v-if="form.errors.image">
-                        الصورة الشخصية حقل مطلوب
-                      </span>
-                    </div> -->
+                    </div>
                     <div className="mb-4">
                       <InputLabel for="card_number" value="رقم البطاقة" />
 
@@ -329,6 +320,8 @@ const createBase64ImageWife = (fileObject) => {
                         </span>
                       </div>
                   </div>
+                  <img :src="'/'+form.image" />
+
                 </div>
               </div>
             </div>
