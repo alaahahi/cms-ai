@@ -32,11 +32,12 @@ class HospitalController extends Controller
          $this->userAccount=  UserType::where('name', 'account')->first()->id;
          $this->userHospital =  UserType::where('name', 'hospital')->first()->id;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::where('type_id',$this->userDoctor)->get();
+        $hospital = $request->input('hospital');
 
-        return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users]);
+        // Load hospital-specific data and views
+        return view('hospital.index', compact('hospital'));
     }
     public function show ()
     {
@@ -133,7 +134,6 @@ class HospitalController extends Controller
         $timestamp = $carbon;
         return $timestamp;
     }
-
     public function appointmentCancel()
     {
         $id = $_GET['id'] ?? 0;

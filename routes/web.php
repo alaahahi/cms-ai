@@ -22,9 +22,15 @@ use App\Models\SystemConfig;
 |
 */
 Route::resource('/users', UserController::class)->middleware(['auth', 'verified']);
+
+Route::middleware(['web', 'hospital'])->group(function () {
+    Route::get('/', 'HospitalController@index');
+});
+
 Route::get('/', function () {
     return view('index');
 });
+
 
 Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('/dashboard', function () {return Inertia::render('Dashboard');})->middleware(['auth', 'verified'])->name('dashboard');

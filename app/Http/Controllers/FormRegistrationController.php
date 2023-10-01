@@ -229,15 +229,40 @@ class FormRegistrationController extends Controller
         Validator::make($request->all(), [
                     'card_number' =>'required|string|max:255|unique:profile,card_number',
                     'name' => 'required|string|max:255',
-                    'phone_number' => 'required|string|max:255',
-                    'saler_id'=> 'required|int|max:255',
+             
 
                      ])->validate();
+
+                     $base64Image = $request->image;
+
+                    // Remove the data:image/{extension};base64, prefix from the base64 string
+                    $base64Image = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
+
+                    // Decode the base64 string into binary data
+                    $imageData = base64_decode($base64Image);
+
+                    // Specify the directory where you want to store the image
+                    $imagePath = public_path('uploads');
+
+                    // Create the directory if it doesn't exist
+                    if (!file_exists($imagePath)) {
+                        mkdir($imagePath, 0777, true);
+                    }
+
+                    // Generate a unique name for the image
+                    $imageName = time() . '.png'; // You can specify a different image format if needed
+
+                    // Save the decoded image data to the specified directory as an image file
+                    file_put_contents("$imagePath/$imageName", $imageData);
+
+                    // Save the image URL in the database
+                    $imageUrl = 'uploads/' . $imageName;
+
          $profile = Profile::create([
                     'card_number'=> $request->card_number,
                     'name' => $request->name,
                     'address' => $request->address,
-                    // 'image' =>  Image::make($request->image)->resize(100,75)->encode('data-url'),
+                    'image' =>  $imageUrl,
                     'phone_number' => $request->phone_number,
                     'card_id' => 1,
                     'user_id' =>$request->saler_id,
