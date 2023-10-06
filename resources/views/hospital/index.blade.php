@@ -68,7 +68,7 @@
 	</div>
 	<nav class="navbar navbar-expand-lg navigation" id="navbar">
 		<div class="container">
-			<a class="navbar-brand" href="index.html">
+			<a class="navbar-brand" href="/">
 				<img src="images/logo.png" alt="" class="img-fluid">
 			</a>
 
@@ -79,7 +79,7 @@
 
 			<div class="collapse navbar-collapse" id="navbarmain">
 				<ul class="navbar-nav ml-auto">
-					<li class="nav-item active"><a class="nav-link" href="index.html">الرئيسية</a></li>
+					<li class="nav-item active"><a class="nav-link" href="/">الرئيسية</a></li>
 					<li class="nav-item"><a class="nav-link" href="#about">حول {{$hospital['name'] ?? ''}}</a></li>
 					<li class="nav-item"><a class="nav-link" href="#service">عيادات البطاقة المجانية</a></li>
 					<li class="nav-item"><a class="nav-link" href="#service">أقسام المستشفى</a></li>
@@ -146,7 +146,7 @@
 						<span>خدمة 24 ساعة</span>
 						<h4 class="mb-3">حجز موعد</h4>
 						<p class="mb-4">احصل على الدعم طوال الوقت لحالات الطوارئ. خدمة مميزة لكل الأسرة.</p>
-						<a href="appoinment.html" class="btn btn-main btn-round-full">حجز موعد</a>
+						<a href="appoinment" class="btn btn-main btn-round-full">حجز موعد</a>
 					</div>
 				
 					<div class="feature-item mb-5 mb-lg-0 text-center">
@@ -197,7 +197,7 @@
 					<h2 class="title-color">{{$hospital['title1'] ?? ''}}</h2>
 					<p class="mt-4 mb-5">{{$hospital['title3'] ?? ''}}</p>
 
-					<a href="service.html" class="btn btn-main-2 btn-round-full btn-icon">خصوماتنا </a>
+					<a href="service" class="btn btn-main-2 btn-round-full btn-icon">خصوماتنا </a>
 				</div>
 			</div>
 		</div>
