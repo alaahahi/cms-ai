@@ -49,7 +49,7 @@
 		<div class="container">
 			<div class="row align-items-center">
 				<div class="col-lg-6">
-					<div class="text-lg-right top-right-bar mt-2 mt-lg-0">
+					<div class="text-center text-lg-right top-right-bar mt-2 mt-lg-0">
 						<a href="tel:{{$hospital['phone'] ?? ''}}">
 							<span>اتصل الان : </span>
 							<span class="h4" dir='ltr'>{{$hospital['phone'] ?? ''}}</span>
@@ -57,7 +57,7 @@
 					</div>
 				</div>
 				<div class="col-lg-6">
-					<ul class="top-bar-info list-inline-item pl-0 mb-0">
+					<ul class=" text-center top-bar-info list-inline-item pl-0 mb-0">
 						<li class="list-inline-item"><a href="mailto:{{$hospital['email'] ?? ''}}"><i class="icofont-support-faq mr-2"></i>{{$hospital['email'] ?? ''}}</a></li>
 						<li class="list-inline-item" dir='ltr'><i class="icofont-location-pin mr-2"></i>{{$hospital['address'] ?? ''}} </li>
 					</ul>
