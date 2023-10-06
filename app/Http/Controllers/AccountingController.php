@@ -58,14 +58,59 @@ class AccountingController extends Controller
 
        $accounts = User::with('wallet')->where('type_id',$this->userHospital)->get();
 
-       return Inertia::render('Accounting/Index', ['url'=>$this->url,'users'=>$users,'accounts'=>$this->mainAccount]);
+       $boxes = User::with('wallet')->where('email', 'main@cms.com')->get();
+       return Inertia::render('Accounting/Index', ['boxes'=>$boxes,'users'=>$users,'accounts'=>$this->mainAccount]);
    }
    public function getIndexAccounting(Request $request)
    {
-    $term = $request->get('user_id');
-    if($term){
-        $data = User::with('transactions')->where('id',$term)->first();
+    $user_id = $_GET['user_id'] ?? 0;
+    $from =  $_GET['from'] ?? 0;
+    $to =$_GET['to'] ?? 0;
+    $print =$_GET['print'] ?? 0;
+    $transactions_id = $_GET['transactions_id'] ?? 0;
+    $user = User::with('wallet')->where('id',$user_id)->first();
+    if($from && $to ){
+        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->orderBy('id','desc')->whereBetween('created', [$from, $to]);
+
+    }else{
+        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->orderBy('id','desc');
     }
+    $allTransactions = $transactions->get();
+
+    $sumAllTransactions = $allTransactions->sum('amount');
+    $sumDebitTransactions = $allTransactions->where('type', 'debt')->sum('amount');
+    $sumInTransactions = $allTransactions->where('type', 'in')->sum('amount');
+    
+    // Additional logic to retrieve client data
+    $data = [
+        'user' => $user,
+        'transactions' => $allTransactions,
+        'sum_transactions' => $sumAllTransactions,
+        'sum_transactions_debit' => $sumDebitTransactions,
+        'sum_transactions_in' => $sumInTransactions,
+    ];
+
+    if($print==1){
+        $config=SystemConfig::first();
+        return view('receiptPaymentTotal',compact('data','config'));
+     }
+     if($print==2){
+        $config=SystemConfig::first();
+
+        return view('receipt',compact('clientData','config','transactions_id'));
+     }
+     if($print==3){
+        $config=SystemConfig::first();
+
+        return view('receiptPayment',compact('clientData','config','transactions_id'));
+     }
+     if($print==4){
+        $config=SystemConfig::first();
+
+        return view('receiptPaymentTotal',compact('clientData','config','transactions_id'));
+     }
+
+
     return response()->json($data); 
     }
    
@@ -102,14 +147,51 @@ class AccountingController extends Controller
    public function salesDebt(Request $request)
    {
     $user_id= $request->user['id']??0;
+    $note= $request->note??'';
     $amount= $request->amount??0;
-    $desc=" سلفة للمندوب"." ".$request->user['name'];
+    $desc=" سحب دفعة من حساب "." ".$request->user['name'].' '.$note;
     $authUser = auth()->user();
     $date= $request->date??0;
+    $transaction=$this->debt($amount,$desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser,$date);
+    $this->debt($amount,$desc,$user_id,$user_id,'App\Models\User',$authUser,$date,$transaction->id);
 
-    $this->debt($amount,$desc,$user_id,$user_id,'App\Models\User',$authUser,$date);
     return Response::json($request, 200);
 
+    }
+    public function delTransactions(Request $request)
+    {
+        $transaction_id = $request->id ?? 0;
+        $originalTransaction = Transactions::find($transaction_id);
+        $wallet_id=$originalTransaction->wallet_id;
+        $wallet=Wallet::find($wallet_id);
+        $wallet->decrement('balance', $originalTransaction->amount);
+        if (!$originalTransaction) {
+            return response()->json(['message' => 'Transaction not found'], 404);
+        }
+        if($originalTransaction){
+          $all=  Transactions::where('parent_id',$transaction_id)->first();
+          if($all){
+            $wallet_id=$all->wallet_id;
+            $wallet=Wallet::find($wallet_id);
+            $wallet->decrement('balance', $all->amount);
+            $all->delete();
+          }
+        }
+        // // Create a new transaction for the refund
+        // $refundTransaction = new Transactions();
+        // $refundTransaction->wallet_id = $originalTransaction->wallet_id;
+        // $refundTransaction->morphed_id = $originalTransaction->morphed_id;
+        // $refundTransaction->morphed_type = $originalTransaction->morphed_type;
+        // $refundTransaction->created =$this->currentDatef;
+        // $refundTransaction->type = 'refund'; // Assuming you have a 'refund' transaction type
+        // $refundTransaction->amount = -$originalTransaction->amount; // Make the refund negative
+        // $refundTransaction->description = 'مرتجع حذف حركة';
+        // $refundTransaction->save();
+    
+        // Delete the original transaction
+        $originalTransaction->delete();
+    
+        return response()->json(['message' => 'Transaction deleted and refund created'], 200);
     }
     public function salesCard(Request $request)
     {
@@ -136,10 +218,10 @@ class AccountingController extends Controller
 
         
         $desc=" مبيعات المندوب"." ".$request->user['name'].' '.'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
-        $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date);
-        $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User',$user_id, $date);
-        $this->increaseWallet($hospital, $desc,$this->hospital->id,$this->hospital->id,'App\Models\User',$user_id, $date);
-        $this->increaseWallet($box, $desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$user_id, $date);
+        $transaction = $this->increaseWallet($box, $desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$user_id, $date);
+        $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date,$transaction->id);
+        // $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User',$user_id, $date);
+        // $this->increaseWallet($hospital, $desc,$this->hospital->id,$this->hospital->id,'App\Models\User',$user_id, $date);
         return Response::json($request, 200);
     }
     public function paySelse(Request $request,$id)
@@ -157,7 +239,7 @@ class AccountingController extends Controller
             $transactions->update(['is_pay' => 1]);
             $profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
             $this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id,$user->id,'App\Models\User',$authUser->id,$this->currentDatef);
-            $this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser->id,$this->currentDatef);
+            $Transactions =$this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser->id,$this->currentDatef);
 
             // If everything is successful, commit the transaction
             DB::commit();
@@ -173,7 +255,7 @@ class AccountingController extends Controller
 
             // Handle the exception or return an error response
         }
-        return Response::json('ok', 200);
+        return Response::json($Transactions, 200);
 
     }
     public function receiveCard(Request $request)
@@ -217,12 +299,12 @@ class AccountingController extends Controller
         return Response::json($new_balance, 200);
 
     }
-    public function increaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created) 
+    public function increaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0) 
     {
         $user=  User::with('wallet')->find($user_id);
         if($id = $user->wallet->id){
-        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created];
-        Transactions::create($transactionDetils);
+        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id];
+        $Transactions =Transactions::create($transactionDetils);
         $wallet = Wallet::find($id);
         $wallet->increment('balance', $amount);
         }
@@ -230,17 +312,17 @@ class AccountingController extends Controller
             return null;
         }
         // Finally return the updated wallet.
-        return $wallet;
+        return $Transactions;
     }
 
-    public function decreaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created) 
+    public function decreaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0) 
     {
         $user=  User::with('wallet')->find($user_id);
         if($id = $user->wallet->id){
         $wallet = Wallet::find($id);
             $wallet->decrement('balance', $amount);
-            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>1,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created];
-            Transactions::create($transactionDetils);
+            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>1,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id];
+            $Transactions =Transactions::create($transactionDetils);
          
         
         }
@@ -248,9 +330,9 @@ class AccountingController extends Controller
             return null;
         }
         // Finally return the updated wallet.
-        return $wallet;
+        return $Transactions;
     }
-    public function debt(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created) 
+    public function debt(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0) 
     {
         $user=  User::with('wallet')->find($user_id);
         if($id = $user->wallet->id){
@@ -259,8 +341,8 @@ class AccountingController extends Controller
             return 'No balance';
         }
             $wallet->decrement('balance', $amount);
-            $transactionDetils = ['type' => 'debt','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>0,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created];
-            Transactions::create($transactionDetils);
+            $transactionDetils = ['type' => 'debt','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>0,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id];
+            $Transactions =Transactions::create($transactionDetils);
          
         
         }
@@ -268,6 +350,6 @@ class AccountingController extends Controller
             return null;
         }
         // Finally return the updated wallet.
-        return $wallet;
+        return $Transactions;
     }
     }

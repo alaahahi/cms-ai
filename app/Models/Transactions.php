@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class Transactions extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
     protected $fillable = [
         'wallet_id',
         'amount',
@@ -16,8 +18,10 @@ class Transactions extends Model
         'morphed_type',
         'description',
         'is_pay',
-        'created'
+        'created',
+        'parent_id'
     ];
+    protected $dates = ['deleted_at'];
 
     public function wallet()
     {

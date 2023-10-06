@@ -3,23 +3,25 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Modal from "@/Components/Modal.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
-import { TailwindPagination } from "laravel-vue-pagination";
-import VueTailwindDatepicker from 'vue-tailwind-datepicker'
 import ModalAddSales from "@/Components/ModalAddSales.vue";
 import ModalAddDebt from "@/Components/ModalAddDebt.vue";
-
-
+import ModalAddExpenses from "@/Components/ModalAddExpenses.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import TextInput from "@/Components/TextInput.vue";
 import axios from 'axios';
 
 const laravelData = ref({});
 const user_id = ref(0);
 const searchTerm = ref('');
-const showReceiveBtn = ref(0);
 let showModalAddSales = ref(false);
 let showModaldebtSales = ref(false);
+let showModalAddExpenses = ref(false);
+let isLoading=ref(false);
+let from = ref(0);
+let to = ref(0);
 const getResults = async (page = 1) => {
   searchTerm.value = '';
-  const response = await fetch(`/getIndexAccounting?page=${page}&user_id=${user_id.value}`);
+  const response = await fetch(`/getIndexAccounting?page=${page}&user_id=${props.boxes[0].id}&from=${from.value}&to=${to.value}`);
   laravelData.value = await response.json();
 };
 function openAddSales() {
@@ -28,12 +30,16 @@ function openAddSales() {
 function opendebtSales() {
   showModaldebtSales.value = true;
 }
+function openAddExpenses(){
+  showModalAddExpenses.value = true;
+}
 getResults();
 
 const props = defineProps({
   url: String,
   users:Array,
-  accounts:Array
+  accounts:Array,
+  boxes:Array,
 });
 const search = async (q) => {
   user_id.value=0;
@@ -109,7 +115,7 @@ function confirm(V) {
   axios.post('/api/salesCard',V)
   .then(response => {
     showModalAddSales.value=false;
-    console.log(response.data);
+    getResults();
   })
   .catch(error => {
 
@@ -119,8 +125,9 @@ function confirm(V) {
 function confirmdebt(V) {
   axios.post('/api/salesDebt',V)
   .then(response => {
+    getResults();
     showModaldebtSales.value=false;
-    console.log(response.data);
+    showModalAddExpenses.value = false;
   })
   .catch(error => {
 
@@ -129,6 +136,26 @@ function confirmdebt(V) {
 }
 
 getcountComp()
+
+function getTodayDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+function delTransactions(id){
+  axios.post(`/api/delTransactions?id=${id}`)
+  .then(response => {
+    getResults();
+    showModaldebtSales.value=false;
+    showModalAddExpenses.value = false;
+  })
+  .catch(error => {
+
+    errors.value = error.response.data.errors
+  })
+}
 </script>
 
 <template>
@@ -136,7 +163,7 @@ getcountComp()
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-         المواعد المحجوزة
+        المحاسبة
       </h2>
     </template>
     <ModalAddSales
@@ -163,6 +190,17 @@ getcountComp()
             
            </template>
       </ModalAddDebt>
+      <ModalAddExpenses 
+            :show="showModalAddExpenses ? true : false"
+            :boxes="boxes"
+            @a="confirmdebt($event)"
+            @close="showModalAddExpenses = false"
+            >
+          <template #header>
+            <h3 class="text-center">ادخال مصاريف اليومية</h3>
+            
+           </template>
+      </ModalAddExpenses>
     <div v-if="$page.props.success">
       <div
         id="alert-2"
@@ -178,46 +216,126 @@ getcountComp()
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
-            <div class="flex flex-row">
-                <div class="basis-1/2 px-4">
-
-            <div className="flex items-center justify-between mb-6">
-              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
+            <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 lg:gap-3">
+              <div class="pt-5  print:hidden">
+              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-4 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
                                             @click="openAddSales()">
                                             مبيعات جديدة
               </button>
-              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
+              </div>
+              <div class="pt-5  print:hidden">
+              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-4 py-2 text-white bg-yellow-500 rounded-md focus:outline-none"
                                             @click="opendebtSales()">
-                                             سلفة
+                                            سلفة مندوبين 
               </button>
+              </div>
+              <div class="pt-5  print:hidden">
+              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2" className="px-4 py-2 text-white bg-blue-500 rounded-md focus:outline-none"
+                                            @click="openAddExpenses()">
+                                             اضافة مصاريف
+              </button>
+              </div>
+              <div class=" px-4">
+                          <div >
+                              <InputLabel for="from" value="من تاريخ" />
+                              <TextInput
+                                id="from"
+                                type="date"
+                                class="mt-1 block w-full"
+                                v-model="from"
+                                
+                              />
+                            </div>
+              </div>
+              <div class=" px-4">
+                            <div >
+                              <InputLabel for="to" value="حتى تاريخ" />
+                              <TextInput
+                                id="to"
+                                type="date"
+                                class="mt-1 block w-full"
+                                v-model="to"
+                              />
+                            </div>
+              </div>
+              <div className=" mr-5 print:hidden">
+                            <InputLabel for="pay" value="فلترة" />
+                            <button
+                            @click.prevent="getResults()"
+                            class="px-6 mb-12 py-2 mt-1 font-bold text-white bg-gray-500 rounded" style="width: 100%">
+                            <span v-if="!isLoading">فلترة</span>
+                            <span v-else>جاري الحفظ...</span>
+                          </button>
+              </div>
+              <div className=" mr-5 print:hidden" >
+                            <InputLabel for="pay" value="طباعة" />
+                            <a
+                            class="px-6 mb-12 py-2 mt-1 font-bold text-white bg-orange-500 rounded" style="display: block;text-align: center;"
+                            :href="`/getIndexAccounting?user_id=${laravelData?.user?.id}&from=${from}&to=${to}&print=1`"
+                            target="_blank"
+                            >
+                            
+                            <span v-if="!isLoading">طباعة</span>
+                            <span v-else>جاري الحفظ...</span>
+                          </a>
+              </div>
              </div>
+             <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 lg:gap-3">
+              <div class=" px-4">
+                            <div >
+                              <InputLabel for="to" value="حساب الصندوق" />
+                              <TextInput
+                                id="to"
+                                type="number"
+                                disabled
+                                class="mt-1 block w-full"
+                                :value="laravelData.sum_transactions"
+                              />
+                            </div>
+              </div>
+              <div class=" px-4">
+                            <div >
+                              <InputLabel for="to" value="مسحوبات الصندوق" />
+                              <TextInput
+                                id="to"
+                                type="number"
+                                disabled
+                                class="mt-1 block w-full"
+                                :value="laravelData.sum_transactions_debit"
+                              />
+                            </div>
+              </div>
+              <div class=" px-4">
+                            <div >
+                              <InputLabel for="to" value="دخل الصندوق" />
+                              <TextInput
+                                id="to"
+                                type="number"
+                                disabled
+                                class="mt-1 block w-full"
+                                :value="laravelData.sum_transactions_in"
+                              />
+                            </div>
+              </div>
+              <div >
+                              <InputLabel for="to" value="رصيد الصندوق" />
+                              <TextInput
+                                id="to"
+                                type="number"
+                                disabled
+                                class="mt-1 block w-full"
+                                :value="laravelData?.user?.wallet.balance"
+                              />
+                            </div>
             </div>
-             </div>
-            <div class="flex flex-row">
-              <div class="basis-1/2 px-4">
+            <!-- <div class="flex flex-row">
+              <div class="basis-1/2 ">
                 <select @change="getResults()" v-model="user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
                   <option value="0">الجميع</option>
                   <option v-for="(user, index) in users" :key="index" :value="user.id">{{ user.name }}</option>
                 </select>
               </div>
-              <div class="basis-1/2 px-4">
-                      <div class="flex flex-row">
-                                    <div class="basis-1/4">
-                                      <button
-                                        type="button"
-                                        @click="getcountComp()"
-                                        style="width: 70%;"
-                                        className="px-6 mb-12 mx-2 py-2 font-bold text-white bg-rose-500 rounded"
-                                      >
-                                      فلترة
-                                      </button>
-                                    </div>
-                                    <div class="basis-3/4" style="direction: ltr;">
-                                      <vue-tailwind-datepicker overlay :options="options" :disable-date="dDate"  i18n="ar"  as-single use-range v-model="dateValue" />
-                                    </div>
-                  </div>
-              </div>
-            </div>
+            </div> -->
 
             <div class="overflow-x-auto shadow-md">
               <table class="w-full my-5">
@@ -225,13 +343,12 @@ getcountComp()
                   class="700 bg-rose-500 text-white text-center rounded-l-lg"
                 >
                   <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
-                    <th className="px-4 py-2">التسلسل</th>
-                    <th className="px-4 py-2">تم الدفع</th>
-
-                    <th className="px-4 py-2">نوع الحركة</th>
+                    <th className="px-4 py-2">رقم الوصل</th>
                     <th className="px-4 py-2">التاريخ</th>
                     <th className="px-4 py-2">الوصف</th>
                     <th className="px-4 py-2">المبلغ</th>
+                    <th className="px-4 py-2">تنفيذ</th>
+
                   </tr>
                 </thead>
                 <tbody>
@@ -241,23 +358,25 @@ getcountComp()
                     class="hover:bg-gray-100 text-center"
                   >
                   <td className="border px-4 py-2">{{ user.id }}</td>
-                  <td className="border px-2 py-2">{{ user.is_pay ? 'نعم' :'لا' }}</td>
-
-                  <td className="border px-4 py-2">{{ user?.type }}</td>
                   <td className="border px-4 py-2">{{ user?.created }}</td>
                   <th className="border px-4 py-2">{{ user.description }}</th>
                   <td className="border px-4 py-2">{{ user.amount }}</td>
+                  <td className="border px-4 py-2">
+                    <button class="px-6 py-2 text-white bg-pink-500 rounded-md focus:outline-none" @click="delTransactions(user.id)" >
+                            حذف
+                    </button>
+                  </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div class="mt-3 text-center" style="direction: ltr;">
+            <!-- <div class="mt-3 text-center" style="direction: ltr;">
               <TailwindPagination
                 :data="laravelData"
                 @pagination-change-page="getResults"
                 :limit ="2"
               />
-            </div>
+            </div> -->
           </div>
         </div>
       </div>

@@ -6,19 +6,15 @@ import '@vuepic/vue-datepicker/dist/main.css'
 
 const props = defineProps({
   show: Boolean,
-  data: Array,
-  accounts: Array,
+  boxes: Array,
 });
 const form = ref({
   user: {
     percentage:0,
   },
   date:getTodayDate(),
-  card:0,
   amount: 0,
-  box:0,
-  hospital:0,
-  doctor:0,
+
 
 });
 function getTodayDate() {
@@ -34,35 +30,15 @@ const restform =()=>{
     percentage:0,
   },
   date:getTodayDate(),
-  card:0,
   amount: 0,
-  box:0,
-  hospital:0,
-  doctor:0,
 
 };
 }
-const calculateAmount = () => {
-  if(form.value.card==1){
-  form.value.amount = 25000;
-  form.value.box = (75000 * form.value.card)-form.value.amount;
-  }else{
-  let cards= (form.value.card)-1
-  form.value.amount = (form.value.user.percentage * cards)+25000;
-  form.value.box = (75000 * form.value.card)-form.value.amount;
-  }
-
-};
-
-const calculateBox = () => {
-  form.value.box = (75000 * form.value.card)-form.value.amount;
-  
-};
 
 
 </script>
   
-  <template>
+  <template>  
     <Transition name="modal">
       <div v-if="show" class="modal-mask ">
         <div class="modal-wrapper ">
@@ -71,9 +47,6 @@ const calculateBox = () => {
               <slot name="header"></slot>
             </div>
             <div class="modal-body">
-                        <h2 class="text-center pb-5">
-                        إضافة مبيعات البطاقة عبر المندوب
-                        </h2>
                         <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">
                           <label for="card" >التاريخ</label>
@@ -83,59 +56,42 @@ const calculateBox = () => {
                           class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                           v-model="form.date"   />
                         </div>
-   
                         <div className="mb-4 mx-5">
-                          <label for="user_id" >المندوب</label>
+                          <label for="user_id" >الحساب</label>
                           <select
                             v-model="form.user"
                             id="user_id"
                             class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option selected disabled>تحديد المندوب</option>
-                            <option v-for="(user, index) in data" :key="index" :value="user">{{ user.name }}</option>
+                            <option selected disabled>تحديد الحساب</option>
+                            <option v-for="(user, index) in boxes" :key="index" :value="user">{{ user.name }}</option>
                           </select>
                         </div>
-                        </div>
-                        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">
-                        <label for="card" >نسبة المبيع للبطاقة</label>
+                        <label for="balance" >الرصيد الحالي</label>
                         <input
-                          id="card"
+                          id="balance"
                           type="number"
-                          @input="calculateAmount"
-
+                          :value="form.user.wallet?.balance"
                           class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                          v-model="form.user.percentage"   />
+                            />
                         </div>
-                        <div className="mb-4 mx-5">
-                        <label for="card" >عدد البطاقة التي تم بيعها </label>
-                        <input
-                          id="card"
-                          type="number"
-                          @input="calculateAmount"
- 
-                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                          v-model="form.card" />
                         </div>
+                        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">
-                        <label for="card" >المجموع نسبة المبيعات للمندوب</label>
+                        <label for="amount" >المبلغ</label>
                         <input
-                          id="card"
+                          id="amount"
                           type="number"
-                        
                           class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                           v-model="form.amount" />
                         </div>
-                        </div>
-                        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">
-                        <label for="card" >الدخل للصندوق</label>
+                        <label for="note" >ملاحظة</label>
                         <input
-                          id="card"
-                          type="number"
-                          @input="calculateAmount"
-
+                          id="note"
+                          type="text"
                           class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                          v-model="form.box"   />
+                          v-model="form.note" />
                         </div>
                         </div>
             </div>
@@ -147,7 +103,7 @@ const calculateBox = () => {
                     @click="$emit('close');">تراجع</button>
                   </div>
               <div class="basis-1/2 px-4">
-                <button class="modal-default-button py-3  bg-rose-500 rounded col-6"  @click="$emit('a',form);restform();" :disabled="!(form.user.percentage && form.card)">نعم</button>
+                <button class="modal-default-button py-3  bg-rose-500 rounded col-6"  @click="$emit('a',form);restform();" :disabled="!(form.amount)">نعم</button>
                 </div>
 
             </div>
