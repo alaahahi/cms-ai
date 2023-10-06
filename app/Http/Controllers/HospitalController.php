@@ -38,6 +38,11 @@ class HospitalController extends Controller
         // Load hospital-specific data and views
         return view('hospital.index', compact('hospital'));
     }
+    public function hospital(Request $request)
+    {
+        $users = User::where('type_id',$this->userDoctor)->get();
+        return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users]);
+    }
     public function show ()
     {
         return Inertia::render('Hospital/Index', ['url'=>$this->url]);

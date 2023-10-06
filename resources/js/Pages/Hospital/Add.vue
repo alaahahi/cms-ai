@@ -30,7 +30,7 @@ const form = useForm({
 
 const submit = () => {
     isLoading.value=true; 
-    form.post(route('hospital'));
+    form.post(route('hospitalAdd'));
 };
 
 

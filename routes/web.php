@@ -94,12 +94,12 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('/payCard', [AccountingController::class, 'payCard'])->name('payCard');
 
     
-    Route::get('hospital',[HospitalController::class, 'index'])->name('hospital');
+    Route::get('hospital',[HospitalController::class, 'hospital'])->name('hospital');
     Route::get('hospitalAdd',[HospitalController::class, 'create'])->name('hospitalAdd');
     Route::get('hospitalEdit/{id}',[HospitalController::class, 'edit'])->name('hospitalEdit');
     Route::get('hospitalStoreEdit',[HospitalController::class, 'index'])->name('hospitalStoreEdit');
     Route::post('hospitalStoreEdit',[HospitalController::class, 'storeEdit'])->name('hospitalStoreEdit');
-    Route::post('hospital',[HospitalController::class, 'store'])->name('hospital');
+    Route::post('hospitalAdd',[HospitalController::class, 'store'])->name('hospitalAdd');
     Route::get('getIndexAppointment',[HospitalController::class, 'getIndex'])->name("getIndexAppointment");
     Route::get('livesearchAppointment', [HospitalController::class, 'livesearchAppointment'])->name('livesearchAppointment');
     Route::get('appointmentCome', [HospitalController::class, 'appointmentCome'])->name('appointmentCome');
