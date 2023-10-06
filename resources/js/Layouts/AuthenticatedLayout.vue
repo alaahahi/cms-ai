@@ -29,9 +29,9 @@ const showingNavigationDropdown = ref(false);
                                     الرئيسية
                                 </NavLink>
                             </div> 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1">
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
                                 <NavLink :href="route('users.index')" :active="route().current('users.index')">
-                                    المستخدمين
+                                    المندوبين
                                 </NavLink>
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"  v-if="$page.props.auth.user.type_id!=5">
@@ -39,17 +39,13 @@ const showingNavigationDropdown = ref(false);
                                      العقد الإلكتروني
                                 </NavLink>
                             </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('FormRegistrationCompleted')" :active="route().current('FormRegistrationCompleted')">
-                                     استلام البطاقات
-                                </NavLink>
-                            </div>
-                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1" >
+
+                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1 ||$page.props.auth.user.type_id==5" >
                                 <NavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')">
                                     حسابات المندوبين
                                 </NavLink>
                             </div>
-                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2" >
+                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5" >
                                 <NavLink :href="route('accounting')" :active="route().current('accounting')">
                                     المحاسبة
                                 </NavLink>
@@ -59,7 +55,7 @@ const showingNavigationDropdown = ref(false);
                                      الحجوزات
                                 </NavLink>
                             </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6" >
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
                                 <NavLink :href="route('card')" :active="route().current('card')">
                                      عرض البطاقات
                                 </NavLink>
@@ -123,19 +119,16 @@ const showingNavigationDropdown = ref(false);
                             <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     الرئيسية
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.index')" v-if="$page.props.auth.user.type_id==1">
-                                    المستخدمين
+                            <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.index')" v-if="$page.props.auth.user.type_id==1 ||$page.props.auth.user.type_id==5">
+                                    المندوبين
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('formRegistration')" :active="route().current('formRegistration')" v-if="$page.props.auth.user.type_id!=5">
                                      العقد الإلكتروني
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('FormRegistrationCompleted')" :active="route().current('FormRegistrationCompleted')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==4">
-                                    استمارة المنجزة
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')" v-if="$page.props.auth.user.type_id==1">
+                            <ResponsiveNavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
                                      حسابات المندوبين       
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('accounting')" :active="route().current('accounting')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2">
+                            <ResponsiveNavLink :href="route('accounting')" :active="route().current('accounting')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==5">
                                       المحاسبة       
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('hospital')" :active="route().current('hospital')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==6">

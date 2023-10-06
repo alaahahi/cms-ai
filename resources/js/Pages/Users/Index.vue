@@ -68,7 +68,7 @@ function open(id) {
 
 <template>
     <Head title="Dashboard" />
-    <AuthenticatedLayout v-if="$page.props.auth.user.type_id==1">
+    <AuthenticatedLayout v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 إدارة المستخدمين
