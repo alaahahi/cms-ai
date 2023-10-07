@@ -152,8 +152,7 @@ class AccountingController extends Controller
     $desc=" سحب دفعة من حساب "." ".$request->user['name'].' '.$note;
     $authUser = auth()->user();
     $date= $request->date??0;
-    $transaction=$this->debt($amount,$desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser,$date);
-    $this->debt($amount,$desc,$user_id,$user_id,'App\Models\User',$authUser,$date,$transaction->id);
+    $this->debt($amount,$desc,$user_id,$user_id,'App\Models\User',$authUser,$date);
 
     return Response::json($request, 200);
 
