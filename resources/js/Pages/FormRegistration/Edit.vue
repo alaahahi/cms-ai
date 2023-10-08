@@ -320,7 +320,7 @@ const createBase64ImageWife = (fileObject) => {
                         </span>
                       </div>
                   </div>
-                  <img :src="'/'+form.image" />
+                  <img :src="'/public/'+form.image" />
 
                 </div>
               </div>
