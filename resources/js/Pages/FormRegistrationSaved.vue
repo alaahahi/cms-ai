@@ -78,7 +78,7 @@ const results = (id) => {
     <div v-if="userCard.card_number">
       <div
         id="alert-2"
-        class="p-4 mb-4 bg-green-300 rounded-lg dark:bg-green-300 text-center"
+        class="p-4 mb-4 bg-green-300 rounded-lg dark:bg-green-300 text-center print:hidden"
         role="alert"
       >
         <div class="ml-3 text-sm font-medium text-green-700 dark:text-green-800">
@@ -89,7 +89,7 @@ const results = (id) => {
     <div v-if="errors">
       <div
         id="alert-2"
-        class="p-4 mb-4 bg-pink-300 rounded-lg dark:bg-pink-300 text-center"
+        class="p-4 mb-4 bg-pink-300 rounded-lg dark:bg-pink-300 text-center print:hidden"
         role="alert"
       >
         <div class="ml-3 text-sm font-medium text-pink-700 dark:text-pink-800">
@@ -100,7 +100,7 @@ const results = (id) => {
     <div v-if="$page.props.success">
       <div
         id="alert-2"
-        class="p-4 mb-4 bg-red-100 rounded-lg dark:bg-red-200 text-center"
+        class="p-4 mb-4 bg-red-100 rounded-lg dark:bg-red-200 text-center print:hidden"
         role="alert"
       >
         <div class="ml-3 text-sm font-medium text-red-700 dark:text-red-800">
@@ -108,7 +108,7 @@ const results = (id) => {
         </div>
       </div>
     </div>
-    <div class="py-12">
+    <div class="py-4">
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden  sm:rounded-lg">
           <div class="p-6 bg-white">
@@ -212,7 +212,7 @@ const results = (id) => {
                   
                             </div>
 
-                            <div className="mb-4 mx-5" v-if="userCard.id">
+                            <div className="mb-4 mx-5 print:hidden" v-if="userCard.id">
                               <InputLabel for="pay" value="طباعة الوصل" />
                               <a
                               :href="route('document', userCard.id ||0)"
