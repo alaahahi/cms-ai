@@ -230,7 +230,7 @@ const results = (id) => {
             <div class="flex flex-row">
               <div class="grow">
                 <div class="pb-3">
-                  <div class="mx-auto mx-7" v-if="userCard?.image">
+                  <div class="mx-auto mx-7" v-if="userCard?.image" style="    margin: auto;width: 50%;min-width: 309px;">
                     <img :src="'/public/'+userCard?.image" />
                   </div>
                 </div>
