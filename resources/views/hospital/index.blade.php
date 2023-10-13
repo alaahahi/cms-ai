@@ -22,7 +22,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="author" content="Themefisher">
   <meta name="generator" content="{{$hospital['name'] ?? ''}}">
-  
+  <meta name="googlebot" content="index">
+  <meta name="robots" content="index, follow">
+  <meta name="robots" content="max-image-preview:large">
+  <meta name="msapplication-TileColor" content="#d10404">
+  <link rel="shortcut icon" href="./web-asset/img/favicon.ico">
+  <link rel="apple-touch-icon" href="./web-asset/img/favicon.ico">
   <!-- theme meta -->
   <meta name="theme-name" content="{{$hospital['name'] ?? ''}}" />
 
