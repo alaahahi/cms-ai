@@ -159,10 +159,13 @@ class AccountingController extends Controller
     }
     public function delTransactions(Request $request)
     {
+        
         $transaction_id = $request->id ?? 0;
         $originalTransaction = Transactions::find($transaction_id);
         $wallet_id=$originalTransaction->wallet_id;
         $wallet=Wallet::find($wallet_id);
+        $walletHospital=Wallet::where('user_id',$this->hospital->id)->first();
+
         $wallet->decrement('balance', $originalTransaction->amount);
         if (!$originalTransaction) {
             return response()->json(['message' => 'Transaction not found'], 404);
@@ -173,6 +176,9 @@ class AccountingController extends Controller
             $wallet_id=$all->wallet_id;
             $wallet=Wallet::find($wallet_id);
             $wallet->decrement('balance', $all->amount);
+            $wallet->decrement('card', $all->card);
+            $walletHospital->decrement('card', $all->card);
+
             $all->delete();
           }
         }
@@ -200,6 +206,7 @@ class AccountingController extends Controller
         $date= $request->date??0;
         $user_id= $request->user['id']??0;
         $box = $request->box??0;
+        $card = $request->card??0;
         $hospital= $request->hospital??0;
         $doctor= $request->doctor??0;
         $wallet = Wallet::where('user_id', $user_id)->first();
@@ -218,7 +225,7 @@ class AccountingController extends Controller
         
         $desc=" مبيعات المندوب"." ".$request->user['name'].' '.'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
         $transaction = $this->increaseWallet($box, $desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$user_id, $date);
-        $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date,$transaction->id);
+        $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date,$transaction->id,$card);
         // $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User',$user_id, $date);
         // $this->increaseWallet($hospital, $desc,$this->hospital->id,$this->hospital->id,'App\Models\User',$user_id, $date);
         return Response::json($request, 200);
@@ -298,11 +305,11 @@ class AccountingController extends Controller
         return Response::json($new_balance, 200);
 
     }
-    public function increaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0) 
+    public function increaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0) 
     {
         $user=  User::with('wallet')->find($user_id);
         if($id = $user->wallet->id){
-        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id];
+        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card];
         $Transactions =Transactions::create($transactionDetils);
         $wallet = Wallet::find($id);
         $wallet->increment('balance', $amount);
@@ -314,13 +321,13 @@ class AccountingController extends Controller
         return $Transactions;
     }
 
-    public function decreaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0) 
+    public function decreaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0) 
     {
         $user=  User::with('wallet')->find($user_id);
         if($id = $user->wallet->id){
         $wallet = Wallet::find($id);
             $wallet->decrement('balance', $amount);
-            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>1,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id];
+            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>1,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card];
             $Transactions =Transactions::create($transactionDetils);
          
         

@@ -19,6 +19,7 @@ class Transactions extends Model
         'description',
         'is_pay',
         'created',
+        'card',
         'parent_id'
     ];
     protected $dates = ['deleted_at'];

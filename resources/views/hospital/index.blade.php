@@ -172,7 +172,7 @@
 							<i class="icofont-support"></i>
 						</div>
 						<span>حالات الطوارئ</span>
-						<h4 class="mb-3" dir='ltr'>6169 </h4>
+						<h4 class="mb-3" dir='ltr'> </h4>
 						<p>{{$hospital['title2'] ?? ''}}</p>
 						<p> كشفية الطوارئ مجانية</p>
 					</div>
