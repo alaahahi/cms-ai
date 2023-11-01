@@ -200,7 +200,7 @@
 			<div class="col-lg-12 text-center">
 				<div class="about-content pl-4 mt-4 mt-lg-0">
 					<h2 class="title-color">{{$hospital['title1'] ?? ''}}</h2>
-					<p class="mt-4 mb-5">{{$hospital['title3'] ?? ''}}</p>
+					<p class="mt-4 mb-5">{!! $hospital['title3'] ?? ''!!}</p>
 
 					<a href="service" class="btn btn-main-2 btn-round-full btn-icon">خصوماتنا </a>
 				</div>
@@ -351,6 +351,7 @@
 					<h2>{{$hospital['name'] ?? ''}}</h2>
 					<div class="divider mx-auto my-4"></div>
 					<p>{!! $hospital['title4'] ?? '' !!}</p>
+					
 					<p>{!! $hospital['title5'] ?? '' !!}</p>
 
 				</div>
@@ -362,8 +363,7 @@
 			<div class="row justify-content-center">
 				<div class="col-lg-7 text-center">
 					<div class="section-title">
-						<h2> شروط الأستخدام</h2>
-						<div class="divider mx-auto my-4"></div>
+	
 						<p>{!! $hospital['cond_card'] ?? '' !!}</p>
 		
 	
@@ -382,7 +382,7 @@
 			<div class="row align-items-center justify-content-between">
 				<div class="col-lg-6">
 					<div class="copyright" style="text-align: right">
-						&copy; 2023	جميع الحقوق محفوظة  <a href="https://d-targetco.net/">شركة الهدف المباشر</a>
+						&copy; 2023	جميع الحقوق محفوظة  <a href="https://d-targetco.net/">شركة دايركت تاركيت</a>
 					</div>
 				</div>
 				<div class="col-lg-6">
@@ -420,5 +420,4 @@
 
   </body>
   </html>
-
 
