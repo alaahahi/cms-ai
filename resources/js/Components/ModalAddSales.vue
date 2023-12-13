@@ -44,20 +44,16 @@ const restform =()=>{
 }
 const calculateAmount = () => {
   if(form.value.card==1){
-  form.value.amount = 25000;
-  form.value.box = (75000 * form.value.card)-form.value.amount;
+  form.value.amount = 20000;
+  form.value.box = (75000 * form.value.card);
   }else{
-  let cards= (form.value.card)-1
-  form.value.amount = (form.value.user.percentage * cards)+25000;
-  form.value.box = (75000 * form.value.card)-form.value.amount;
+  let cards= (form.value.card)-2
+  form.value.amount = (form.value.user.percentage * cards)+40000;
+  form.value.box = (75000 * form.value.card);
   }
 
 };
 
-const calculateBox = () => {
-  form.value.box = (75000 * form.value.card)-form.value.amount;
-  
-};
 
 
 </script>
