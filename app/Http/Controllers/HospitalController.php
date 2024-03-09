@@ -77,18 +77,25 @@ class HospitalController extends Controller
         if($profile){
             $appointment = Appointment::create([
                 'user_id' =>$request->user_id,
-                'card_id' => $request->card_id,
+                'card_id' => $profile->card_number,
                 'note' => $request->note,
                 'start' => $this->convertToTimestamp($request->start),
                 'end' => $this->convertToTimestamp($request->end),
                  ]);
                  return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users])->with('success', 'شكراّ,تمت العملية بنجاح');
         }else{
-            $Profile = Profile::create([
+            $new = Profile::create([
                 'name' =>$request->note,
                 'user_id' => $request->user_id,
                 'card_number' => $request->card_id,
                  ]);
+                 $appointment = Appointment::create([
+                    'user_id' =>$request->user_id,
+                    'card_id' => $new->card_number,
+                    'note' => $request->note,
+                    'start' => $this->convertToTimestamp($request->start),
+                    'end' => $this->convertToTimestamp($request->end),
+                     ]);
             return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users])->with('success', 'شكراّ,تمت العملية بنجاح');
         }
 
