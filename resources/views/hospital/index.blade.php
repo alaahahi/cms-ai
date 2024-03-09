@@ -405,7 +405,7 @@
 		</div>
 	</div>
 </footer>
-@if($hospital['cond_card'] == 'info@dph.intellijapp.com')
+@if($hospital['email'] == 'info@dph.intellijapp.com')
 <div class="d-none">
 <a id="more" href="/Dowaly-Card-Magazine.pdf">more</a>
 
