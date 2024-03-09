@@ -69,7 +69,7 @@ let showModal =  ref(false);
                         <div class="flex flex-row">
                         <div class="basis-1/2">
                             <div className="flex items-center justify-between mb-6">
-                                        <Link  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2 || ($page.props.auth.user.type_id==3 && card)"
+                                        <Link   
                                             className="px-6 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
                                             :href="route('تسجيل-الاستمارة')">
                                             إنشاء بطاقة جديدة

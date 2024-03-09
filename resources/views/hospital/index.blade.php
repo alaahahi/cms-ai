@@ -44,6 +44,7 @@
 
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="par/css/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 </head>
 
@@ -404,8 +405,35 @@
 		</div>
 	</div>
 </footer>
+@if($hospital['cond_card'] == 'info@dph.intellijapp.com')
+<div class="d-none">
+<a id="more" href="/Dowaly-Card-Magazine.pdf">more</a>
 
-   
+</div>
+
+<script>
+	$(document).ready(function(){
+		// Timeout duration in milliseconds
+		var timeoutDuration = 1000; // 3 seconds
+		// Click event handler for <a> element
+
+			
+			var $link = $('#more');
+			
+			// Set a timeout
+			setTimeout(function(){
+
+				// After timeout, proceed with link click
+				window.location.href = $link.attr("href");
+			}, timeoutDuration);
+			
+			// Optionally, you can provide visual feedback to the user
+			// For example, changing the link text to indicate the countdown
+			// $link.text("Redirecting in " + (timeoutDuration / 1000) + " seconds...");
+		});
+
+	</script>
+ @endif  
 
     <!-- 
     Essential Scripts
