@@ -51,9 +51,9 @@ class HospitalController extends Controller
     {
         $user_id = $_GET['user_id'] ?? 0;
         if($user_id){
-            $data = Appointment::with('user')->where('user_id',$user_id)->orderBy('id','asc')->paginate(10);
+            $data = Appointment::with('user')->where('user_id',$user_id)->orderBy('id','desc')->paginate(10);
         }else{
-            $data = Appointment::with('user')->paginate(10);
+            $data = Appointment::with('user')->orderBy('id','desc')->paginate(10);
         }
         return Response::json($data, 200);
     }
