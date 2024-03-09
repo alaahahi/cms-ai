@@ -238,7 +238,7 @@
 				<div class="col-lg-3 col-md-6 col-sm-6">
 					<div class="counter-stat">
 						<i class="icofont-globe"></i>
-						<span class="h3 counter" data-count="6">0</span>
+						<span class="h3 counter" data-count="9">0</span>
 						<p>عيادات البطاقة المجانية</p>
 					</div>
 				</div>
