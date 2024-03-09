@@ -98,14 +98,18 @@ const handleInput = (v) => {
     checkCard(v); // Call the function to make the Axios request after the delay
   }, delay);
 };
+const showError = ref(0);
 
 const checkCard = (v) => {
   axios.get('/api/checkCard?card_id='+v)
   .then(response => {
     userCard.value=response.data;
+    showError.value=1
   })
   .catch(error => {
-    userCard.value=0;
+    userCard.value=v;
+    showError.value=2
+
   })
 };
 </script>
@@ -151,7 +155,7 @@ const checkCard = (v) => {
                         required
                       />
                       <span
-                        v-if="userCard"
+                        v-if="showError ==1"
                       >
                       البطاقة تم تسجيلها قبل بأسم 
                       <span  className="text-red-600">
@@ -165,6 +169,9 @@ const checkCard = (v) => {
                       <span className="text-red-600">
                         {{userCard.family_name}}
                       </span>
+                      </span>
+                      <span v-if="showError ==2">
+                       البطاقة غير موجودة حاليا يرجى تسجيل اسم المريض في الملاحظة
                       </span>
                     </div>
                     
@@ -190,7 +197,7 @@ const checkCard = (v) => {
                 <TextInput type="text" class="form-control w-full " v-model="form.note"/>
                 </div>
                 <div class=" px-5 py-7 pt-12 ">
-                <button type="date" class="px-6 py-2 text-white bg-blue-500 rounded-md focus:outline-none w-full"  @click="submit" :disabled="!form.start || !form.end || !form.user_id || !form.card_id">
+                <button type="date" class="px-6 py-2 text-white bg-blue-500 rounded-md focus:outline-none w-full"  @click="submit" :disabled="!form.start || !form.end || !form.user_id || !form.card_id">{{ form.card_id }}
                   <span v-if="!isLoading">حفظ</span>
                   <span v-else>جاري الحفظ...</span>
                 </button>

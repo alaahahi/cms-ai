@@ -68,7 +68,6 @@ class HospitalController extends Controller
         $userDoctor = User::where('type_id',$this->userDoctor)->get();
         $users = User::where('type_id',$this->userDoctor)->get();
 
-
         Validator::make($request->all(), [
         'user_id'=> 'required|int|max:50000',
         'card_id'=> 'required|int|max:50000',
@@ -84,8 +83,15 @@ class HospitalController extends Controller
                 'end' => $this->convertToTimestamp($request->end),
                  ]);
                  return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users])->with('success', 'شكراّ,تمت العملية بنجاح');
-        }else
-        return Inertia::render('Hospital/Add', ['url'=>$this->url,'userDoctor'=>$userDoctor])->with('success', 'رقم البطاقة غير صالح او لم يتم تسجيل البطاقة');
+        }else{
+            $Profile = Profile::create([
+                'name' =>$request->note,
+                'user_id' => $request->user_id,
+                'card_number' => $request->card_id,
+                 ]);
+            return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users])->with('success', 'شكراّ,تمت العملية بنجاح');
+        }
+
     }
     public function edit(Request $request,$id)
     {
