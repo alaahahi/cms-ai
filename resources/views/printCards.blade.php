@@ -33,7 +33,7 @@
      هاتف
     </th>
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
-     ملاحظة
+     العقد الالكتروني
     </th>
 </tr>
     <?php $i = 1 ?>
