@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use PDF;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use App\Models\Hospital;
 
 
 
@@ -139,8 +140,23 @@ class FormRegistrationController extends Controller
     public function getIndex()
     {
         $authUser = auth()->user();
-        $data = Profile::with('user')->orderBy('no', 'DESC')->paginate(10);
-        return Response::json($data, 200);
+        $from = $_GET['from'] ?? 0;
+        $to = $_GET['to'] ?? 0;
+        $print = $_GET['print'] ?? 0;
+        $config = SystemConfig::first();
+        $hospital = Hospital::first();
+
+
+        $data = Profile::with('user')->orderBy('no', 'DESC');
+        if ($from && $to) {
+            $data->whereBetween('created', [$from, $to]);
+        } 
+        if($print){
+            $data = $data->get();
+            return view('printCards',compact('data','from','to','config','hospital'));  
+        }
+
+        return Response::json($data->paginate(10), 200);
     }
     public function getIndexSaved()
     {
