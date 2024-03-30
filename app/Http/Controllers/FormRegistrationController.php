@@ -144,7 +144,7 @@ class FormRegistrationController extends Controller
         $to = $_GET['to'] ?? 0;
         $print = $_GET['print'] ?? 0;
         $config = SystemConfig::first();
-        $hospital = Hospital::first();
+        $hospital = Hospital::last();
 
 
         $data = Profile::with('user')->orderBy('no', 'DESC');
