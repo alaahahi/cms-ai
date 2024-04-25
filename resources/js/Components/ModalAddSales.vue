@@ -44,12 +44,17 @@ const restform =()=>{
 }
 const calculateAmount = () => {
   if(form.value.card==1){
-  form.value.amount = 20000;
-  form.value.box = (75000 * form.value.card);
-  }else{
-  let cards= (form.value.card)-2
-  form.value.amount = (form.value.user.percentage * cards)+40000;
-  form.value.box = (75000 * form.value.card);
+  form.value.amount = 10000;
+  form.value.box = (50000 * form.value.card);
+  }
+  else if(form.value.card==2) {
+    form.value.amount = 20000;
+  form.value.box = (50000 * form.value.card);
+  }
+  else{
+  let cards= (form.value.card)
+  form.value.amount = (form.value.user.percentage * cards)+10000;
+  form.value.box = (50000 * form.value.card);
   }
 
 };
@@ -113,7 +118,7 @@ const calculateAmount = () => {
                           v-model="form.card" />
                         </div>
                         <div className="mb-4 mx-5">
-                        <label for="card" >المجموع نسبة المبيعات للمندوب</label>
+                        <label for="card" >مجموع نسبة المبيعات للمندوب</label>
                         <input
                           id="card"
                           type="number"
