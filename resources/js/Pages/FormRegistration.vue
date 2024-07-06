@@ -39,6 +39,8 @@ const isLoading = ref(false);
 
 const submit = () => {
   isLoading.value = true;
+  sendWhatsAppMessageArray(form.value.phone_number,form.value.card_number)
+
   axios.post('/api/formRegistration', form.value)
   .then(response => {
     profileAdded.value = response.data;
@@ -46,6 +48,7 @@ const submit = () => {
       created: ref(getTodayDate()), // Set the initial value to today's date
     };
     isLoading.value = false;
+
 
   })
   .catch(error => {
@@ -109,7 +112,56 @@ const checkCard = (v) => {
     userCard.value=0;
   })
 };
+const sendWhatsAppMessageArray = (phoneNumber, card_number) => {
+    const baseUrl = 'https://api.textmebot.com/send.php';
+    const apiKey = 'ktmGW9VuP5oQ';
+    const textMessage = ' السلام عليكم: شركة الهدف المباشر تم تفعيل بطاقة مستشفى الشرق الأوسط رقم ' + card_number + ' :للمزيد من المعلومات التواصل على الرقم الخاص بخدمة الزبائن ' + '+9647715558558';
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    let promise = Promise.resolve(); // Start with a resolved promise
 
+    if (phoneNumber) {
+        promise = promise.then(() => {
+            const url = `${baseUrl}?recipient=+964${phoneNumber}&apikey=${apiKey}&text=${encodeURIComponent(textMessage)}&json=yes`;
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const index = phoneNumbers.indexOf(phoneNumber);
+                        if (index !== -1) {
+                            phoneNumbers.splice(index, 1);
+                        }
+                        toast.success("تم الارسال بنجاح", {
+                            timeout: 2000,
+                            position: "bottom-right",
+                            rtl: true,
+                        });
+                    } else {
+                        throw new Error("Sending failed");
+                    }
+                })
+                .catch(error => {
+                    const index = phoneNumbers.indexOf(phoneNumber);
+                    if (index !== -1) {
+                        phoneNumbers.splice(index, 1);
+                    }
+                    if (error.message === 'NetworkError') {
+                        toast.success("تم الارسال بنجاح", {
+                            timeout: 2000,
+                            position: "bottom-right",
+                            rtl: true,
+                        });
+                    } else {
+                        toast.error("خطأ في الارسال", {
+                            timeout: 2000,
+                            position: "bottom-right",
+                            rtl: true,
+                        });
+                    }
+                })
+                .then(() => delay(5000)); // Wait for 5 seconds before sending the next message
+        });
+    }
+};
 </script>
 
 <template>
