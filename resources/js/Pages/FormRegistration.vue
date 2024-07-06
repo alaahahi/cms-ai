@@ -115,7 +115,10 @@ const checkCard = (v) => {
 const sendWhatsAppMessageArray = (phoneNumber, card_number) => {
     const baseUrl = 'https://api.textmebot.com/send.php';
     const apiKey = 'ktmGW9VuP5oQ';
-    const textMessage = ' السلام عليكم: شركة الهدف المباشر تم تفعيل بطاقة مستشفى الشرق الأوسط رقم ' + card_number + ' :للمزيد من المعلومات التواصل على الرقم الخاص بخدمة الزبائن ' + '+9647715558558';
+    const textMessage = ' السلام عليكم: شركة الهدف المباشر تم تفعيل بطاقة مستشفى الشرق الأوسط رقم البطاقة ' + card_number 
+    +' العنوان بغداد الكرخ - شارع الربيع قرب ساحة عدن - مجاور محكمة استئناف الكرخ '
+    + ' :للمزيد من المعلومات التواصل على الرقم الخاص بخدمة الزبائن ' 
+    + '+9647715558558';
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     let promise = Promise.resolve(); // Start with a resolved promise
 
