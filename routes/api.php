@@ -7,6 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\FormRegistrationController;
 use App\Http\Controllers\AccountingController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WebhookController;
+
 
 
 Route::apiResource('upload', UploadController::class);
@@ -30,4 +33,6 @@ Route::post('salesCard',[AccountingController::class, 'salesCard'])->name('sales
 Route::post('salesDebt',[AccountingController::class, 'salesDebt'])->name('salesDebt');
 Route::post('delTransactions',[AccountingController::class, 'delTransactions'])->name('delTransactions');
 
+Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('makePayment');
+Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->name('payment-webhook');;
 
