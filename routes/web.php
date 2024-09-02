@@ -36,7 +36,9 @@ Route::get('/failure', function () {
 Route::get('/success', function () {
     return view('success');
 });
-
+Route::get('/order', function () {
+    return view('order');
+});
 
 Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('/dashboard', function () {return Inertia::render('Dashboard');})->middleware(['auth', 'verified'])->name('dashboard');
