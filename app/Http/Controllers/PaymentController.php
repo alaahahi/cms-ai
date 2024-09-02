@@ -41,6 +41,10 @@ class PaymentController extends Controller
             $webhookUrl
         );
 
+        if($response['success']??'')
+        {
+
+ 
         // Optionally, you can update the order status based on the payment response
         if ($response['success'] === true) {
               // Save the order to the database with status and state
@@ -60,6 +64,7 @@ class PaymentController extends Controller
             return response()->json($response);
 
          }
+        }
 
         // Return the response as JSON
         return response()->json($response);
