@@ -19,6 +19,8 @@ class Order extends Model
         "link",
         "token",
         "transactionId",
-        "3DSecureId"
+        "3DSecureId",
+        'cardNumber',
+        'name',
     ];
 }
