@@ -27,9 +27,15 @@ Route::middleware(['web', 'hospital'])->group(function () {
     Route::get('/',[HospitalController::class,'index'])->name('/');
 });
 
-// Route::get('/', function () {
-//     return view('index');
-// });
+Route::get('/cancel', function () {
+    return view('cancel');
+});
+Route::get('/failure', function () {
+    return view('failure');
+});
+Route::get('/success', function () {
+    return view('success');
+});
 
 
 Route::group(['middleware' => ['auth','verified']], function () {
