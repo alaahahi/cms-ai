@@ -13,6 +13,12 @@
             font-size: 5rem;
             color: green;
         }
+        body {
+            background-color: #11162a; /* Blue background */
+            color: white;
+            overflow-x: hidden;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+        }
     </style>
 </head>
 <body>
@@ -25,9 +31,25 @@
             <!-- Payment Success Message -->
             <h1 class="mt-4">تمت عملية الدفع بنجاح</h1>
             <p class="lead">شكرا لك من شركة الهدف المباشر</p>
+            <a href="/order"   style="font-size: 25px;color:#fff;text-decoration: none">بطاقة جديدة</a>
+
         </div>
     </div>
-</div>
+
+<img src="/asset/img/card book2-images-15.jpg" style="width: 100%;border-radius: 20px" class="my-4" alt="Logo">
+    <h1>تواصل معنا الان</h1>
+    <a href="tel:'07715558558'"  tel="07715558558" style="font-size: 25px;color:#fff;text-decoration: none">07715558558</a>
+    <br>
+    <br>
+    <div class="container">
+        <footer class=" py-3 my-4 text-center  border-top">
+            جميع الحقوق محفوظة شركة الهدف المباشر - العراق بغداد 2024-عملية الدفع بالتعاون مع كي كارد
+          
+         
+        </footer>
+      </div>
+
+    </div>
 
 <!-- Bootstrap 5 JS and Popper -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

@@ -20,7 +20,11 @@ class Order extends Model
         "token",
         "transactionId",
         "3DSecureId",
-        'cardNumber',
+        'card_number',
+        'salse',
         'name',
+        'family_name',
+        'phone',
+        'address'
     ];
 }

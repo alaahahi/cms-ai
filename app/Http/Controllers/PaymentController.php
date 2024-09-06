@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\QiPayService;
 use Illuminate\Support\Str;
 use App\Models\Order; 
+use Illuminate\Support\Facades\Http;
+
 
 class PaymentController extends Controller
 {
@@ -18,12 +20,29 @@ class PaymentController extends Controller
 
     public function makePayment(Request $request)
     {
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'familyNames' => 'nullable|string',
+            'cardNumber' => 'nullable|string',
+            'address' => 'nullable|string',
+            'salse' => 'nullable|string',
+        ]);
+
         // Generate a UUID for the order ID
         $orderId = Str::uuid()->toString();
         $orderId = str_replace('-', '', $orderId);  // R
         // Get payment data from the request or set defaults
-        $amount = $request->input('amount', 1000); // Default to 1000 IQD
+        $amount = $request->input('amount', 85000); // Default to 1000 IQD
         $currency = $request->input('currency', 'IQD');
+        $name = $request->input('name', '');
+        $phone = $request->input('phone', '');
+        $familyNames = $request->input('familyNames', '');
+        $cardNumber = $request->input('cardNumber', '');
+        $address = $request->input('address', '');
+        $salse = $request->input('salse', 'بدون مندوب');
+
         $successUrl =  url('success');
         $failureUrl =  url('failure');
         $cancelUrl =  url('cancel');
@@ -53,6 +72,12 @@ class PaymentController extends Controller
                 'order_id' => $orderId,
                 'amount' => $amount,
                 'currency' => $currency,
+                'name' => $name,
+                'phone' => $phone,
+                'familyNames' => $familyNames,
+                'card_number' => $cardNumber,
+                'address' => $address,
+                'salse' => $salse,
                 'status' => 'pending', // Set the status to 'pending'
                 'state' => 'initial',  // Set the state to 'initial'
                 'link'=>$response['data']['link'] ,
@@ -60,8 +85,11 @@ class PaymentController extends Controller
                 'transactionId'=>$response['data']['transactionId'],
                 '3DSecureId'=>$response['data']['transactionId'],
             ]);
+
+            return redirect($response['data']['link']);
+
         } else {
-            return response()->json($response);
+            return redirect()->back()->with('error', 'فشلت عملية الدفع. يرجى المحاولة مرة أخرى.');
 
          }
         }

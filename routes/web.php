@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\HospitalController;
 use App\Models\SystemConfig;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,7 @@ Route::get('/success', function () {
 Route::get('/order', function () {
     return view('order');
 });
+Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('make-payment');
 
 Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('/dashboard', function () {return Inertia::render('Dashboard');})->middleware(['auth', 'verified'])->name('dashboard');

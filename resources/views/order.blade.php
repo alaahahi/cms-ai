@@ -11,10 +11,10 @@
     <!-- Custom CSS for Animations and Style -->
     <style>
         body {
-            background-color: #007bff; /* Blue background */
+            background-color: #11162a; /* Blue background */
             color: white;
             overflow-x: hidden;
-            font-family: 'Arial', sans-serif;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
         }
 
         .container {
@@ -73,13 +73,13 @@
         }
 
         .btn-pay {
-            background-color: #007bff;
+            background-color: #11162a;
             border: none;
             color: white;
         }
 
         .btn-pay:hover {
-            background-color: #0056b3;
+            background-color: #11162a;
         }
 
         /* Responsive Design */
@@ -103,28 +103,66 @@
 
 <div class="container text-center mt-5">
     <!-- Logo -->
-    <img src="https://via.placeholder.com/150" alt="Logo" class="logo">
+    <img src="/asset/img/logo1.jpg" style="border-radius: 100px" alt="Logo" class="logo">
     
     <!-- Company and Card Names -->
     <h1 class="mt-3">شركة الهدف المباشر</h1>
     <h3>بطاقة الشرق الأوسط</h3>
 
-    <!-- Form -->
-    <div class="card-form mt-4">
-        <form action="/process-payment" method="POST">
-            <div class="mb-3">
-                <label for="subscriberName" class="form-label">اسم المشترك</label>
-                <input type="text" class="form-control" id="subscriberName" name="subscriberName" required>
-            </div>
+    <div class="container text-center mt-5">
+        <h1>عملية الدفع</h1>
+        <h2>سعر البطاقة 85.000 دينار عراقي فقط لاغير</h2>
 
-            <div class="mb-3">
-                <label for="cardNumber" class="form-label">رقم البطاقة</label>
-                <input type="text" class="form-control" id="cardNumber" name="cardNumber" required>
-            </div>
-
-            <button type="submit" class="btn btn-pay w-100">دفع</button>
-        </form>
+        <div class="card-form mt-4">
+            <form action="{{ route('make-payment') }}" method="POST">
+                @csrf
+                <div class="mb-3">
+                    <label for="name" class="form-label">اسم المشترك</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="phone" class="form-label">رقم الهاتف</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="familyNames" class="form-label">اسماء افراد العائلة (اختياري)</label>
+                    <textarea class="form-control" id="familyNames" name="familyNames"></textarea>
+                </div>
+                @if( request()->get('more') == 'true')               
+                <div class="mb-3">
+                    <label for="salse" class="form-label">اسم المندوب</label>
+                    <input type="text" class="form-control" id="salse" name="salse"></input>
+                </div>
+                @endif
+                <div class="mb-3">
+                    <label for="cardNumber" class="form-label">رقم البطاقة (اختياري)</label>
+                    <input type="text" class="form-control" id="cardNumber" name="cardNumber">
+                </div>
+    
+                <div class="mb-3">
+                    <label for="address" class="form-label">العنوان (اختياري)</label>
+                    <input type="text" class="form-control" id="address" name="address">
+                </div>
+    
+                <button type="submit" class="btn btn-primary w-100">دفع</button>
+            </form>
+        </div>
     </div>
+
+    <img src="/asset/img/card book2-images-15.jpg" style="width: 100%;border-radius: 20px" class="my-4" alt="Logo">
+    <h1>تواصل معنا الان</h1>
+    <a href="tel:'07715558558'"  tel="07715558558" style="font-size: 25px;color:#fff;text-decoration: none">07715558558</a>
+    <br>
+    <br>
+    <div class="container">
+        <footer class=" py-3 my-4 text-center  border-top">
+            جميع الحقوق محفوظة شركة الهدف المباشر - العراق بغداد 2024-عملية الدفع بالتعاون مع كي كارد
+          
+         
+        </footer>
+      </div>
 </div>
 
 <!-- Bootstrap 5 JS and Popper -->
