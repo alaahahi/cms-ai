@@ -42,15 +42,16 @@ const isLoading = ref(false);
 
 const submit = () => {
   isLoading.value = true;
+  sendWhatsAppMessageArray(form.value.phone_number,form.value.card_number)
 
   axios.post('/api/formRegistration', form.value)
   .then(response => {
+
     profileAdded.value = response.data;
     form.value={
       created: ref(getTodayDate()), // Set the initial value to today's date
     };
     isLoading.value = false;
-    sendWhatsAppMessageArray(form.value.phone_number,form.value.card_number)
 
 
   })
