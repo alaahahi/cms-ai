@@ -223,7 +223,9 @@ class FormRegistrationController extends Controller
                 $cards= Card::all();
                 $sales = User::where('type_id', $this->userSeles)->get();
                 $apiKey =$config->api_key;
-                return Inertia::render('FormRegistration', ['url'=>$this->url,'cards'=> $cards,'sales'=> $sales,'apiKey'=>$apiKey]);
+                $third_title_ar =$config->third_title_ar;
+                $phone =$config->phone;
+                return Inertia::render('FormRegistration', ['url'=>$this->url,'cards'=> $cards,'sales'=> $sales,'apiKey'=>$apiKey,'third_title_ar'=>$third_title_ar,'phone'=>$phone]);
             }
             else {
                 return Inertia::render('Auth/Login');
