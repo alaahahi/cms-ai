@@ -42,7 +42,6 @@ const isLoading = ref(false);
 
 const submit = () => {
   isLoading.value = true;
-  sendWhatsAppMessageArray(form.value.phone_number,form.value.card_number)
 
   axios.post('/api/formRegistration', form.value)
   .then(response => {
@@ -51,6 +50,7 @@ const submit = () => {
       created: ref(getTodayDate()), // Set the initial value to today's date
     };
     isLoading.value = false;
+    sendWhatsAppMessageArray(form.value.phone_number,form.value.card_number)
 
 
   })
@@ -136,6 +136,9 @@ const sendWhatsAppMessageArray = (phoneNumber, card_number) => {
     let promise = Promise.resolve(); // Start with a resolved promise
 
     if (phoneNumber) {
+      if( phoneNumber.startsWith('0')){
+        phoneNumber=phoneNumber.slice(1)
+      }
         promise = promise.then(() => {
             const url = `${baseUrl}?recipient=+964${phoneNumber}&apikey=${apiKey}&text=${encodeURIComponent(textMessage)}&json=yes`;
             return fetch(url)
