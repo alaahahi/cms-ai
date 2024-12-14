@@ -44,11 +44,11 @@ const restform =()=>{
 }
 const calculateAmount = () => {
   if(form.value.card==1){
-  form.value.amount = 20000;
+  form.value.amount = 10000;
   form.value.box = (85000 * form.value.card);
   }
   else if(form.value.card==2) {
-    form.value.amount = 40000;
+    form.value.amount = 20000;
   form.value.box = (85000 * form.value.card);
   }
   else{
