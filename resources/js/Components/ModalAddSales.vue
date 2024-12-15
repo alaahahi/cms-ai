@@ -52,9 +52,7 @@ const calculateAmount = () => {
   form.value.box = (85000 * form.value.card);
   }
   else{
-  let cards= (form.value.card)
-  let v = form.value.card - 2
-  form.value.amount = (v*form.value.user.percentage) + (40000);
+  form.value.amount = (form.value.card*form.value.user.percentage) ;
   form.value.box = (85000 * form.value.card);
   }
 
