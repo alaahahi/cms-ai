@@ -11,8 +11,10 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+
+class User extends Authenticatable  implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable,SoftDeletes;
 
@@ -31,7 +33,10 @@ class User extends Authenticatable
         'parent_id',
         'is_band',
         'percentage',
-        'device'
+        'device',
+        'verification_code',
+        'phone_number',
+        'verification_date'
     ];
     protected $dates = ['deleted_at'];
 
@@ -85,5 +90,14 @@ class User extends Authenticatable
     public function wallet()
     {
         return $this->hasOne(Wallet::class);
+    }
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // عادةً مفتاح المستخدم الأساسي
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return []; // يمكن إضافة مطالبات إضافية إذا لزم الأمر
     }
 }

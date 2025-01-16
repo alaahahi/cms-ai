@@ -10,6 +10,7 @@ use App\Models\Wallet;
 use App\Models\User;
 use App\Models\Card;
 use App\Models\UserType;
+use App\Models\SystemConfig;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Auth\LoginRequest;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use App\Models\Massage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -35,6 +38,76 @@ class UserController extends Controller
      *
      * @return Response
      */
+
+     public function sendVerificationCode(Request $request)
+     {
+         $request->validate([
+             'phone_number' => 'required',//|digits:10
+         ]);
+ 
+         $phoneNumber = $request->phone_number;
+         $verificationCode = rand(100000, 999999);
+ 
+         // تحقق من وجود المستخدم
+         $user = User::where('phone_number', $phoneNumber)->first();
+ 
+         if ($user) {
+             // تحديث الكود إذا كان المستخدم موجودًا
+             $user->update(['verification_code' => $verificationCode]);
+         } else {
+             // إنشاء مستخدم جديد إذا لم يكن موجودًا
+             $user = User::create([
+                 'phone_number' => $phoneNumber,
+                 'verification_code' => $verificationCode,
+                 'user_type' => 7, // النوع 6
+             ]);
+         }
+         $config = SystemConfig::first();
+         // إرسال الكود باستخدام API الواتساب
+         $baseUrl = 'https://api.textmebot.com/send.php';
+         $apiKey =$config->api_key;
+         $textMessage = 'اهلاً وسهلاً بك..' . "\n\n" .
+                        'من فريق الهدف المباشر، كل المحبة ودعواتنا بتمام الصحة والعافية.' . "\n\n" .
+                        'رمز التحقق الخاص بك هو: ' . $verificationCode;
+ 
+         $response = Http::get($baseUrl, [
+             'recipient' => $phoneNumber,
+             'apikey' => $apiKey,
+             'text' => $textMessage,
+             'json' => 'yes',
+         ]);
+ 
+         return response()->json([
+             'message' => 'رمز التحقق تم إرساله بنجاح.',
+             'status' => $response->json(),
+         ]);
+     }
+     public function verifyCode(Request $request)
+     {
+         $request->validate([
+             'phone_number' => 'required',
+             'verification_code' => 'required|digits:6',
+         ]);
+ 
+         $user = User::where('phone_number', $request->phone_number)
+                     ->where('verification_code', $request->verification_code)
+                     ->first();
+ 
+         if (!$user) {
+             return response()->json(['message' => 'رمز التحقق غير صحيح.'], 401);
+         }
+         $user->update(['verification_date' => Carbon::now()->format('Y-m-d')]);
+
+         // إنشاء التوكن
+         $token = JWTAuth::fromUser($user);
+ 
+         return response()->json([
+             'message' => 'تم التحقق بنجاح.',
+             'token' => $token,
+             'token_type' => 'bearer',
+             'expires_in' => auth('api')->factory()->getTTL() * 60,
+         ]);
+     }
     public function index()
     {
         $cards= Card::all();

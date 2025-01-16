@@ -36,3 +36,5 @@ Route::post('delTransactions',[AccountingController::class, 'delTransactions'])-
 Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('makePayment');
 Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->name('payment-webhook');;
 
+Route::post('/send-verification-code', [UserController::class, 'sendVerificationCode']);
+Route::post('/verify-code', [UserController::class, 'verifyCode']);
