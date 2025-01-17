@@ -27,7 +27,7 @@ class CardsController extends Controller
         $cards = Card::active()->get();  // تحديد البطاقات الفعالة فقط باستخدام scope 'Active'
 
         // الحصول على الخدمات المرتبطة بالبطاقات الفعالة
-        $activeCardServices = CardService::whereIn('card_id', $cards->pluck('id'))
+        $activeCardServices = CardService::whereIn('card_id', $request->card_id  ? $request->card_id: $cards->pluck('id'))
             ->where('expir_date', '>=', now())  // فقط الخدمات التي لم تنته صلاحيتها
             ->get();
 
