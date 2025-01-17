@@ -36,7 +36,8 @@ class User extends Authenticatable  implements JWTSubject
         'device',
         'verification_code',
         'phone_number',
-        'verification_date'
+        'verification_date',
+        'verification_user_type'
     ];
     protected $dates = ['deleted_at'];
 

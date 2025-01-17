@@ -59,6 +59,7 @@ class UserController extends Controller
              $user = User::create([
                  'phone_number' => $phoneNumber,
                  'verification_code' => $verificationCode,
+                 'verification_user_type'=>'whatsapp',
                  'user_type' => 7, // النوع 6
              ]);
          }
@@ -92,6 +93,47 @@ class UserController extends Controller
          $user = User::where('phone_number', $request->phone_number)
                      ->where('verification_code', $request->verification_code)
                      ->first();
+ 
+         if (!$user) {
+             return response()->json(['message' => 'رمز التحقق غير صحيح.'], 401);
+         }
+         $user->update(['verification_date' => Carbon::now()->format('Y-m-d')]);
+
+         // إنشاء التوكن
+         $token = JWTAuth::fromUser($user);
+ 
+         return response()->json([
+             'message' => 'تم التحقق بنجاح.',
+             'token' => $token,
+             'token_type' => 'bearer',
+             'expires_in' => auth('api')->factory()->getTTL() * 60,
+         ]);
+     }
+     public function verifyCodeSms(Request $request)
+     {
+         $request->validate([
+             'phone_number' => 'required',
+             'verification_code' => 'required|digits:6',
+             'sms'=> 'required',
+         ]);
+          // تحقق من وجود المستخدم
+          $user = User::where('phone_number', $phoneNumber)->first();
+ 
+          if ($user) {
+              // تحديث الكود إذا كان المستخدم موجودًا
+              $user->update(['verification_code' => $verificationCode]);
+          } else {
+              // إنشاء مستخدم جديد إذا لم يكن موجودًا
+              $user = User::create([
+                  'phone_number' => $phoneNumber,
+                  'verification_code' => $verificationCode,
+                  'user_type' => 7, // النوع 6
+                  'verification_user_type'=>'sms'
+              ]);
+          }
+
+ 
+      
  
          if (!$user) {
              return response()->json(['message' => 'رمز التحقق غير صحيح.'], 401);
