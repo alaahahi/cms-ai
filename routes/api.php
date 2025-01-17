@@ -9,6 +9,7 @@ use App\Http\Controllers\FormRegistrationController;
 use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\Api\AppSettingsController;
 
 
 
@@ -38,3 +39,8 @@ Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->na
 
 Route::post('/send-verification-code', [UserController::class, 'sendVerificationCode']);
 Route::post('/verify-code', [UserController::class, 'verifyCode']);
+
+Route::get('/settings', [AppSettingsController::class, 'index']);
+
+// جلب إعداد معين باستخدام المفتاح
+Route::get('/settings/{key}', [AppSettingsController::class, 'show']);

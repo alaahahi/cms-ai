@@ -11,6 +11,10 @@ use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\HospitalController;
 use App\Models\SystemConfig;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\AppSettingsController;
+use Illuminate\Support\Facades\Artisan;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +26,11 @@ use App\Http\Controllers\PaymentController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('link', function () {
+    Artisan::call('storage:link');
+    return "yes link";
+});
+
 Route::resource('/users', UserController::class)->middleware(['auth', 'verified']);
 
 Route::middleware(['web', 'hospital'])->group(function () {
@@ -43,6 +52,9 @@ Route::get('/order', function () {
 Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('make-payment');
 
 Route::group(['middleware' => ['auth','verified']], function () {
+    Route::get('/settings', [AppSettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings/update', [AppSettingsController::class, 'update'])->name('settings.update');
+    
     Route::get('/dashboard', function () {return Inertia::render('Dashboard');})->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::get('dashboard',[DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
