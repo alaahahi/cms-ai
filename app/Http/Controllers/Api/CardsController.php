@@ -27,7 +27,7 @@ class CardsController extends Controller
         $cards = Card::active()->get();
     
         // إذا تم إرسال card_id في الطلب، استخدمه، إذا لم يكن هناك card_id، استخدم جميع البطاقات الفعالة
-        $cardIds = $request->has('card_id') ? $request->card_id : $cards->pluck('id');
+        $cardIds = $request->has('card_id') ? (array) $request->card_id : $cards->pluck('id')->toArray();
     
         // الحصول على الخدمات المرتبطة بالبطاقات الفعالة
         $activeCardServices = CardService::whereIn('card_id', $cardIds)
@@ -47,6 +47,7 @@ class CardsController extends Controller
             'data' => $activeCardServices,
         ], 200);
     }
+    
     
     
 }
