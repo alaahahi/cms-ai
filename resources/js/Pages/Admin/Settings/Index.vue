@@ -166,7 +166,7 @@ const resutSetting = () => {
               <td class="border px-4 py-2 td">
                 <img
                   v-if="setting.type === 'image'"
-                  :src="`/storage/${setting.value}`"
+                  :src="`/public/storage/${setting.value}`"
                   alt="Setting Image"
                   style="width:200px;"
                 />
