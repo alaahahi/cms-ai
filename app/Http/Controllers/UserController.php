@@ -116,6 +116,13 @@ class UserController extends Controller
              'verification_code' => 'required|digits:6',
              'sms'=> 'required',
          ]);
+         $request->validate([
+            'phone_number' => 'required',//|digits:10
+        ]);
+
+        $phoneNumber = $request->phone_number;
+        $verificationCode = rand(100000, 999999);
+        
           // تحقق من وجود المستخدم
           $user = User::where('phone_number', $phoneNumber)->first();
  
