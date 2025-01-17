@@ -41,6 +41,8 @@ Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/cards/active', [CardsController::class, 'activeCards']);
+    Route::get('/card-services/active', [CardsController::class, 'activeCardServices']);
+
 });
 
 Route::post('/send-verification-code', [UserController::class, 'sendVerificationCode']);
