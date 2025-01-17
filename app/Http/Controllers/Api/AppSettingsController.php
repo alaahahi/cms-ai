@@ -43,21 +43,29 @@ class AppSettingsController extends Controller
     public function show($key)
     {
         $setting = DB::table('app_settings')->where('key', $key)->first();
-
+    
         if (!$setting) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Setting not found.',
             ], 404);
         }
-
+    
+        // إذا كان النوع صورة، أضف رابط URL كامل
+        if ($setting->type === 'image') {
+            $baseUrl = env('APP_IMAGE_URL', url('storage')); // افتراضياً يستخدم التخزين المحلي إذا لم يتم تحديد البيئة
+            $setting->value = $baseUrl . '/' . $setting->value;
+        }
+    
+        // إذا كان النوع JSON، قم بفك الترميز
         if ($setting->type === 'json') {
             $setting->value = json_decode($setting->value);
         }
-
+    
         return response()->json([
             'status' => 'success',
             'data' => $setting,
         ], 200);
     }
+    
 }
