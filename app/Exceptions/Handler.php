@@ -1,7 +1,9 @@
 <?php
-
 namespace App\Exceptions;
 
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -46,5 +48,33 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $exception
+     * @return \Illuminate\Http\Response
+     */
+    public function render($request, Throwable $exception)
+    {
+        // Handling JWT specific exceptions
+        if ($exception instanceof JWTException) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Token is invalid or expired.',
+            ], 401);
+        }
+
+        // Handling authentication exceptions (missing token)
+        if ($exception instanceof AuthenticationException) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Authentication required or token missing.',
+            ], 401);
+        }
+
+        return parent::render($request, $exception);
     }
 }
