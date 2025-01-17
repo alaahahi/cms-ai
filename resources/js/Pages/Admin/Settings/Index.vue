@@ -104,8 +104,7 @@ const resutSetting = () => {
           <label for="image" class="block text-sm font-medium text-gray-700">
             تحميل صور
           </label>
-          <input
-            multiple 
+          <input 
             type="file"
             @change="handleFileUpload"
             id="image"
@@ -169,7 +168,7 @@ const resutSetting = () => {
                   v-if="setting.type === 'image'"
                   :src="`/storage/${setting.value}`"
                   alt="Setting Image"
-                  class="max-w-[150px] rounded"
+                  style="width:200px;"
                 />
                 <span v-else>{{ setting.value }}</span>
               </td>
