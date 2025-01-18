@@ -97,7 +97,7 @@ class UserController extends Controller
          if (!$user) {
              return response()->json(['message' => 'رمز التحقق غير صحيح.'], 401);
          }
-         $user->update(['verification_date' => Carbon::now()->format('Y-m-d')]);
+         $user->update(['verification_date' => Carbon::now()->format('Y-m-d'),'verification_user_type'=>'whatsapp']);
 
          // إنشاء التوكن
          $token = JWTAuth::fromUser($user);
@@ -122,13 +122,13 @@ class UserController extends Controller
 
         $phoneNumber = $request->phone_number;
         $verificationCode = rand(100000, 999999);
-        
+
           // تحقق من وجود المستخدم
           $user = User::where('phone_number', $phoneNumber)->first();
  
           if ($user) {
               // تحديث الكود إذا كان المستخدم موجودًا
-              $user->update(['verification_code' => $verificationCode]);
+              $user->update(['verification_code' => $verificationCode,'verification_user_type'=>'sms']);
           } else {
               // إنشاء مستخدم جديد إذا لم يكن موجودًا
               $user = User::create([
