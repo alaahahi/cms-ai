@@ -155,6 +155,8 @@ class UserController extends Controller
              'token' => $token,
              'token_type' => 'bearer',
              'expires_in' => auth('api')->factory()->getTTL() * 60,
+             'user' => $user,
+             'is_admin' => $user->is_admin
          ]);
      }
     public function index()
