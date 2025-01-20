@@ -103,11 +103,13 @@ class UserController extends Controller
          $token = JWTAuth::fromUser($user);
  
          return response()->json([
-             'message' => 'تم التحقق بنجاح.',
-             'token' => $token,
-             'token_type' => 'bearer',
-             'expires_in' => auth('api')->factory()->getTTL() * 60,
-         ]);
+            'message' => 'تم التحقق بنجاح.',
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'user' => $user,
+            'is_admin' => $user->is_admin
+        ]);
      }
      public function verifyCodeSms(Request $request)
      {
