@@ -40,11 +40,11 @@ Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->na
 Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {
-    Route::get('/cards/active', [CardsController::class, 'activeCards']);
-    Route::get('/card-services/active', [CardsController::class, 'activeCardServices']);
+
 
 });
-
+Route::get('/cards/active', [CardsController::class, 'activeCards']);
+Route::get('/card-services/active', [CardsController::class, 'activeCardServices']);
 Route::post('/send-verification-code', [UserController::class, 'sendVerificationCode']);
 Route::post('/verify-code', [UserController::class, 'verifyCode']);
 Route::post('/verify-code-sms', [UserController::class, 'verifyCodeSms']);
