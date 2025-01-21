@@ -18,9 +18,6 @@ class SendWhatsAppMessageJob implements ShouldQueue
     protected $apiKey;
     protected $baseUrl;
 
-    // Set the number of retries and timeout
-    public $tries = 3;  // Number of retries
-    public $timeout = 120;  // Timeout in seconds for each job execution
 
     /**
      * Create a new job instance.
@@ -49,6 +46,11 @@ class SendWhatsAppMessageJob implements ShouldQueue
                 'message' => $this->message,
                 'status' => 'pending'
             ]);
+            Log::info('Sending WhatsApp message at ' . now()->toDateTimeString(), [
+                'phone_number' => $this->phoneNumber,
+                'message' => $this->message
+            ]);
+
 
             // Sending WhatsApp message via API
             $response = Http::get($this->baseUrl, [
@@ -64,10 +66,7 @@ class SendWhatsAppMessageJob implements ShouldQueue
                     'status' => 'sent',
                     'sent_at' => now(),
                 ]);
-                Log::info('WhatsApp message sent successfully.', [
-                    'phone_number' => $this->phoneNumber,
-                    'message' => $this->message
-                ]);
+              
             } else {
                 // Update message status to 'failed'
                 $messageRecord->update([
