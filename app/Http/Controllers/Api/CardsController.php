@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Card;
 use App\Models\CardService;
+use App\Models\Profile;
+use App\Models\PendingRequest;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use App\Models\SystemConfig;
+use Illuminate\Support\Facades\Http;
 
 class CardsController extends Controller
 {
@@ -45,6 +52,176 @@ class CardsController extends Controller
             'data' => $activeCardServices,
         ], 200);
     }
+
+    public function requestCard(Request $request)
+    {
+        // Validation rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // Validate a single image file
+            'card_number' => 'nullable|string', // Check if card_number is unique
+            'family_members_names' => 'nullable|string',
+            'is_admin' => 'nullable|boolean',
+        ];
+    
+        // Validate input
+        $validator = Validator::make($request->all(), $rules);
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+        try {
+            // Handle image upload if provided
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('uploads', 'public');
+            }
+    
+            // Get token and extract user_id if exists
+            $token = $request->bearerToken();
+            $user_id = null;
+    
+            if ($token) {
+                // Extract user_id from the token
+                $user = Auth::guard('api')->setToken($token)->user();
+                if ($user) {
+                    $user_id = $user->id;
+                }
+            }
+    
+            // If no token, use user_id from the request
+            if (!$user_id) {
+                $user_id = $request->user_id;
+            }
+    
+            // If user_id is still null, save as a pending request
+            if (!$user_id) {
+                // Store in PendingRequest table for unauthenticated users
+                $pendingRequest = PendingRequest::create([
+                    'name' => $request->name,
+                    'phone' => $request->phone_number,
+                    'address' => $request->address,
+                    'card_number' => $request->card_number,
+                    'family_members_names' => $request->family_members_names,
+                    'image' => $imagePath,
+                    'source' => 'mobile',
+                    'created_at' => now(),
+                ]);
+    
+                // Send WhatsApp message
+                $this->sendWhatsAppMessage(
+                    $request->phone_number,
+                    'أهلاً وسهلاً بك..' . "\n\n" .
+                    'تم استلام طلبك بنجاح. سيتم التواصل معك قريباً لاستكمال الإجراءات.' . "\n\n" .
+                    'شكراً لتواصلك معنا!'
+                );
+    
+                return response()->json([
+                    'message' => 'Request submitted successfully. Our team will contact you shortly.',
+                    'data' => $pendingRequest,
+                ], 201);
+            }
+    
+            // If card_number is provided, check if it already exists
+            if ($request->card_number) {
+                $existingCard = Profile::where('card_number', $request->card_number)->first();
+                if ($existingCard) {
+                    // If card_number exists, save as pending request instead of creating profile
+                    $pendingRequest = PendingRequest::create([
+                        'name' => $request->name,
+                        'phone' => $request->phone_number,
+                        'address' => $request->address,
+                        'card_number' => $request->card_number,
+                        'family_members_names' => $request->family_members_names,
+                        'image' => $imagePath,
+                        'source' => 'mobile',
+                        'created_at' => now(),
+                    ]);
+    
+                    // Send WhatsApp message
+                    $this->sendWhatsAppMessage(
+                        $request->phone_number,
+                        'أهلاً وسهلاً بك..' . "\n\n" .
+                        'رقم البطاقة الذي أدخلته موجود مسبقًا. سيتم التواصل معك قريباً لاستكمال الإجراءات.' . "\n\n" .
+                        'شكراً لتواصلك معنا!'
+                    );
+    
+                    return response()->json([
+                        'message' => 'Card number already exists. Your request is being processed.',
+                        'data' => $pendingRequest,
+                    ], 201);
+                }
+            }
+    
+            // Handle max 'no' for new profile
+            $maxNo = Profile::max('no');
+            $no = $maxNo + 1;
+    
+            // Store in Profile table for authenticated users
+            $profile = Profile::create([
+                'no' => $no,
+                'name' => $request->name,
+                'phone_number' => $request->phone_number,
+                'address' => $request->address,
+                'user_id' => $user_id,
+                'card_number' => $request->card_number,
+                'family_name' => $request->family_members_names,
+                'image' => $imagePath,
+                'results' => $request->is_admin ? 1 : 3,
+                'user_add' => $user_id,
+                'source' => 'mobile',
+                'created' => now()->format('Y-m-d'),
+            ]);
+    
+            // Send WhatsApp message
+            $this->sendWhatsAppMessage(
+                $request->phone_number,
+                'أهلاً وسهلاً بك..' . "\n\n" .
+                'تم تسجيل طلبك بنجاح في حسابك. يمكنك متابعة التفاصيل من خلال التطبيق.' . "\n\n" .
+                'شكراً لتواصلك معنا!'
+            );
+    
+            return response()->json([
+                'message' => 'Card created successfully',
+                'data' => $profile,
+            ], 201);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to process the request',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+    
+    
+    /**
+     * Send a WhatsApp message using TextMeBot API.
+     */
+    private function sendWhatsAppMessage($phoneNumber, $message)
+    {
+        try {
+            $config = SystemConfig::first(); // Get the API key from system configuration
+            $baseUrl = 'https://api.textmebot.com/send.php';
+            $apiKey = $config->api_key;
+    
+            $response = Http::get($baseUrl, [
+                'recipient' => $phoneNumber,
+                'apikey' => $apiKey,
+                'text' => $message,
+                'json' => 'yes',
+            ]);
+            return $response->json();
+        } catch (\Exception $e) {
+            \Log::error('Failed to send WhatsApp message: ' . $e->getMessage());
+        }
+    }
+    
+    
+    
     
     
     

@@ -30,10 +30,10 @@ class Profile extends Model
         'user_add',
         'user_doctor',
         'user_accepted',
-        'results_id',
         'created_at',
         'updated_at',
-        'created'
+        'created',
+        'source'
     ];
     public function user()
     {

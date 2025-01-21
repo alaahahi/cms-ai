@@ -53,5 +53,9 @@ Route::get('/settings', [AppSettingsController::class, 'index']);
 
 // جلب إعداد معين باستخدام المفتاح
 Route::get('/settings/{key}', [AppSettingsController::class, 'show']);
+
+Route::post('/request-card', [CardsController::class, 'requestCard']);
+
+
 });
 

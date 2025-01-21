@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Card;
 use App\Models\UserType;
 use App\Models\SystemConfig;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Auth\LoginRequest;
@@ -18,7 +19,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use App\Models\Massage;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
