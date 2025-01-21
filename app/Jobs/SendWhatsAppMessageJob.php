@@ -51,7 +51,10 @@ class SendWhatsAppMessageJob implements ShouldQueue
                 'message' => $this->message
             ]);
 
-
+            $messageRecord->update([
+                'status' => 'aaa',
+                'sent_at' => now(),
+            ]);
             // Sending WhatsApp message via API
             // $response = Http::get($this->baseUrl, [
             //     'recipient' => $this->phoneNumber,
