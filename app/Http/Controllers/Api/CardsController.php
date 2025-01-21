@@ -13,9 +13,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SystemConfig;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\WhatsAppController;
 
 class CardsController extends Controller
 {
+    protected $whatsAppController;
+
+    public function __construct(WhatsAppController $whatsAppController)
+    {
+        $this->whatsAppController = $whatsAppController; 
+
+    }
 
     public function activeCards()
     {
@@ -111,7 +119,7 @@ class CardsController extends Controller
                 ]);
     
                 // Send WhatsApp message
-                $this->sendWhatsAppMessage(
+                $this->whatsAppController->sendWhatsAppMessage(
                     $request->phone_number,
                     'أهلاً وسهلاً بك..' . "\n\n" .
                     'تم استلام طلبك بنجاح. سيتم التواصل معك قريباً لاستكمال الإجراءات.' . "\n\n" .
@@ -141,7 +149,7 @@ class CardsController extends Controller
                     ]);
     
                     // Send WhatsApp message
-                    $this->sendWhatsAppMessage(
+                    $this->whatsAppController->sendWhatsAppMessage(
                         $request->phone_number,
                         'أهلاً وسهلاً بك..' . "\n\n" .
                         'رقم البطاقة الذي أدخلته موجود مسبقًا. سيتم التواصل معك قريباً لاستكمال الإجراءات.' . "\n\n" .
@@ -176,7 +184,7 @@ class CardsController extends Controller
             ]);
     
             // Send WhatsApp message
-            $this->sendWhatsAppMessage(
+            $this->whatsAppController->sendWhatsAppMessage(
                 $request->phone_number,
                 'أهلاً وسهلاً بك..' . "\n\n" .
                 'تم تسجيل طلبك بنجاح في حسابك. يمكنك متابعة التفاصيل من خلال التطبيق.' . "\n\n" .
@@ -198,28 +206,7 @@ class CardsController extends Controller
     
     
     
-    /**
-     * Send a WhatsApp message using TextMeBot API.
-     */
-    private function sendWhatsAppMessage($phoneNumber, $message)
-    {
-        try {
-            $config = SystemConfig::first(); // Get the API key from system configuration
-            $baseUrl = 'https://api.textmebot.com/send.php';
-            $apiKey = $config->api_key;
-    
-            $response = Http::get($baseUrl, [
-                'recipient' => $phoneNumber,
-                'apikey' => $apiKey,
-                'text' => $message,
-                'json' => 'yes',
-            ]);
-            return $response->json();
-        } catch (\Exception $e) {
-            \Log::error('Failed to send WhatsApp message: ' . $e->getMessage());
-        }
-    }
-    
+
     
     
     
