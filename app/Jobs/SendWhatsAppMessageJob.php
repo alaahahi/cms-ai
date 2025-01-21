@@ -53,12 +53,12 @@ class SendWhatsAppMessageJob implements ShouldQueue
 
 
             // Sending WhatsApp message via API
-            $response = Http::get($this->baseUrl, [
-                'recipient' => $this->phoneNumber,
-                'apikey' => $this->apiKey,
-                'text' => $this->message,
-                'json' => 'yes',
-            ]);
+            // $response = Http::get($this->baseUrl, [
+            //     'recipient' => $this->phoneNumber,
+            //     'apikey' => $this->apiKey,
+            //     'text' => $this->message,
+            //     'json' => 'yes',
+            // ]);
             
             if ($response->successful()) {
                 // Update message status to 'sent' and set sent time
