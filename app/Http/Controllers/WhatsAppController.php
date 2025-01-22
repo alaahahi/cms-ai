@@ -29,8 +29,8 @@ class WhatsAppController extends Controller
                     $lastMessageTime = Cache::get('last_message_time', null);
         
                     // Calculate delay
-                    if ($lastMessageTime && now()->diffInSeconds($lastMessageTime) < 300) {
-                        $delaySeconds = 300 - now()->diffInSeconds($lastMessageTime);
+                    if ($lastMessageTime && now()->diffInSeconds($lastMessageTime) < 10) {
+                        $delaySeconds = 10 - now()->diffInSeconds($lastMessageTime);
                     } else {
                         $delaySeconds = 0;
                     }
@@ -40,7 +40,7 @@ class WhatsAppController extends Controller
                         ->delay(now()->addSeconds($delaySeconds));
         
                     // Update the cache with the new message timestamp
-                    Cache::put('last_message_time', now()->addSeconds($delaySeconds), 600);
+                    Cache::put('last_message_time', now()->addSeconds($delaySeconds), 60);
         
                     // Log the message in the database
                     MessageLog::create([
