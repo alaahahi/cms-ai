@@ -182,12 +182,16 @@ class FormRegistrationController extends Controller
         $print = $_GET['print'] ?? 0;
         $config = SystemConfig::first();
         $hospital = Hospital::where('id', '2')->first();
+        $term =  $_GET['q'] ?? 0;
 
 
         $data = PendingRequest::with('user')->orderBy('id', 'DESC');
         if ($from && $to) {
             $data->whereBetween('created', [$from, $to]);
         } 
+        if($term){
+            $data->where('phone', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%');
+        }
         if($print){
             $data = $data->get();
             return view('printCards',compact('data','from','to','config','hospital'));  

@@ -2,10 +2,10 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
-import { ref } from "vue";
-import { TailwindPagination } from "laravel-vue-pagination";
+import { ref, watch } from 'vue'; // Import ref and watch from Vue
 import InfiniteLoading from "v3-infinite-loading";
 import axios from 'axios';
+import debounce from 'lodash/debounce'; // Import debounce function from Lodash
 
 let laravelData = ref([]);
 const userLocation = ref({});
@@ -53,6 +53,34 @@ const getResults = async ($state) => {
 
 const searchTerm = ref("");
 
+// Function to abort the ongoing request
+const abortRequest = () => {
+  if (controller) {
+    controller.abort(); // Abort previous request if it exists
+  }
+  controller = new AbortController(); // Create a new AbortController
+};
+
+watch([q, from, to], () => {
+  abortRequest(); // Abort previous request
+  debouncedGetResultsCar(); // Call debounced function to fetch new results
+});
+
+// Watch for changes in isLoading
+watch(isLoading, (newVal) => {
+  if (newVal === 1) {
+    // Handle loading state
+    console.log('Loading data...');
+  } else {
+    // Handle loaded state
+    console.log('Data loaded');
+  }
+});
+
+const debouncedGetResultsCar = debounce(() => {
+  isLoading.value = 1; // Set isLoading to 1 to indicate loading
+  refresh(); // 
+}, 500);
 
 const props = defineProps({
   url: String,
@@ -84,7 +112,7 @@ let showModal = ref(false);
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        إدارة العقود الإلكترونية
+        إدارة الطلبات المعلقة
       </h2>
     </template>
 
@@ -128,8 +156,8 @@ let showModal = ref(false);
                       </svg>
                     </div>
                     <input
-                      v-model="searchTerm"
-                      @input="search(searchTerm)"
+                      v-model="q"
+                      @input="debouncedGetResultsCar"
                       type="text"
                       id="simple-search"
                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"

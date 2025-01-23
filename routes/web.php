@@ -52,7 +52,7 @@ Route::get('/order', function () {
 Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('make-payment');
 
 Route::group(['middleware' => ['auth','verified']], function () {
-    Route::get('/settings', [AppSettingsController::class, 'index'])->name('settings.index');
+    Route::get('/settings', [AppSettingsController::class, 'index'])->name('settings');
     Route::post('/settings/update', [AppSettingsController::class, 'update'])->name('settings.update');
     
     Route::get('/dashboard', function () {return Inertia::render('Dashboard');})->middleware(['auth', 'verified'])->name('dashboard');

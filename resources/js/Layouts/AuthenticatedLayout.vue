@@ -60,7 +60,16 @@ const showingNavigationDropdown = ref(false);
                                      عرض البطاقات
                                 </NavLink>
                             </div>
-               
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
+                                <NavLink :href="route('PendingRequest')" :active="route().current('PendingRequest')">
+                                      طلبات المعلقة
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
+                                <NavLink :href="route('settings')" :active="route().current('settings')">
+                                       اعدادات التطبيق
+                                </NavLink>
+                            </div>
                         </div>
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
                             <!-- Settings Dropdown -->
