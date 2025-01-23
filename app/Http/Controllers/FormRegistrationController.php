@@ -14,6 +14,7 @@ use App\Models\Results;
 use App\Models\DoctorResults;
 use App\Models\Transactions;
 use App\Models\SystemConfig;
+use App\Models\PendingRequest;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Auth\LoginRequest;
@@ -66,7 +67,22 @@ class FormRegistrationController extends Controller
             return Inertia::render('Auth/Login');
         }
     }
-
+    public function PendingRequest()
+    {   
+        try {
+            $authUser = auth()?->user();
+            if($authUser){
+                $wallet = Wallet::where('user_id', $authUser->id)->first();
+                $card = $wallet->card ??'';
+                return Inertia::render('FormRegistration/PendingRequest', ['url'=>$this->url,'card'=>$card]);
+            }
+            else {
+                return Inertia::render('Auth/Login');
+            }
+        } catch (\Throwable $th) {
+            return Inertia::render('Auth/Login');
+        }
+    }
     public function formRegistrationEdit($id)
     {
         $data = Profile::where('id',$id)->first();
@@ -157,6 +173,26 @@ class FormRegistrationController extends Controller
         }
 
         return Response::json($data->paginate(10), 200);
+    }
+    public function getIndexPendingRequest()
+    {
+        $authUser = auth()->user();
+        $from = $_GET['from'] ?? 0;
+        $to = $_GET['to'] ?? 0;
+        $print = $_GET['print'] ?? 0;
+        $config = SystemConfig::first();
+        $hospital = Hospital::where('id', '2')->first();
+
+
+        $data = PendingRequest::with('user')->orderBy('id', 'DESC');
+        if ($from && $to) {
+            $data->whereBetween('created', [$from, $to]);
+        } 
+        if($print){
+            $data = $data->get();
+            return view('printCards',compact('data','from','to','config','hospital'));  
+        }
+        return Response::json($data->paginate(25), 200);
     }
     public function getIndexSaved()
     {

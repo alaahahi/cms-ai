@@ -8,6 +8,7 @@ use App\Models\Card;
 use App\Models\CardService;
 use App\Models\Profile;
 use App\Models\PendingRequest;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -141,6 +142,7 @@ class CardsController extends Controller
                         'name' => $request->name,
                         'phone' => $request->phone_number,
                         'address' => $request->address,
+                        'user_id' => $user_id,
                         'card_number' => $request->card_number,
                         'family_members_names' => $request->family_members_names,
                         'image' => $imagePath,
@@ -148,6 +150,8 @@ class CardsController extends Controller
                         'created_at' => now(),
                     ]);
     
+                   
+
                     // Send WhatsApp message
                     $this->whatsAppController->sendWhatsAppMessage(
                         $request->phone_number,
@@ -166,7 +170,18 @@ class CardsController extends Controller
             // Handle max 'no' for new profile
             $maxNo = Profile::max('no');
             $no = $maxNo + 1;
-    
+            $user = User::where('phone_number', $request->phone_number)->first();
+ 
+            if ($user) {
+                
+            } else {
+                // إنشاء مستخدم جديد إذا لم يكن موجودًا
+                $user = User::create([
+                    'phone_number' => $request->phone_number,
+                    'verification_user_type'=>'selas',
+                    'user_type' => 7, // النوع 6
+                ]);
+            }
             // Store in Profile table for authenticated users
             $profile = Profile::create([
                 'no' => $no,
@@ -179,10 +194,11 @@ class CardsController extends Controller
                 'image' => $imagePath,
                 'results' => $request->is_admin ? 1 : 3,
                 'user_add' => $user_id,
+                'cardHolder_id'=>$user->id,
                 'source' => 'mobile',
                 'created' => now()->format('Y-m-d'),
             ]);
-    
+         
             // Send WhatsApp message
             $this->whatsAppController->sendWhatsAppMessage(
                 $request->phone_number,

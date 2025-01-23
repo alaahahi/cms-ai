@@ -72,6 +72,8 @@ Route::group(['middleware' => ['auth','verified']], function () {
     
     
     Route::get('formRegistration',[FormRegistrationController::class, 'index'])->name('formRegistration');
+    Route::get('PendingRequest',[FormRegistrationController::class, 'PendingRequest'])->name('PendingRequest');
+
     
     Route::get('formRegistrationEdit/{id}',[FormRegistrationController::class, 'formRegistrationEdit'])->name('formRegistrationEdit');
     
@@ -81,6 +83,9 @@ Route::group(['middleware' => ['auth','verified']], function () {
     
     
     Route::get('getIndexFormRegistration',[FormRegistrationController::class, 'getIndex'])->name("getIndexFormRegistration");
+    Route::get('getIndexPendingRequest',[FormRegistrationController::class, 'getIndexPendingRequest'])->name("getIndexPendingRequest");
+
+    
     Route::get('getIndexFormRegistrationSaved',[FormRegistrationController::class, 'getIndexSaved'])->name("getIndexFormRegistrationSaved");
     Route::get('getIndexFormRegistrationCourt',[FormRegistrationController::class, 'getIndexCourt'])->name("getIndexFormRegistrationCourt");
     Route::get('getIndexFormRegistrationCompleted',[FormRegistrationController::class, 'getIndexCompleted'])->name("getIndexFormRegistrationCompleted");

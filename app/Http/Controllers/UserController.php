@@ -44,7 +44,7 @@ class UserController extends Controller
          $request->validate([
              'phone_number' => 'required',//|digits:10
          ]);
- 
+
          $phoneNumber = $request->phone_number;
          $verificationCode = rand(100000, 999999);
  
@@ -60,7 +60,7 @@ class UserController extends Controller
                  'phone_number' => $phoneNumber,
                  'verification_code' => $verificationCode,
                  'verification_user_type'=>'whatsapp',
-                 'user_type' => 7, // النوع 6
+                 'user_type' => 7, 
              ]);
          }
          $config = SystemConfig::first();
@@ -80,7 +80,7 @@ class UserController extends Controller
  
          return response()->json([
              'message' => 'رمز التحقق تم إرساله بنجاح.',
-             'status' => $response->json(),
+             'status' => 'ok',
          ]);
      }
      public function verifyCode(Request $request)
@@ -89,7 +89,6 @@ class UserController extends Controller
              'phone_number' => 'required',
              'verification_code' => 'required|digits:6',
          ]);
- 
          $user = User::where('phone_number', $request->phone_number)
                      ->where('verification_code', $request->verification_code)
                      ->first();
