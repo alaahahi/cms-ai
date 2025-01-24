@@ -353,7 +353,7 @@ class FormRegistrationController extends Controller
                     'user_id' =>$request->saler_id,
                     'family_name'=> $request->family_name,
                     'user_add'=>$authUser?->id,
-                    'source' => 'cpanel',
+                    'source' => 'dashboard',
                     'created'=>$request->created,
                     'no'=> $no
                      ]);
