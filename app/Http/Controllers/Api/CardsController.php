@@ -313,6 +313,39 @@ class CardsController extends Controller
             'status' => 'success',
         ], 200);
     }
+
+    public function EditPendingRequest(Request $request)
+    {
+        // البحث عن الطلب المعلق باستخدام المعرف (ID)
+        $pendingRequest = PendingRequest::find($request->id);
+
+        // التحقق إذا كان الطلب المعلق موجودًا
+        if (!$pendingRequest) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pending Request not found.',
+            ], 404);  // إرجاع استجابة خطأ إذا لم يتم العثور على الطلب
+        }
+
+        // تعديل البيانات حسب الطلب (مثال على بعض الحقول)
+        $pendingRequest->card_number = $request->card_number;
+        $pendingRequest->phone = $request->phone;
+        $pendingRequest->address = $request->address;
+        $pendingRequest->family_members_names = $request->family_members_names;
+
+        // حفظ التغييرات
+        $pendingRequest->save();
+
+        // إزالة الكاش المرتبط
+        $this->clearPendingRequestsCache();
+
+        // إرجاع استجابة بنجاح
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pending Request updated successfully.',
+        ], 200);
+    }
+
     
     /**
      * وظيفة لإزالة الكاش المرتبط بالطلبات المعلقة

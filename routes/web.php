@@ -138,6 +138,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
 
     Route::post('deletePendingRequest', [CardsController::class, 'deletePendingRequest'])->name('deletePendingRequest');
     Route::post('AcceptePendingRequest', [CardsController::class, 'AcceptePendingRequest'])->name('AcceptePendingRequest');
+    Route::post('EditPendingRequest', [CardsController::class, 'EditPendingRequest'])->name('EditPendingRequest');
 
 
  });

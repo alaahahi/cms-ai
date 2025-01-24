@@ -8,6 +8,7 @@ import axios from 'axios';
 import debounce from 'lodash/debounce'; // Import debounce function from Lodash
 import ModaDelete from "@/Components/ModaDelete.vue";
 import ModaAcceptePendingRequest from "@/Components/ModaAcceptePendingRequest.vue";
+import ModaEditPendingRequest from "@/Components/ModaEditPendingRequest.vue";
 
 import { useToast } from "vue-toastification";
 const toast = useToast();
@@ -161,6 +162,33 @@ function confirmDeletePendingRequest(V) {
       });
   })
 }
+
+let showModalEditPendingRequest = ref(false);
+
+function openModalEditPendingRequest(v){
+  form.value = v
+  showModalEditPendingRequest.value = true
+}
+function confirmEditPendingRequest(V) {
+  showModalEditPendingRequest.value = false
+
+  axios.post('EditPendingRequest',V)
+  .then(response => {
+    refresh();
+    toast.success("تم القبول وتحويل البطاقة بنجاح", {
+        timeout: 2000,
+        position: "bottom-right",
+        rtl: true,
+      });
+  })
+  .catch(error => {
+    toast.error("البطاقة موجودة سابقا يرجى التأكد من الاضافة", {
+        timeout: 2000,
+        position: "bottom-right",
+        rtl: true,
+      });
+  })
+}
 </script>
 
 <template>
@@ -191,6 +219,18 @@ function confirmDeletePendingRequest(V) {
         <h3 class="text-center fw-10">هل انت متأكد من تأكيد البطاقة رقم {{ form?.card_number }}</h3>
       </template>
     </ModaAcceptePendingRequest>
+
+    <ModaEditPendingRequest
+      :show="showModalEditPendingRequest ? true : false"
+      :data="form"
+      @a="confirmEditPendingRequest($event)"
+      @close="showModalEditPendingRequest = false"
+    >
+      <template #header>
+        <h3 class="text-center fw-10">هل انت متأكد من تأكيد البطاقة رقم {{ form?.card_number }}</h3>
+      </template>
+    </ModaEditPendingRequest>
+
     <div v-if="$page.props.success">
       <div
         id="alert-2"
@@ -353,7 +393,7 @@ function confirmDeletePendingRequest(V) {
                       <button
                         tabIndex="1"
                         className="px-2 py-1 text-sm text-white mx-1 bg-slate-500 rounded"
-                        :href="route('formRegistrationEdit', user.id)"
+                         @click="openModalEditPendingRequest(user)"
                         >
                         تعديل
                       </button>
