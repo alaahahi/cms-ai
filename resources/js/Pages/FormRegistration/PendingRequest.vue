@@ -6,6 +6,11 @@ import { ref, watch } from 'vue'; // Import ref and watch from Vue
 import InfiniteLoading from "v3-infinite-loading";
 import axios from 'axios';
 import debounce from 'lodash/debounce'; // Import debounce function from Lodash
+import ModaDelete from "@/Components/ModaDelete.vue";
+import ModaAcceptePendingRequest from "@/Components/ModaAcceptePendingRequest.vue";
+
+import { useToast } from "vue-toastification";
+const toast = useToast();
 
 let laravelData = ref([]);
 const userLocation = ref({});
@@ -51,7 +56,6 @@ const getResults = async ($state) => {
   }
 };
 
-const searchTerm = ref("");
 
 // Function to abort the ongoing request
 const abortRequest = () => {
@@ -91,7 +95,7 @@ const search = async (q) => {
   const response = await fetch(`/livesearch?q=${q}`);
   laravelData.value = await response.json();
 };
-const form = useForm();
+let form = ref({});
 
 const results = (id) => {
   if (id == 0) {
@@ -104,7 +108,59 @@ const results = (id) => {
     return "مكتمل";
   }
 };
-let showModal = ref(false);
+let showModalAcceptePendingRequest = ref(false);
+
+function openModalAcceptePendingRequest(v){
+  form.value = v
+  showModalAcceptePendingRequest.value = true
+}
+function confirmAcceptePendingRequest(V) {
+  showModalAcceptePendingRequest.value = false
+
+  axios.post('AcceptePendingRequest',V)
+  .then(response => {
+    refresh();
+    toast.success("تم القبول وتحويل البطاقة بنجاح", {
+        timeout: 2000,
+        position: "bottom-right",
+        rtl: true,
+      });
+  })
+  .catch(error => {
+    toast.error("البطاقة موجودة سابقا يرجى التأكد من الاضافة", {
+        timeout: 2000,
+        position: "bottom-right",
+        rtl: true,
+      });
+  })
+}
+
+let showModalDelete = ref(false);
+
+function openModalDelete(v){
+  form.value = v
+  showModalDelete.value = true
+}
+function confirmDeletePendingRequest(V) {
+  showModalDelete.value = false
+
+  axios.post('deletePendingRequest',V)
+  .then(response => {
+    refresh();
+    toast.success("تم الحذف بنجاح", {
+        timeout: 2000,
+        position: "bottom-right",
+        rtl: true,
+      });
+  })
+  .catch(error => {
+    toast.error("لم يتم الحذف بنجاح", {
+        timeout: 2000,
+        position: "bottom-right",
+        rtl: true,
+      });
+  })
+}
 </script>
 
 <template>
@@ -115,7 +171,26 @@ let showModal = ref(false);
         إدارة الطلبات المعلقة
       </h2>
     </template>
-
+    <ModaDelete
+      :show="showModalDelete ? true : false"
+      :data="form"
+      @a="confirmDeletePendingRequest($event)"
+      @close="showModalDelete = false"
+    >
+      <template #header>
+        <h3 class="text-center fw-10">هل انت متأكد من الحذف الطلب {{ form?.card_number }}</h3>
+      </template>
+    </ModaDelete>
+    <ModaAcceptePendingRequest
+      :show="showModalAcceptePendingRequest ? true : false"
+      :data="form"
+      @a="confirmAcceptePendingRequest($event)"
+      @close="showModalAcceptePendingRequest = false"
+    >
+      <template #header>
+        <h3 class="text-center fw-10">هل انت متأكد من تأكيد البطاقة رقم {{ form?.card_number }}</h3>
+      </template>
+    </ModaAcceptePendingRequest>
     <div v-if="$page.props.success">
       <div
         id="alert-2"
@@ -260,12 +335,17 @@ let showModal = ref(false);
                       {{ user.source }}
                     </td>
                     <td className="border px-4 py-2 td">
+                      <a
+                        :href="`/public/storage/${user.image}`"
+                        style="cursor: pointer"
+                        target="_blank">
                         <img
                         v-if="user.image"
                         :src="`/public/storage/${user.image}`"
                         alt="Setting Image"
                         style="width:200px;"
                         />
+                      </a>
                     </td>
           
           
@@ -280,14 +360,14 @@ let showModal = ref(false);
                       <button
                         tabIndex="1"
                         className="px-2 py-1 text-sm text-white mx-1 bg-rose-500 rounded"
-                        :href="route('formRegistrationEdit', user.id)"
+                        @click="openModalDelete(user)"
                       >
                        حذف
                       </button>
                       <button
                         tabIndex="1"
                         className="px-2 py-1 text-sm text-white mx-1 bg-green-500 rounded"
-                        :href="route('formRegistrationEdit', user.id)"
+                          @click="openModalAcceptePendingRequest(user)"
                       >
                       قبول
                       </button>

@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use PDF;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
-use App\Models\Hospital;
+use Illuminate\Support\Facades\Cache;
 
 
 
@@ -36,14 +36,25 @@ class FormRegistrationController extends Controller
 {
     public function __construct(){
         $this->url = env('FRONTEND_URL');
-         $this->userAdmin =  UserType::where('name', 'admin')->first()->id;
-         $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
-         $this->userSeles =  UserType::where('name', 'seles')->first()->id;
-         $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
 
-         $this->userAccount=  UserType::where('name', 'account')->first()->id;
-         $this->userHospital =  UserType::where('name', 'hospital')->first()->id;
-
+        
+        $this->userDateEntry = Cache::remember('user_type_data_entry_id', 60000, function () {
+            return UserType::where('name', 'data_entry')->first()->id;
+        });
+        
+        $this->userSeles = Cache::remember('user_type_seles_id', 60000, function () {
+            return UserType::where('name', 'seles')->first()->id;
+        });
+        
+        $this->userDoctor = Cache::remember('user_type_doctor_id', 60000, function () {
+            return UserType::where('name', 'doctor')->first()->id;
+        });
+        
+        $this->userAccount = Cache::remember('user_type_account_id', 60000, function () {
+            return UserType::where('name', 'account')->first()->id;
+        });
+        
+     
     }
 
     /**
@@ -160,7 +171,6 @@ class FormRegistrationController extends Controller
         $to = $_GET['to'] ?? 0;
         $print = $_GET['print'] ?? 0;
         $config = SystemConfig::first();
-        $hospital = Hospital::where('id', '2')->first();
 
 
         $data = Profile::with('user')->orderBy('no', 'DESC');
@@ -169,34 +179,50 @@ class FormRegistrationController extends Controller
         } 
         if($print){
             $data = $data->get();
-            return view('printCards',compact('data','from','to','config','hospital'));  
+            return view('printCards',compact('data','from','to','config'));  
         }
 
         return Response::json($data->paginate(10), 200);
     }
     public function getIndexPendingRequest()
     {
-        $authUser = auth()->user();
         $from = $_GET['from'] ?? 0;
         $to = $_GET['to'] ?? 0;
         $print = $_GET['print'] ?? 0;
-        $config = SystemConfig::first();
-        $hospital = Hospital::where('id', '2')->first();
-        $term =  $_GET['q'] ?? 0;
-
-
-        $data = PendingRequest::with('user')->orderBy('id', 'DESC');
-        if ($from && $to) {
-            $data->whereBetween('created', [$from, $to]);
-        } 
-        if($term){
-            $data->where('phone', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%');
+        $term = $_GET['q'] ?? 0;
+    
+        // إنشاء مفتاح الكاش فقط إذا لم تكن هناك فلاتر
+        $cacheKey = null;
+        if (!$from && !$to && !$term) {
+            $page = $_GET['page'] ?? 1; // لدعم التصفح
+            $cacheKey = "pending_requests_all_page_{$page}";
         }
-        if($print){
-            $data = $data->get();
-            return view('printCards',compact('data','from','to','config','hospital'));  
+    
+        if ($cacheKey) {
+            // إذا لم يكن هناك فلاتر، نحاول الحصول على البيانات من الكاش
+            $data = Cache::remember($cacheKey, 600, function () {
+                return PendingRequest::with('user')->orderBy('id', 'DESC')->paginate(25);
+            });
+        } else {
+            // استعلام مباشر إذا كانت هناك فلاتر
+            $query = PendingRequest::with('user')->orderBy('id', 'DESC');
+            if ($from && $to) {
+                $query->whereBetween('created', [$from, $to]);
+            }
+            if ($term) {
+                $query->where('phone', 'LIKE', '%' . $term . '%')
+                    ->orWhere('card_number', 'LIKE', '%' . $term . '%');
+            }
+            $data = $query->paginate(25);
         }
-        return Response::json($data->paginate(25), 200);
+    
+        // إذا كان خيار الطباعة موجودًا، نعيد الصفحة مع البيانات
+        if ($print) {
+            return view('printCards', compact('data', 'from', 'to'));
+        }
+    
+        // إرجاع البيانات كـ JSON
+        return Response::json($data, 200);
     }
     public function getIndexSaved()
     {
@@ -327,6 +353,7 @@ class FormRegistrationController extends Controller
                     'user_id' =>$request->saler_id,
                     'family_name'=> $request->family_name,
                     'user_add'=>$authUser?->id,
+                    'source' => 'cpanel',
                     'created'=>$request->created,
                     'no'=> $no
                      ]);

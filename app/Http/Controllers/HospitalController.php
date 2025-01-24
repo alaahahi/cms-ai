@@ -88,6 +88,7 @@ class HospitalController extends Controller
                 'name' =>$request->note,
                 'user_id' => $request->user_id,
                 'card_number' => $request->card_id,
+                'source' => 'appointment',
                  ]);
                  $appointment = Appointment::create([
                     'user_id' =>$request->user_id,

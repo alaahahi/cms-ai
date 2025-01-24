@@ -174,6 +174,7 @@ let showModal = ref(false);
                     <th className="px-4 py-2">المندوب</th>
                     <th className="px-4 py-2">تاريخ التسجيل</th>
                     <th className="px-4 py-2">أفراد العائلة</th>
+                    <th className="px-4 py-2">المصدر</th>
                     <th className="px-4 py-2">الحالة</th>
                     <th className="px-4 py-2">تنفيذ</th>
                   </tr>
@@ -201,6 +202,9 @@ let showModal = ref(false);
                     </td>
                     <td className="border px-4 py-2 td">
                       {{ user.family_name }}
+                    </td>
+                    <td className="border px-4 py-2 td">
+                      {{ user.source }}
                     </td>
                     <td className="border px-4 py-2">
                       {{ results(user.results) }}

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\SystemConfig;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\WhatsAppController;
+use Illuminate\Support\Facades\Cache;
 
 class CardsController extends Controller
 {
@@ -219,7 +220,113 @@ class CardsController extends Controller
             ], 500);
         }
     }
+    public function deletePendingRequest(Request $request)
+    {
+        // البحث عن الطلب المعلق
+        $pendingRequest = PendingRequest::find($request->id);
     
+        // التحقق من وجود الطلب
+        if (!$pendingRequest) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No Pending Request found.',
+            ], 404);
+        }
+    
+        // حذف الطلب
+        $pendingRequest->delete();
+    
+        // إزالة الكاش المرتبط
+        $this->clearPendingRequestsCache();
+    
+        return response()->json([
+            'status' => 'success',
+        ], 200);
+    }
+
+    public function AcceptePendingRequest(Request $request)
+    {
+        // البحث عن الطلب المعلق
+        $pendingRequest = PendingRequest::find($request->id);
+
+        $rules = [
+            'card_number' => 'nullable|string|unique:profile,card_number', // تحقق من أن card_number فريد في جدول pending_requests
+        ];
+        
+        // التحقق من المدخلات
+        $validator = Validator::make($request->all(), $rules);
+        
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        
+        $user_id = Auth::user()->id;     
+
+        // التحقق من وجود الطلب
+        if (!$pendingRequest) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No Pending Request found.',
+            ], 404);
+        }
+
+        $maxNo = Profile::max('no');
+        $no = $maxNo + 1;
+        $user = User::where('phone_number', $request->phone_number)->first();
+
+        if ($user) {
+            
+        } else {
+            // إنشاء مستخدم جديد إذا لم يكن موجودًا
+            $user = User::create([
+                'phone_number' => $request->phone_number,
+                'verification_user_type'=>'selas',
+                'user_type' => 7, // النوع 6
+            ]);
+        }
+        // Store in Profile table for authenticated users
+        $profile = Profile::create([
+            'no' => $no,
+            'name' => $request->name,
+            'phone_number' => $request->phone,
+            'address' => $request->address,
+            'user_id' => $user_id,
+            'card_number' => $request->card_number,
+            'family_name' => $request->family_members_names,
+            'image' => $request->image,
+            'results' => $request->is_admin ? 1 : 3,
+            'user_add' => $user_id,
+            'cardHolder_id'=>$user->id,
+            'source' => 'pendingRequest',
+            'created' => now()->format('Y-m-d'),
+        ]);
+
+        if($profile){
+            $pendingRequest->delete();
+        }
+    
+        // إزالة الكاش المرتبط
+        $this->clearPendingRequestsCache();
+    
+        return response()->json([
+            'status' => 'success',
+        ], 200);
+    }
+    
+    /**
+     * وظيفة لإزالة الكاش المرتبط بالطلبات المعلقة
+     */
+    protected function clearPendingRequestsCache()
+    {
+        // تحديد عدد الصفحات المحتملة في الكاش وإزالتها
+        $page = 1;
+        while (Cache::has("pending_requests_all_page_{$page}")) {
+            Cache::forget("pending_requests_all_page_{$page}");
+            $page++;
+        }
+    }
+
     
     
 

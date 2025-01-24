@@ -13,6 +13,7 @@ use App\Models\SystemConfig;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AppSettingsController;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\Api\CardsController;
 
 
 
@@ -135,7 +136,9 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('accounting',[AccountingController::class, 'index'])->name('accounting');
     Route::get('getIndexAccounting',[AccountingController::class, 'getIndexAccounting'])->name("getIndexAccounting");
 
-    
+    Route::post('deletePendingRequest', [CardsController::class, 'deletePendingRequest'])->name('deletePendingRequest');
+    Route::post('AcceptePendingRequest', [CardsController::class, 'AcceptePendingRequest'])->name('AcceptePendingRequest');
+
 
  });
 

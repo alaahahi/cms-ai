@@ -36,7 +36,7 @@ Route::post('salesDebt',[AccountingController::class, 'salesDebt'])->name('sales
 Route::post('delTransactions',[AccountingController::class, 'delTransactions'])->name('delTransactions');
 
 Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('makePayment');
-Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->name('payment-webhook');;
+Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->name('payment-webhook');
 Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {
@@ -55,6 +55,8 @@ Route::get('/settings', [AppSettingsController::class, 'index']);
 Route::get('/settings/{key}', [AppSettingsController::class, 'show']);
 
 Route::post('/request-card', [CardsController::class, 'requestCard']);
+Route::post('deletePendingRequest', [CardsController::class, 'deletePendingRequest'])->name('deletePendingRequest');
+
 
 
 });
