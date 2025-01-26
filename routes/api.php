@@ -8,11 +8,28 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\FormRegistrationController;
 use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\CardsController;
 
 
+Route::get('/clear-config-cache', function () {
+
+    
+    //return ;
+
+    Artisan::call('config:cache');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('view:clear');
+    Artisan::call('optimize:clear');
+    //Artisan::call('command:cache_most_visited');
+    //$content_controller = new ContentEntityRepository();
+    //$content_controller->log_visit_cache_job([]);
+    return "Configuration cache file removed";
+});
 
 Route::apiResource('upload', UploadController::class);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {return $request->user();});
@@ -40,7 +57,13 @@ Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->na
 Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {
+    Route::get('/cards/me', [CardsController::class, 'activeCardsMe']);
+    Route::get('/profile/me', [UserController::class, 'profile']);
+    Route::post('/profile/update', [UserController::class, 'profileUpdate']);
+    Route::post('/appointment/store', [HospitalController::class, 'storeAppointment']);
 
+    
+    
 
 });
 Route::get('/cards/active', [CardsController::class, 'activeCards']);

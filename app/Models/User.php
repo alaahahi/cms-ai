@@ -33,6 +33,7 @@ class User extends Authenticatable implements JWTSubject
         'phone_number',
         'verification_date',
         'verification_user_type',
+        'family_members_names'
     ];
 
     protected $dates = ['deleted_at'];

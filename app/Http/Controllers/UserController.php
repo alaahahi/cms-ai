@@ -20,6 +20,7 @@ use Illuminate\Validation\Rules;
 use App\Models\Massage;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -111,16 +112,18 @@ class UserController extends Controller
         ]);
      }
      public function verifyCodeSms(Request $request)
-     {
-         $request->validate([
-             'phone_number' => 'required',
-             'verification_code' => 'required|digits:6',
-             'sms'=> 'required',
-         ]);
-         $request->validate([
-            'phone_number' => 'required',//|digits:10
+     {  
+        $request->validate([
+            'phone_number' => 'required', 
+            'verification_code' => 'required|digits:6',
+            'sms' => 'required',
+        ], [
+            'phone_number.required' => 'حقل رقم الهاتف مطلوب.',
+            'verification_code.required' => 'رمز التحقق مطلوب.',
+            'verification_code.digits' => 'رمز التحقق يجب أن يتكون من 6 أرقام.',
+            'sms.required' => 'حقل SMS مطلوب.',
         ]);
-
+ 
         $phoneNumber = $request->phone_number;
         $verificationCode = rand(100000, 999999);
 
@@ -353,60 +356,8 @@ class UserController extends Controller
         }
         
     }
-
-    public function getcontact($id, Request $request)
-    {
-        $authUser =$this->Authorization($request);
-        try {
-            $coordinator=User::where('type_id', $this->userCoordinator)->where('id','!=',$authUser->id)->where('public_key','!=',null);
-            //return Response::json($coordinatorUser);
-            $chaef=User::where('id',  $authUser->parent_id)->where('public_key','!=',null);
-            if( $authUser->type_id == $this->userChief){
-                return Response::json(['status' => 200,'massage' => 'users found','sources' => [],'coordinator' => $coordinator->get(),'chaef' =>[]],200);
-            }
-            else{
-            $user =User::where('parent_id', $id)->where('public_key','!=',null);
-            return Response::json(['status' => 200,'massage' => 'users found','sources' => $user->get(),'coordinator' => $coordinator->get(),'chaef' => $chaef->get()],200);
-            }
-        } catch (\Throwable $th) {
-             return  Response::json(['status' => 400,'massage' => 'user not found'],400);
-        }
-    }
-        
-    public function getUserMassages($id,$user, Request $request)
-    
-    {
-     try {
-       $authUser = $this->Authorization($request);
-       return  Massage::where('receiver_id', '=',  $authUser->id)->where('sender_id', '=',$user)->where('is_download', '=',0)->get();
-         } catch (\Throwable $th) {
-            return  Response::json(['status' => 401,'massage' => 'user Authorization not found'],401);
-        }
-    }
-    public function getMassages($id, Request $request)
-    {
-     try {
-            $authUser = $this->Authorization($request);
-            return  Massage::where('receiver_id', '=', $authUser->id)->where('is_download', '=',0)->get();
-     } catch (\Throwable $th) {
-                return  Response::json(['status' => 401,'massage' => 'user Authorization not found'],401);
-            }
-    }
-    public function ackUserMassages($sender,$receiver,$date)
-    {
-        $date = substr($date, 0, strpos($date, "."));
-            try {
-                $massage =Massage::where('receiver_id', '=', $sender)->where('sender_id','=',$receiver)->where('created_at','<=',$date)->update(['is_download' => 1]);
-                if($massage){
-                    return Response::json(['status' => 200,'massage' => 'operation is  success file downloaded'],200);
-                }else
-                    return Response::json(['status' => 200,'massage' => 'operation is  success but no new massage'],200);
-            } catch (\Throwable $th) {
-                return $th;
-                    return  Response::json(['status' => 400,'massage' => 'massage not found'],400);
-            }
-            
-    }
+ 
+ 
     public function userLocation($id)
     {
         // date('Y-m-d H:i:s', strtotime($data['datetime']))
@@ -438,19 +389,63 @@ class UserController extends Controller
                     return  Response::json(['status' => 400,'massage' => 'massage not found'],400);
             }
     }
+
+    public function profile()
+    {
+        $user = Auth::user();
+
+
+        $user_id = $user->id;
+        // Fetch active cards
+        $user = User::find('phone_number',$user_id)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $cards,
+        ]);
+    }
+    public function profileUpdate(Request $request)
+    {
+        // الحصول على المستخدم الحالي
+        $user = Auth::user();
     
-    public function Authorization($request){
-        $token = substr($request->header('Authorization') ,7);;
-        try {
-            $id = Crypt::decryptString($token) ;
-        $authUser = User::where('id', $id) ? User::where('id', $id)->first() :0;
-        if($authUser && !$authUser->is_band){
-           return $authUser;
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
         }
-        else
-        return  Response::json(['status' => 401,'massage' => 'user not Authorize'],401);
-        } catch (\Throwable $th) {
-            return  Response::json(['status' => 401,'massage' => 'user not Authorize'],401);
+    
+        // التحقق من المدخلات
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'family_members_names' => 'nullable|string',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
         }
-        }
+    
+        // تحديث بيانات المستخدم
+        $user->fill([
+            'name' => $request->name,
+            'address' => $request->address,
+            'family_members_names' => $request->family_members_names,
+        ]);
+    
+        // حفظ التغييرات
+        $user->save();
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile updated successfully',
+            'data' => $user->only(['name', 'address', 'family_members_names']), // إعادة البيانات المحدثة فقط
+        ]);
+    }
+  
     }

@@ -185,4 +185,58 @@ class HospitalController extends Controller
             return view('printHospital',compact('appointment','doctor'));
         }
     }
-}
+
+    public function storeAppointment(Request $request)
+    {
+        // الحصول على المستخدم المصادق
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+
+        // التحقق من المدخلات
+        $validator = Validator::make($request->all(), [
+            'profile_id' => 'required|int|max:50000',
+            'note' => 'nullable|string|max:500',
+            'start' => 'required|date_format:Y-m-d H:i:s',
+            'end' => 'required|date_format:Y-m-d H:i:s|after:start',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+
+        $profile = Profile::find($request->profile_id);
+
+        if (!$profile) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'not have active cards',
+            ], 422);
+        }
+
+        
+
+        $appointment = Appointment::create([
+            'user_id' => $user->id, // استخدام id المستخدم المصادق
+            'card_id' => $profile->card_id,
+            'note' => $request->note,
+            'start' => $this->convertToTimestamp($request->start),
+            'end' => $this->convertToTimestamp($request->end),
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointment booked successfully',
+            'appointment' => $appointment,
+        ], 201);
+    }
+    }

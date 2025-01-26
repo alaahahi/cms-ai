@@ -37,7 +37,18 @@ class CardsController extends Controller
             'data' => $cards,
         ]);
     }
+    public function activeCardsMe()
+    {
+        $user = Auth::user();
+        $phone_number = $user->phone_number;
+        // Fetch active cards
+        $cards = Profile::where('phone_number',$phone_number)->get();
 
+        return response()->json([
+            'status' => 'success',
+            'data' => $cards,
+        ]);
+    }
     public function activeCardServices(Request $request)
     {
         // تحديد البطاقات الفعالة فقط باستخدام scope 'Active'
