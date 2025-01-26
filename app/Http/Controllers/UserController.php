@@ -392,16 +392,9 @@ class UserController extends Controller
 
     public function profile()
     {
-        $user = Auth::user();
-
-
-        $user_id = $user->id;
-        // Fetch active cards
-        $user = User::find('phone_number',$user_id)->get();
-
         return response()->json([
             'status' => 'success',
-            'data' => $cards,
+            'data' => Auth::user(),
         ]);
     }
     public function profileUpdate(Request $request)
