@@ -408,14 +408,18 @@ class UserController extends Controller
                 'message' => 'User not authenticated',
             ], 401);
         }
-    
-        // التحقق من المدخلات
+            
+            // التحقق من المدخلات
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
             'family_members_names' => 'nullable|string',
+            'birth_date' => 'nullable|date_format:Y-m-d', // التحقق من أن تاريخ الميلاد بصيغة Y-m-d
+            'weight' => 'nullable|numeric|min:1|max:500', // الوزن
+            'height' => 'nullable|numeric|min:30|max:300', // الطول
+            'gender' => 'nullable|in:1,2', // 1 ذكر، 2 أنثى
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
@@ -423,22 +427,29 @@ class UserController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-    
+
         // تحديث بيانات المستخدم
         $user->fill([
             'name' => $request->name,
             'address' => $request->address,
             'family_members_names' => $request->family_members_names,
+            'birth_date' => $request->birth_date,
+            'weight' => $request->weight,
+            'height' => $request->height,
+            'gender' => $request->gender, // 1 أو 2
         ]);
-    
+
         // حفظ التغييرات
         $user->save();
-    
+
         return response()->json([
             'status' => 'success',
             'message' => 'Profile updated successfully',
-            'data' => $user->only(['name', 'address', 'family_members_names']), // إعادة البيانات المحدثة فقط
+            'data' => $user->only(['name', 'address', 'family_members_names','birth_date','weight','height','gender']), // إعادة البيانات المحدثة فقط
+
         ]);
+
+
     }
   
     }
