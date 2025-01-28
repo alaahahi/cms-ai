@@ -34,7 +34,7 @@ Route::get('link', function () {
 
 Route::resource('/users', UserController::class)->middleware(['auth', 'verified']);
 
-Route::middleware(['web', 'hospital'])->group(function () {
+Route::middleware(['web'])->group(function () {
     Route::get('/',[HospitalController::class,'index'])->name('/');
 });
 
