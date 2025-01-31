@@ -113,17 +113,21 @@ class UserController extends Controller
      }
      public function verifyCodeSms(Request $request)
      {  
-        $request->validate([
+
+ 
+        $validator = Validator::make($request->all(), [
             'phone_number' => 'required', 
             'verification_code' => 'required|digits:6',
             'sms' => 'required',
-        ], [
-            'phone_number.required' => 'حقل رقم الهاتف مطلوب.',
-            'verification_code.required' => 'رمز التحقق مطلوب.',
-            'verification_code.digits' => 'رمز التحقق يجب أن يتكون من 6 أرقام.',
-            'sms.required' => 'حقل SMS مطلوب.',
         ]);
- 
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
         $phoneNumber = $request->phone_number;
         $verificationCode = rand(100000, 999999);
 
