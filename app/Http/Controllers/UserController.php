@@ -42,9 +42,19 @@ class UserController extends Controller
 
      public function sendVerificationCode(Request $request)
      {
-         $request->validate([
-             'phone_number' => 'required',//|digits:10
-         ]);
+    
+         $validator = Validator::make($request->all(), [
+            'phone_number' => 'required',//|digits:10
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
          $phoneNumber = $request->phone_number;
          $verificationCode = rand(100000, 999999);
