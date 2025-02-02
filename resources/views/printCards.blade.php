@@ -56,10 +56,7 @@
             <span>{{$data->phone_number}}</span>
             </td>
 
-            <td style="padding-right:20px;font-size:13px">
-                <a href="https://{{$hospital->subdomain}}.intellijapp.com/public/{{$data->image}}">{{$data->image}}</a>
-            </td>
-    </tr>
+     
     <?php $i++ ?>
 
     @endforeach
