@@ -30,7 +30,7 @@ class Appointment extends Model
 
     public function serviceProvider()
     {
-        return $this->belongsTo(User::class, 'service_provider_id');
+        return $this->belongsTo(CardService::class, 'service_provider_id');
     }
     public function profile()
     {
