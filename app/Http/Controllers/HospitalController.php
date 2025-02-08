@@ -234,6 +234,7 @@ class HospitalController extends Controller
         
 
         $appointment = Appointment::create([
+            'service_provider_id'=> $request->service_provider_id,
             'user_id' => $user->id, // استخدام id المستخدم المصادق
             'card_id' => $profile->card_id,
             'note' => $request->note,
