@@ -19,6 +19,7 @@ class Appointment extends Model
         'end',
         'note',
         'is_come',
+        'service_provider_id',
         'created_at',
         'updated_at'
     ];
