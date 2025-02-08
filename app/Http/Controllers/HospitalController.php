@@ -64,7 +64,13 @@ class HospitalController extends Controller
     }
     public function store(Request $request)
     {
-
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
         $userDoctor = User::where('type_id',$this->userDoctor)->get();
         $users = User::where('type_id',$this->userDoctor)->get();
 
@@ -76,7 +82,8 @@ class HospitalController extends Controller
         $profile = Profile::where('card_number',$request->card_id)->first();
         if($profile){
             $appointment = Appointment::create([
-                'user_id' =>$request->user_id,
+                'service_provider_id' =>$request->user_id,
+                'user_id' =>$user->id,
                 'card_id' => $profile->card_number,
                 'note' => $request->note,
                 'start' => $this->convertToTimestamp($request->start),
@@ -91,7 +98,7 @@ class HospitalController extends Controller
                 'source' => 'appointment',
                  ]);
                  $appointment = Appointment::create([
-                    'user_id' =>$request->user_id,
+                    'service_provider_id' =>$request->user_id,
                     'card_id' => $new->card_number,
                     'note' => $request->note,
                     'start' => $this->convertToTimestamp($request->start),
@@ -199,6 +206,7 @@ class HospitalController extends Controller
 
         // التحقق من المدخلات
         $validator = Validator::make($request->all(), [
+            'service_provider_id' => 'required|int|max:50000',
             'profile_id' => 'required|int|max:50000',
             'note' => 'nullable|string|max:500',
             'start' => 'required|date_format:Y-m-d H:i:s',
@@ -252,8 +260,10 @@ class HospitalController extends Controller
         }
 
 
-        $appointment = Appointment::where('user_id',$user->id);
-
+        $appointment = Appointment::with(['user', 'serviceProvider'])
+        ->where('user_id', $user->id)
+        ->get();
+    
         return response()->json([
             'status' => 'success',
             'message' => 'Appointment list successfully',
