@@ -260,9 +260,7 @@ class HospitalController extends Controller
             ], 422);
         }
 
-        $appointment = Appointment::where([
-            'user_id' => $user->id, // استخدام id المستخدم المصادق
-        ]);
+        $appointment = Appointment::where('user_id',$user->id);
 
         return response()->json([
             'status' => 'success',
