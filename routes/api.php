@@ -61,6 +61,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/profile/me', [UserController::class, 'profile']);
     Route::post('/profile/update', [UserController::class, 'profileUpdate']);
     Route::post('/appointment/store', [HospitalController::class, 'storeAppointment']);
+    Route::get('/appointment/me', [HospitalController::class, 'appointment']);
+    Route::post('/appointment/update/{id}', [HospitalController::class, 'updateAppointment']);
+    Route::post('/appointment/delete/{id}', [HospitalController::class, 'deleteAppointment']);
 
     
     

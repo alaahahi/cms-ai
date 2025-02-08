@@ -239,4 +239,129 @@ class HospitalController extends Controller
             'appointment' => $appointment,
         ], 201);
     }
+    
+    public function appointment(Request $request)
+    {
+        // الحصول على المستخدم المصادق
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $appointment = Appointment::where([
+            'user_id' => $user->id, // استخدام id المستخدم المصادق
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointment list successfully',
+            'appointment' => $appointment,
+        ], 201);
+    }
+    public function updateAppointment(Request $request, $id)
+    {
+        // الحصول على المستخدم المصادق
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+    
+        // التحقق من المدخلات
+        $validator = Validator::make($request->all(), [
+            'note' => 'nullable|string|max:500',
+            'start' => 'required|date_format:Y-m-d H:i:s',
+            'end' => 'required|date_format:Y-m-d H:i:s|after:start',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+    
+        // البحث عن الموعد
+        $appointment = Appointment::find($id);
+        if (!$appointment) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Appointment not found',
+            ], 404);
+        }
+    
+        // التأكد من أن التعديل يتم على موعد مستقبلي فقط
+        if (Carbon::parse($appointment->start)->isPast()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cannot update past appointments',
+            ], 403);
+        }
+    
+        // تحديث بيانات الموعد
+        $appointment->update([
+            'note' => $request->note,
+            'start' => $this->convertToTimestamp($request->start),
+            'end' => $this->convertToTimestamp($request->end),
+        ]);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointment updated successfully',
+            'appointment' => $appointment,
+        ], 200);
+    }
+    
+    public function deleteAppointment($id)
+    {
+        // الحصول على المستخدم المصادق
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+    
+        // البحث عن الموعد
+        $appointment = Appointment::find($id);
+        if (!$appointment) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Appointment not found',
+            ], 404);
+        }
+    
+        // التأكد من أن الحذف يتم على موعد مستقبلي فقط
+        if (Carbon::parse($appointment->start)->isPast()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cannot delete past appointments',
+            ], 403);
+        }
+    
+        // حذف الموعد
+        $appointment->delete();
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointment deleted successfully',
+        ], 200);
+    }
+    
     }
