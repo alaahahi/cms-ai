@@ -252,14 +252,6 @@ class HospitalController extends Controller
         }
 
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         $appointment = Appointment::where('user_id',$user->id);
 
         return response()->json([
