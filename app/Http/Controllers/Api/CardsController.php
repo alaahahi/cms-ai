@@ -73,7 +73,30 @@ class CardsController extends Controller
             'data' => $activeCardServices,
         ], 200);
     }
+    public function activeCardServicesPopular(Request $request)
+    {
+        // تحديد البطاقات الفعالة فقط باستخدام scope 'Active'
+        $cards = Card::active()->get();
 
+    
+        // الحصول على الخدمات المرتبطة بالبطاقات الفعالة
+        $activeCardServices = CardService::where('is_popular', 1 )
+            ->where('expir_date', '>=', now())  // فقط الخدمات التي لم تنته صلاحيتها
+            ->get();
+    
+        // التحقق من وجود خدمات فعالة
+        if ($activeCardServices->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No active card services found.',
+            ], 404);
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $activeCardServices,
+        ], 200);
+    }
     public function requestCard(Request $request)
     {
         // Validation rules
