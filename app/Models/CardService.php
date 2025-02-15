@@ -28,7 +28,7 @@ class CardService extends Model
     ];
     protected $appends = ['service_name','description','specialty'];
 
-    public function getServiceAttribute()
+    public function getServiceNameAttribute()
     {
         $language =  app()->getLocale();
         switch ($language) {
