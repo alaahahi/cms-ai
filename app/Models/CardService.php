@@ -112,5 +112,8 @@ class CardService extends Model
     /**
      * Boot method for default ordering.
      */
+    public function card() {
+        return $this->hasMany(Card::class);
+    }
 
 }
