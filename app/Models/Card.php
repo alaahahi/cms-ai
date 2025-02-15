@@ -11,13 +11,28 @@ class Card extends Model
     protected $table = 'card';
 
     protected $fillable = [
-        'name',
+        'name_ar',
         'name_en',
         'day',
         'price',
         'expir_date',
         'show_on_app',
     ];
+
+    protected $appends = ['name'];
+
+    public function getNameAttribute()
+    {
+        $language =  app()->getLocale();
+        switch ($language) {
+            case 'ar':
+                return $this->name_ar;
+                break;
+            default:
+                return $this->name_en;
+                break;
+        }
+    }
 
     protected $casts = [
         'expir_date' => 'date', // Automatically cast to Carbon instance
