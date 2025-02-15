@@ -76,4 +76,9 @@ class Card extends Model
             $query->orderBy('expir_date');
         });
     }
+
+    public function services()
+    {
+        return $this->hasMany(CardService::class);
+    }
 }
