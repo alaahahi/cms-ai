@@ -219,8 +219,8 @@ const searchVINs = async () => {
 
   try {
     const response = await axios.post('/api/search-vins', { image_links: vinList });
-    results.value = response.data.results ; // استقبال النتائج كمصفوفة من المصفوفات
-    noResultsVINs.value = response.data.noResultsVINs ; // استقبال النتائج كمصفوفة من المصفوفات
+    results.value = response.data.message ; // استقبال النتائج كمصفوفة من المصفوفات
+    noResultsVINs.value = response.data.message ; // استقبال النتائج كمصفوفة من المصفوفات
      
     loading.value=false;
   } catch (error) {

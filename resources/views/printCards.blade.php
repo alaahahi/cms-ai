@@ -29,12 +29,8 @@
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
      اسم الزبون
     </th>
-    <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
-     هاتف
-    </th>
-    <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
-     العقد الالكتروني
-    </th>
+
+   
 </tr>
     <?php $i = 1 ?>
     @foreach($data as $data)
@@ -50,12 +46,13 @@
             <span>{{$data->card_number}}</span>
             </td>
             <td style="padding-right:20px;font-size:13px">
-            <span>{{$data->name}}</span>
+            <span>
+                <a href="{{$data->cloud_image ?? ''}}" target="_bland" >
+                {{$data->name}}
+                </a>
+            </span>
             </td>
-            <td style="padding-right:20px;font-size:13px">
-            <span>{{$data->phone_number}}</span>
-            </td>
-
+           
      
     <?php $i++ ?>
 
