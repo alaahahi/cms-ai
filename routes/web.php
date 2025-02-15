@@ -147,6 +147,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
  Route::get('show/{id}', [FormRegistrationController::class, 'showfile'])->name('show');
  Route::get('card',[FormRegistrationController::class, 'saved'])->name('card');
  Route::get('hospitalPrint',[HospitalController::class, 'hospitalPrint'])->name('hospitalPrint');
+ Route::get('car_check',[DashboardController::class, 'car_check'])->name('car_check');
 
  
 require __DIR__.'/auth.php';

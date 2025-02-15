@@ -34,7 +34,8 @@ class Profile extends Model
         'created_at',
         'updated_at',
         'created',
-        'source'
+        'source',
+        'cloud_image'
     ];
     public function user()
     {

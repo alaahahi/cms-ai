@@ -12,6 +12,7 @@ use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\CardsController;
+use App\Http\Controllers\DashboardController;
 
 
 Route::get('/clear-config-cache', function () {
@@ -30,6 +31,7 @@ Route::get('/clear-config-cache', function () {
     //$content_controller->log_visit_cache_job([]);
     return "Configuration cache file removed";
 });
+Route::post('/search-vins', [DashboardController::class, 'searchVINs'])->name('search-vins');
 
 Route::apiResource('upload', UploadController::class);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {return $request->user();});

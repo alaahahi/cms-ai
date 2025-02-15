@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Models\Wallet;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -63,6 +64,31 @@ class DashboardController extends Controller
         return response()->json(['data'=>$profile,'count'=>Profile::count(),'config'=>$config]); 
     }
     
+    public function car_check(Request $request)
+    {
 
+        return Inertia::render('CarCheck/index');   
+    }
+    public function searchVINs(Request $request)
+    {
+        $imageLinks = $request->input('image_links'); // استلام الروابط من الطلب
+
+        foreach ($imageLinks as $imageLink) {
+            // استخراج الرقم من الرابط
+            preg_match('/(\d+)\.jpg$/', $imageLink, $matches);
+            $imageNumber = $matches[1] ?? null;
     
+            if ($imageNumber) {
+                // البحث عن البروفايل الذي يحتوي على هذه الصورة
+                $profile = Profile::where('image', 'like', "uploads/{$imageNumber}.png")->first();
+    
+                if ($profile) {
+                    // تحديث حقل cloud_image إذا وجد البروفايل
+                    $profile->update(['cloud_image' => $imageLink]);
+                }
+            }
+        }
+    
+        return response()->json(['message' => 'تم تحديث الصور بنجاح']);
+    }
 }
