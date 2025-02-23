@@ -80,7 +80,7 @@ class CardsController extends Controller
 
     
         // الحصول على الخدمات المرتبطة بالبطاقات الفعالة
-        $activeCardServices = CardService::with('card')->where('is_popular', 1 )
+        $activeCardServices = CardService::with('card')->with('category')->where('is_popular', 1 )
             ->where('expir_date', '>=', now())  // فقط الخدمات التي لم تنته صلاحيتها
             ->get();
     
@@ -397,7 +397,7 @@ class CardsController extends Controller
         $searchTerm = $request->search_term;
     
         // البحث حسب اللغة المحددة
-        $searchResults = CardService::with('card')->where(function ($query) use ($searchTerm, $locale) {
+        $searchResults = CardService::with('card')->with('category')->where(function ($query) use ($searchTerm, $locale) {
                 if ($locale == 'ar') {
                     // البحث في الاسم العربي
                     $query->where('service_name_ar', 'LIKE', '%' . $searchTerm . '%')

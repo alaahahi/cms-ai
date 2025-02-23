@@ -117,4 +117,9 @@ class CardService extends Model
         return $this->belongsTo(Card::class);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
 }
