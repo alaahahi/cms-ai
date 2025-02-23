@@ -90,7 +90,9 @@ class CardsController extends Controller
                         'working_hours' => $service->working_hours,
                         'appointments_per_day' => $service->appointments_per_day,
                         'expir_date' => $service->expir_date,
-                        'show_on_app' => $service->show_on_app,
+                        'show_on_app' => $service->show_on_app ?? 1,
+                        'review_rate' => $service->review_rate ?? 5,
+                        'ex_year' => $service->ex_year ?? 0
                     ];
                 }),
             ];
