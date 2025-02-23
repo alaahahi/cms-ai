@@ -52,7 +52,7 @@ class CardsController extends Controller
     }
     public function activeCardServices(Request $request)
     {
-        // تحديد اللغة من الهيدر أو الافتراضية الإنجليزية
+        // تحديد اللغة من الهيدر أو الافتراضية العربية
         $locale = $request->header('Accept-Language', 'ar');
         app()->setLocale($locale);
     
@@ -67,7 +67,8 @@ class CardsController extends Controller
         // جلب التصنيفات مع الخدمات المرتبطة بالبطاقة المطلوبة والتي لم تنته صلاحيتها
         $categories = Category::with(['services' => function ($query) use ($request) {
                 $query->where('card_id', $request->card_id)
-                      ->where('expir_date', '>=', now());
+                      ->where('expir_date', '>=', now())
+                      ->withCount('appointments'); // حساب عدد المواعيد المحجوزة
             }])
             ->get();
     
@@ -92,7 +93,8 @@ class CardsController extends Controller
                         'expir_date' => $service->expir_date,
                         'show_on_app' => $service->show_on_app ?? 1,
                         'review_rate' => $service->review_rate ?? 5,
-                        'ex_year' => $service->ex_year ?? 0
+                        'ex_year' => $service->ex_year ?? 0,
+                        'appointments_count' => $service->appointments_count, // عدد المواعيد المحجوزة
                     ];
                 }),
             ];
@@ -114,6 +116,7 @@ class CardsController extends Controller
             'data' => $result,
         ], 200);
     }
+    
     
     
     public function activeCardServicesPopular(Request $request)

@@ -121,5 +121,8 @@ class CardService extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'service_provider_id');
+    }
 }
