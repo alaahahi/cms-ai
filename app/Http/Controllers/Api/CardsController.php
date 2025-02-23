@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Card;
 use App\Models\CardService;
 use App\Models\Profile;
+use App\Models\Category;
 use App\Models\PendingRequest;
 use App\Models\User;
 use Carbon\Carbon;
@@ -51,17 +52,53 @@ class CardsController extends Controller
     }
     public function activeCardServices(Request $request)
     {
-        // تحديد البطاقات الفعالة فقط باستخدام scope 'Active'
-        $cards = Card::active()->get();
-
+        // تحديد اللغة من الهيدر أو الافتراضية الإنجليزية
+        $locale = $request->header('Accept-Language', 'ar');
+        app()->setLocale($locale);
     
-        // الحصول على الخدمات المرتبطة بالبطاقات الفعالة
-        $activeCardServices = CardService::where('card_id', $request->card_id )
-            ->where('expir_date', '>=', now())  // فقط الخدمات التي لم تنته صلاحيتها
+        // التحقق من وجود card_id
+        if (!$request->has('card_id')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Card ID is required.',
+            ], 400);
+        }
+    
+        // جلب التصنيفات مع الخدمات المرتبطة بالبطاقة المطلوبة والتي لم تنته صلاحيتها
+        $categories = Category::with(['services' => function ($query) use ($request) {
+                $query->where('card_id', $request->card_id)
+                      ->where('expir_date', '>=', now());
+            }])
             ->get();
     
-        // التحقق من وجود خدمات فعالة
-        if ($activeCardServices->isEmpty()) {
+        // تنسيق النتيجة
+        $result = $categories->map(function ($category) use ($locale) {
+            return [
+                'category_id' => $category->id,
+                'category_name' => $locale === 'ar' ? $category->name_ar : $category->name_en,
+                'services' => $category->services->map(function ($service) use ($locale) {
+                    return [
+                        'id' => $service->id,
+                        'card_id' => $service->card_id,
+                        'service_name' => $locale === 'ar' ? $service->service_name_ar : $service->service_name_en,
+                        'description' => $locale === 'ar' ? $service->description_ar : $service->description_en,
+                        'specialty' => $locale === 'ar' ? $service->specialty_ar : $service->specialty_en,
+                        'price' => $service->price,
+                        'working_days' => $service->working_days,
+                        'working_hours' => $service->working_hours,
+                        'appointments_per_day' => $service->appointments_per_day,
+                        'expir_date' => $service->expir_date,
+                        'show_on_app' => $service->show_on_app,
+                    ];
+                }),
+            ];
+        })->filter(function ($category) {
+            // إزالة التصنيفات التي لا تحتوي على خدمات فعالة
+            return $category['services']->isNotEmpty();
+        })->values();
+    
+        // التحقق إذا كانت هناك خدمات فعالة
+        if ($result->isEmpty()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'No active card services found.',
@@ -70,9 +107,11 @@ class CardsController extends Controller
     
         return response()->json([
             'status' => 'success',
-            'data' => $activeCardServices,
+            'data' => $result,
         ], 200);
     }
+    
+    
     public function activeCardServicesPopular(Request $request)
     {
         // تحديد البطاقات الفعالة فقط باستخدام scope 'Active'
@@ -383,7 +422,7 @@ class CardsController extends Controller
     public function searchCardServices(Request $request)
     {
         // الحصول على اللغة من الهيدر وإعداد اللغة الافتراضية
-        $locale = $request->header('Accept-Language', 'en');
+        $locale = $request->header('Accept-Language', 'ar');
         app()->setLocale($locale); // ضبط اللغة للتطبيق
     
         // التحقق من وجود كلمة البحث
