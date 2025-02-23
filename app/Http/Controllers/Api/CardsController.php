@@ -380,7 +380,60 @@ class CardsController extends Controller
         ], 200);
     }
 
+    public function searchCardServices(Request $request)
+    {
+        // الحصول على اللغة من الهيدر وإعداد اللغة الافتراضية
+        $locale = $request->header('Accept-Language', 'en');
+        app()->setLocale($locale); // ضبط اللغة للتطبيق
     
+        // التحقق من وجود كلمة البحث
+        if (!$request->has('search_term') || empty($request->search_term)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Search term is required.',
+            ], 400);
+        }
+    
+        $searchTerm = $request->search_term;
+    
+        // البحث حسب اللغة المحددة
+        $searchResults = CardService::with('card')->where(function ($query) use ($searchTerm, $locale) {
+                if ($locale == 'ar') {
+                    // البحث في الاسم العربي
+                    $query->where('service_name_ar', 'LIKE', '%' . $searchTerm . '%')
+                          ->orWhere('description_ar', 'LIKE', '%' . $searchTerm . '%')
+                          ->orWhere('specialty_ar', 'LIKE', '%' . $searchTerm . '%');
+                } elseif ($locale == 'en') {
+                    // البحث في الاسم الإنجليزي
+                    $query->where('service_name_en', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('description_en', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('specialty_en', 'LIKE', '%' . $searchTerm . '%');
+                } else {
+                    // البحث في جميع الحقول إذا لم تكن اللغة ar أو en
+                    $query->where('service_name_ar', 'LIKE', '%' . $searchTerm . '%')
+                          ->orWhere('service_name_en', 'LIKE', '%' . $searchTerm . '%')
+                          ->orWhere('description_ar', 'LIKE', '%' . $searchTerm . '%')
+                          ->orWhere('description_en', 'LIKE', '%' . $searchTerm . '%');
+                }
+            })
+            ->where('expir_date', '>=', now()) // فقط الخدمات الفعالة
+            ->get();
+    
+        // التحقق إذا كانت هناك نتائج
+        if ($searchResults->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No matching card services found.',
+            ], 404);
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $searchResults,
+        ], 200);
+    }
+    
+
     /**
      * وظيفة لإزالة الكاش المرتبط بالطلبات المعلقة
      */

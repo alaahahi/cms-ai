@@ -15,7 +15,7 @@ const showingNavigationDropdown = ref(false);
         <div class="min-h-screen bg-gray-100">
             <nav class="bg-white border-b border-gray-100  print:hidden">
                 <!-- Primary Navigation Menu -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class=" mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
                             <!-- Logo -->
@@ -60,6 +60,17 @@ const showingNavigationDropdown = ref(false);
                                      عرض البطاقات
                                 </NavLink>
                             </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
+                                <NavLink :href="route('CardsMobile')" :active="route().current('CardsMobile')">
+                                        البطاقات المتاحة
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex " v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
+                                <NavLink :href="route('PendingRequest')" :active="route().current('PendingRequest')">
+                                       خدمات البطاقات
+                                </NavLink>
+                            </div>
+
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
                                 <NavLink :href="route('PendingRequest')" :active="route().current('PendingRequest')">
                                       طلبات المعلقة

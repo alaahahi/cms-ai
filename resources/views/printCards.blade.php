@@ -29,7 +29,9 @@
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
      اسم الزبون
     </th>
-
+    <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
+         عقد
+       </th>
    
 </tr>
     <?php $i = 1 ?>
@@ -47,10 +49,13 @@
             </td>
             <td style="padding-right:20px;font-size:13px">
             <span>
-                <a href="{{$data->cloud_image ?? ''}}" target="_bland" >
+             
                 {{$data->name}}
-                </a>
             </span>
+            
+            </td>
+            <td>
+                {{$data->cloud_image ?? ''}}
             </td>
            
      

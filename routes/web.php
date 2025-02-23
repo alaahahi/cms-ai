@@ -74,6 +74,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
     
     Route::get('formRegistration',[FormRegistrationController::class, 'index'])->name('formRegistration');
     Route::get('PendingRequest',[FormRegistrationController::class, 'PendingRequest'])->name('PendingRequest');
+    Route::get('CardsMobile',[FormRegistrationController::class, 'CardsMobile'])->name('CardsMobile');
 
     
     Route::get('formRegistrationEdit/{id}',[FormRegistrationController::class, 'formRegistrationEdit'])->name('formRegistrationEdit');
@@ -85,6 +86,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
     
     Route::get('getIndexFormRegistration',[FormRegistrationController::class, 'getIndex'])->name("getIndexFormRegistration");
     Route::get('getIndexPendingRequest',[FormRegistrationController::class, 'getIndexPendingRequest'])->name("getIndexPendingRequest");
+    Route::get('getIndexCardsMobile',[FormRegistrationController::class, 'getIndexCardsMobile'])->name("getIndexCardsMobile");
 
     
     Route::get('getIndexFormRegistrationSaved',[FormRegistrationController::class, 'getIndexSaved'])->name("getIndexFormRegistrationSaved");
@@ -140,7 +142,9 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::post('AcceptePendingRequest', [CardsController::class, 'AcceptePendingRequest'])->name('AcceptePendingRequest');
     Route::post('EditPendingRequest', [CardsController::class, 'EditPendingRequest'])->name('EditPendingRequest');
 
-
+    Route::post('deleteCardsMobile', [CardsController::class, 'deleteCardsMobile'])->name('deleteCardsMobile');
+    Route::post('AccepteCardsMobile', [CardsController::class, 'AccepteCardsMobile'])->name('AccepteCardsMobile');
+    Route::post('EditCardsMobile', [CardsController::class, 'EditCardsMobile'])->name('EditCardsMobile');
  });
 
  Route::get('document/{id}', [FormRegistrationController::class, 'document'])->name('document');

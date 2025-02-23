@@ -94,6 +94,10 @@ class FormRegistrationController extends Controller
             return Inertia::render('Auth/Login');
         }
     }
+    public function CardsMobile()
+    {   
+        return Inertia::render('FormRegistration/CardsMobile');
+    }
     public function formRegistrationEdit($id)
     {
         $data = Profile::where('id',$id)->first();
@@ -222,6 +226,13 @@ class FormRegistrationController extends Controller
         }
     
         // إرجاع البيانات كـ JSON
+        return Response::json($data, 200);
+    }
+    public function getIndexCardsMobile()
+    {
+        
+        $data = Card::orderBy('id', 'DESC')->paginate(25);
+         
         return Response::json($data, 200);
     }
     public function getIndexSaved()
