@@ -478,7 +478,57 @@ class CardsController extends Controller
             'data' => $searchResults,
         ], 200);
     }
+    public function canBookAppointment(Request $request)
+    {   
     
+        $rules = [
+            'service_id' => 'required|exists:card_services,id',
+        ];
+        
+        // التحقق من المدخلات
+        $validator = Validator::make($request->all(), $rules);
+        
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+        // جلب المستخدم الحالي
+        $user = Auth::user();
+
+        // جلب كل البطاقات المفعلة للمستخدم
+        $activeCards = Profile::where('phone_number', $user->phone_number)->pluck('card_id');
+
+        if ($activeCards->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No active cards found for this user.',
+            ], 404);
+        }
+        //dd($activeCards);
+        // التحقق إذا كانت أي بطاقة تدعم الخدمة المطلوبة
+        $validCard = CardService::whereIn('card_id', $activeCards)
+                                ->where('id', $request->service_id)
+                                ->where('expir_date', '>=', now())
+                                ->first();
+
+        if (!$validCard) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No valid card found for this service.',
+            ], 403);
+        }
+
+     
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'You can book this appointment.',
+            'data' => [
+                'card_id' => $validCard->card_id,
+                'service_id' => $request->service_id
+            ]
+        ], 200);
+    }
+
 
     /**
      * وظيفة لإزالة الكاش المرتبط بالطلبات المعلقة

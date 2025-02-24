@@ -67,10 +67,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/appointment/update/{id}', [HospitalController::class, 'updateAppointment']);
     Route::post('/appointment/delete/{id}', [HospitalController::class, 'deleteAppointment']);
 
-    
+    Route::post('/appointment/canBookAppointment', [CardsController::class, 'canBookAppointment']);
+
     
 
 });
+
 Route::get('/cards/active', [CardsController::class, 'activeCards']);
 Route::get('/card-services/active', [CardsController::class, 'activeCardServices']);
 Route::get('/card-services/search', [CardsController::class, 'searchCardServices']);
