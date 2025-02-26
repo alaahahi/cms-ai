@@ -78,6 +78,7 @@ class CardsController extends Controller
                 'category_id' => $category->id,
                 'category_name' => $locale === 'ar' ? $category->name_ar : $category->name_en,
                 'category_icon' => $category->icon,
+                'category_color' => $category->color,
                 'category_discount' => $category->discount,
                 'services' => $category->services->map(function ($service) use ($locale) {
                     return [
