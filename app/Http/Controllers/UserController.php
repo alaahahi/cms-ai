@@ -64,7 +64,7 @@ class UserController extends Controller
  
          if ($user) {
              // تحديث الكود إذا كان المستخدم موجودًا
-             $user->update(['verification_code' => $verificationCode]);
+            // $user->update(['verification_code' => $verificationCode]);
          } else {
              // إنشاء مستخدم جديد إذا لم يكن موجودًا
              $user = User::create([
