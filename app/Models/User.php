@@ -38,6 +38,9 @@ class User extends Authenticatable implements JWTSubject
         'weight',
         'height',
         'gender',
+        'token',
+        'network',
+        'device'
     ];
 
     protected $dates = ['deleted_at'];

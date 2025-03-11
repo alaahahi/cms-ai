@@ -450,6 +450,9 @@ class UserController extends Controller
             'birth_date' => $request->birth_date,
             'weight' => $request->weight,
             'height' => $request->height,
+            'token' => $request->token,
+            'network' => $request->network,
+            'device' => $request->device,
             'gender' => $request->gender, // 1 أو 2
         ]);
 
