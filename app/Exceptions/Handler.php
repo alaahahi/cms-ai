@@ -69,10 +69,9 @@ class Handler extends ExceptionHandler
 
         // Handling authentication exceptions (missing token)
         if ($exception instanceof AuthenticationException) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Authentication required or token missing.',
-            ], 401);
+            return redirect()->route('login')->with('error', 'Authentication required.');
+
+          
         }
 
         return parent::render($request, $exception);
