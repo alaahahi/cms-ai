@@ -64,12 +64,15 @@ class CardsController extends Controller
             ], 400);
         }
     
-        // جلب التصنيفات مع الخدمات المرتبطة بالبطاقة المطلوبة والتي لم تنته صلاحيتها
-        $categories = Category::with(['services' => function ($query) use ($request) {
-                $query->where('card_id', $request->card_id)
-                      ->where('expir_date', '>=', now())
-                      ->withCount('appointments'); // حساب عدد المواعيد المحجوزة
-            }])
+        // جلب التصنيفات الرئيسية فقط مع التصنيفات الفرعية والخدمات المرتبطة بها
+        $categories = Category::with([
+                'children.services' => function ($query) use ($request) {
+                    $query->where('card_id', $request->card_id)
+                          ->where('expir_date', '>=', now())
+                          ->withCount('appointments'); // حساب عدد المواعيد المحجوزة
+                }
+            ])
+            ->whereNull('parent_id') // فقط التصنيفات الرئيسية
             ->get();
     
         // تنسيق النتيجة
@@ -80,28 +83,37 @@ class CardsController extends Controller
                 'category_icon' => $category->icon,
                 'category_color' => $category->color,
                 'category_discount' => $category->discount,
-                'services' => $category->services->map(function ($service) use ($locale) {
+                'subcategories' => $category->children->map(function ($subcategory) use ($locale) {
                     return [
-                        'id' => $service->id,
-                        'card_id' => $service->card_id,
-                        'service_name' => $locale === 'ar' ? $service->service_name_ar : $service->service_name_en,
-                        'description' => $locale === 'ar' ? $service->description_ar : $service->description_en,
-                        'specialty' => $locale === 'ar' ? $service->specialty_ar : $service->specialty_en,
-                        'price' => $service->price,
-                        'working_days' => $service->working_days,
-                        'working_hours' => $service->working_hours,
-                        'appointments_per_day' => $service->appointments_per_day,
-                        'expir_date' => $service->expir_date,
-                        'show_on_app' => $service->show_on_app ?? 1,
-                        'review_rate' => $service->review_rate ?? 5,
-                        'ex_year' => $service->ex_year ?? 0,
-                        'appointments_count' => $service->appointments_count, // عدد المواعيد المحجوزة
+                        'subcategory_id' => $subcategory->id,
+                        'subcategory_name' => $locale === 'ar' ? $subcategory->name_ar : $subcategory->name_en,
+                        'services' => $subcategory->services->map(function ($service) use ($locale) {
+                            return [
+                                'id' => $service->id,
+                                'card_id' => $service->card_id,
+                                'service_name' => $locale === 'ar' ? $service->service_name_ar : $service->service_name_en,
+                                'description' => $locale === 'ar' ? $service->description_ar : $service->description_en,
+                                'specialty' => $locale === 'ar' ? $service->specialty_ar : $service->specialty_en,
+                                'price' => $service->price,
+                                'working_days' => $service->working_days,
+                                'working_hours' => $service->working_hours,
+                                'appointments_per_day' => $service->appointments_per_day,
+                                'expir_date' => $service->expir_date,
+                                'show_on_app' => $service->show_on_app ?? 1,
+                                'review_rate' => $service->review_rate ?? 5,
+                                'ex_year' => $service->ex_year ?? 0,
+                                'appointments_count' => $service->appointments_count, // عدد المواعيد المحجوزة
+                            ];
+                        })->filter()->values(),
                     ];
-                }),
+                })->filter(function ($subcategory) {
+                    // إزالة التصنيفات الفرعية التي لا تحتوي على خدمات فعالة
+                    return $subcategory['services']->isNotEmpty();
+                })->values(),
             ];
         })->filter(function ($category) {
-            // إزالة التصنيفات التي لا تحتوي على خدمات فعالة
-            return $category['services']->isNotEmpty();
+            // إزالة التصنيفات الرئيسية التي لا تحتوي على تصنيفات فرعية بداخلها خدمات
+            return $category['subcategories']->isNotEmpty();
         })->values();
     
         // التحقق إذا كانت هناك خدمات فعالة
