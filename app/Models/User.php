@@ -74,7 +74,6 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
         'is_band',
         'percentage',
-        'device',
         'verification_code',
         'deleted_at',
         'morphed_id',
