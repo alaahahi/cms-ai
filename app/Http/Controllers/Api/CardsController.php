@@ -72,7 +72,7 @@ class CardsController extends Controller
                           ->withCount('appointments'); // حساب عدد المواعيد المحجوزة
                 }
             ])
-            ->whereNull('parent_id') // فقط التصنيفات الرئيسية
+          //  ->whereNull('parent_id') // فقط التصنيفات الرئيسية
             ->get();
     
         // تنسيق النتيجة
