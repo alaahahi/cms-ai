@@ -451,6 +451,7 @@ class UserController extends Controller
             'weight' => $request->weight,
             'height' => $request->height,
             'token' => $request->token,
+            'fcm_token'=>$request->fcm_token,
             'network' => $request->network,
             'device' => $request->device,
             'gender' => $request->gender, // 1 أو 2
