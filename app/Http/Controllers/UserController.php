@@ -463,7 +463,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Profile updated successfully',
-            'data' => $user->only(['name', 'address', 'family_members_names','birth_date','weight','height','gender','token','network','device']), // إعادة البيانات المحدثة فقط
+            'data' => $user->only(['name', 'address', 'family_members_names','birth_date','weight','height','gender','token','fcm_token','network','device']), // إعادة البيانات المحدثة فقط
 
         ]);
 
