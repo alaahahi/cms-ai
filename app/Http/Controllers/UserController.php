@@ -411,6 +411,13 @@ class UserController extends Controller
             'data' => Auth::user(),
         ]);
     }
+    public function delProfile()
+    {
+        return response()->json([
+            'status' => 'success del Profile',
+            'data' => Auth::user(),
+        ]);
+    }
     public function profileUpdate(Request $request)
     {
         // الحصول على المستخدم الحالي

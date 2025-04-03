@@ -61,6 +61,7 @@ Route::group(['prefix' => 'v1'], function() {
 Route::middleware('auth:api')->group(function () {
     Route::get('/cards/me', [CardsController::class, 'activeCardsMe']);
     Route::get('/profile/me', [UserController::class, 'profile']);
+    Route::delete('/profile/delete', [UserController::class, 'delProfile']);
     Route::post('/profile/update', [UserController::class, 'profileUpdate']);
     Route::post('/appointment/store', [HospitalController::class, 'storeAppointment']);
     Route::get('/appointment/me', [HospitalController::class, 'appointment']);
