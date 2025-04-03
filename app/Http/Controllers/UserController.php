@@ -414,7 +414,7 @@ class UserController extends Controller
     public function delProfile()
     {
         return response()->json([
-            'status' => 'success del Profile',
+            'status' => 'success',
             'data' => Auth::user(),
         ]);
     }
