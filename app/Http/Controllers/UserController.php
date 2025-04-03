@@ -406,16 +406,36 @@ class UserController extends Controller
 
     public function profile()
     {
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+            
+
         return response()->json([
             'status' => 'success',
-            'data' => Auth::user(),
+            'data' => $user,
         ]);
     }
     public function delProfile()
     {
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+            
+
         return response()->json([
             'status' => 'success',
-            'data' => Auth::user(),
+            'data' => $user,
         ]);
     }
     public function profileUpdate(Request $request)
