@@ -57,14 +57,14 @@ class UserController extends Controller
         }
 
          $phoneNumber = $request->phone_number;
-         $verificationCode = rand(100000, 999999);
+         $verificationCode = 111111;//rand(100000, 999999);
  
          // تحقق من وجود المستخدم
          $user = User::where('phone_number', $phoneNumber)->first();
  
          if ($user) {
              // تحديث الكود إذا كان المستخدم موجودًا
-            // $user->update(['verification_code' => $verificationCode]);
+            $user->update(['verification_code' => $verificationCode]);
          } else {
              // إنشاء مستخدم جديد إذا لم يكن موجودًا
              $user = User::create([
@@ -139,14 +139,14 @@ class UserController extends Controller
             ], 422);
         }
         $phoneNumber = $request->phone_number;
-        $verificationCode = rand(100000, 999999);
+        $verificationCode = 111111;//rand(100000, 999999);
 
           // تحقق من وجود المستخدم
           $user = User::where('phone_number', $phoneNumber)->first();
  
           if ($user) {
               // تحديث الكود إذا كان المستخدم موجودًا
-          //    $user->update(['verification_code' => $verificationCode,'verification_user_type'=>'sms']);
+             $user->update(['verification_code' => $verificationCode,'verification_user_type'=>'sms']);
           } else {
               // إنشاء مستخدم جديد إذا لم يكن موجودًا
               $user = User::create([
