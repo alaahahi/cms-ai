@@ -9,7 +9,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name_en', 'name_ar', 'parent_id'];
+    protected $fillable = ['name_en', 'name_ar','icon','discount', 'parent_id','card_id'];
 
     // علاقة التصنيف مع الخدمات
     public function services()
@@ -27,5 +27,10 @@ class Category extends Model
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function card()
+    {
+        return $this->belongsTo(Card::class);
     }
 }

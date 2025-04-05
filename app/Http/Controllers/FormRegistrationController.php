@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Models\UserType;
 use App\Models\Wallet;
+use App\Models\Category;
 use App\Models\Results;
 use App\Models\DoctorResults;
 use App\Models\Transactions;
@@ -97,6 +98,14 @@ class FormRegistrationController extends Controller
     public function CardsMobile()
     {   
         return Inertia::render('FormRegistration/CardsMobile');
+    }
+    public function CategoryCardMobile()
+    {   
+        $card = Card::orderBy('id', 'DESC')->get();
+
+        $parents = Category::whereNull('parent_id')->get();
+
+        return Inertia::render('FormRegistration/CategoryCardMobile', ['card'=> $card,'parents'=>$parents]);
     }
     public function formRegistrationEdit($id)
     {
@@ -232,6 +241,15 @@ class FormRegistrationController extends Controller
     {
         
         $data = Card::orderBy('id', 'DESC')->paginate(25);
+         
+        return Response::json($data, 200);
+    }
+    public function getIndexCategoryCardMobile(Request $request)
+    {
+
+        $card_id =  $request->card_id ?? 0;
+        
+        $data = Category::with('parent')->with('card')->where('card_id',$card_id)->orderBy('id', 'DESC')->paginate(25);
          
         return Response::json($data, 200);
     }
@@ -494,5 +512,136 @@ class FormRegistrationController extends Controller
         }
 
     }
+
+
+    public function AddCardsMobile(Request $request)
+        {
+            $validated = $request->validate([
+                'name_ar' => 'required|string|max:255',
+                'name_en' => 'required|string|max:255',
+                'day' => 'required|integer|min:1',
+                'price' => 'required|numeric|min:0',
+                'currency' => 'required|string|max:20',
+                'expir_date' => 'required|date',
+                'show_on_app' => 'nullable',
+                'description_ar' => 'nullable|string',
+                'description_en' => 'nullable|string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // الصورة
+
+            ]);
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imagePath = $image->store('cards_images', 'public'); // يخزنها في storage/app/public/cards_images
+                $validated['image'] = $imagePath;
+            }
+            $card = Card::create([
+                'name_ar' => $validated['name_ar'],
+                'name_en' => $validated['name_en'],
+                'day' => $validated['day'],
+                'price' => $validated['price'],
+                'currency' => $validated['currency'],
+                'expir_date' => $validated['expir_date'],
+                'show_on_app' => $request->boolean('show_on_app'), // يتعامل مع checkbox
+                'description_ar' => $validated['description_ar'] ?? '',
+                'description_en' => $validated['description_en'] ?? '',
+                'image' => $validated['image']
+            ]);
+
+            return response()->json([
+                'message' => 'تم حفظ البطاقة بنجاح',
+                'data' => $card,
+            ], 201);
+        }
+    public function AddCategoryCardsMobile(Request $request)
+        {
+            // التحقق من البيانات المدخلة
+            $validated = $request->validate([
+                'name_ar' => 'required|string|max:255',
+                'name_en' => 'required|string|max:255',
+                'card_id' => 'required|numeric',
+                'discount' => 'nullable|numeric|min:0|max:100', // التحقق من الخصم
+                'parent_id' => 'nullable|exists:categories,id', // تحقق من وجود parent_id إذا كان فرعيًا
+            ]);
+            
+            // معالجة رفع الصورة إذا كانت موجودة
+            if ($request->hasFile('icon')) {
+                $image = $request->file('icon');
+                $imagePath = $image->store('categories_icons', 'public'); // تخزين الصورة في public/storage/categories_icons
+                $validated['icon'] = $imagePath;
+            }
+            
+            // إذا كان id موجودًا في البيانات، نقوم بتحديث التصنيف
+            if ($request->has('id')) {
+                // تحديث التصنيف
+                $category = Category::findOrFail($request->id);
+                $category->update([
+                    'name_ar' => $validated['name_ar'],
+                    'name_en' => $validated['name_en'],
+                    'card_id' => $validated['card_id'],
+                    'icon' => $validated['icon'] ?? $category->icon, // إذا لم يتم رفع أي صورة، الإبقاء على الصورة الحالية
+                    'discount' => $validated['discount'] ?? $category->discount, // إذا لم يتم إدخال خصم، الإبقاء على الخصم القديم
+                    'parent_id' => $validated['parent_id'] ?? $category->parent_id, // إذا لم يتم إدخال parent_id، الإبقاء على التصنيف الأب القديم
+                ]);
+            } else {
+                // إنشاء تصنيف جديد إذا لم يكن id موجودًا
+                $category = Category::create([
+                    'name_ar' => $validated['name_ar'],
+                    'name_en' => $validated['name_en'],
+                    'card_id' => $validated['card_id'],
+                    'icon' => $validated['icon'] ?? null,
+                    'discount' => $validated['discount'] ?? 0,
+                    'parent_id' => $validated['parent_id'] ?? null, // إذا كان التصنيف فرعيًا، سيحتفظ بـ parent_id
+                ]);
+            }
+            
+            // إرجاع استجابة مع بيانات التصنيف
+            return response()->json([
+                'message' => $request->has('id') ? 'تم تعديل التصنيف بنجاح' : 'تم إضافة التصنيف بنجاح',
+                'data' => $category,
+            ], 201);
+        }
+        
+    public function UpdateCardsMobile(Request $request, $id)
+        {
+            $validated = $request->validate([
+                'name_ar' => 'required|string|max:255',
+                'name_en' => 'required|string|max:255',
+                'day' => 'required|integer|min:1',
+                'price' => 'required|numeric|min:0',
+                'currency' => 'required|string|max:20',
+                'expir_date' => 'required|date',
+                'show_on_app' => 'nullable',
+                'description_ar' => 'nullable|string',
+                'description_en' => 'nullable|string',
+            ]);
+        
+            $card = Card::findOrFail($id);
+        
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imagePath = $image->store('cards_images', 'public');
+                $validated['image'] = $imagePath;
+            }
+        
+            $card->update([
+                'name_ar' => $validated['name_ar'],
+                'name_en' => $validated['name_en'],
+                'day' => $validated['day'],
+                'price' => $validated['price'],
+                'currency' => $validated['currency'],
+                'expir_date' => $validated['expir_date'],
+                'show_on_app' => $request->boolean('show_on_app'),
+                'description_ar' => $validated['description_ar'] ?? '',
+                'description_en' => $validated['description_en'] ?? '',
+                'image' => $validated['image'] ?? $card->image, // إذا لم يتم رفع صورة جديدة، احتفظ بالقديمة
+            ]);
+        
+            return response()->json([
+                'message' => 'تم تعديل البطاقة بنجاح',
+                'data' => $card,
+            ], 200);
+        }
+        
+
     
     }

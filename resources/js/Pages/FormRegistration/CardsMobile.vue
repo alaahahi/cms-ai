@@ -7,6 +7,8 @@ import InfiniteLoading from "v3-infinite-loading";
 import axios from 'axios';
 import debounce from 'lodash/debounce'; // Import debounce function from Lodash
 import ModaEditCardsMobile from "@/Components/ModaEditCardsMobile.vue";
+import ModaAddCardsMobile from "@/Components/ModaAddCardsMobile.vue";
+
 
 import { useToast } from "vue-toastification";
 const toast = useToast();
@@ -112,31 +114,58 @@ const results = (id) => {
 
 
 let showModalEditCardsMobile = ref(false);
+let showModalAddCardsMobile = ref(false);
+
 
 function openModalEditCardsMobile(v){
   form.value = v
   showModalEditCardsMobile.value = true
 }
-function confirmEditCardsMobile(V) {
-  showModalEditCardsMobile.value = false
+function openModalAddCardsMobile(){
+  showModalAddCardsMobile.value = true
+}
 
-  axios.post('EditCardsMobile',V)
+function confirmAddCardsMobile(V) {
+  showModalAddCardsMobile.value = false;
+  let formData = new FormData();
+
+  for (const key in V) {
+    formData.append(key, V[key]);
+  }
+
+  // إذا في editMode معناها تعديل، لازم نرسل ID ونغير الرابط
+  const isEdit = V.id !== undefined && V.id !== null;
+  const url = isEdit ? `UpdateCardsMobile/${V.id}` : 'AddCardsMobile';
+
+  axios.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
   .then(response => {
+    showModalAddCardsMobile.value = false;
+    showModalEditCardsMobile.value = false;
+
     refresh();
-    toast.success("تم القبول وتحويل البطاقة بنجاح", {
-        timeout: 2000,
-        position: "bottom-right",
-        rtl: true,
-      });
+    toast.success(isEdit ? "تم تعديل البطاقة بنجاح" : "تم إضافة البطاقة بنجاح", {
+      timeout: 2000,
+      position: "bottom-right",
+      rtl: true,
+    });
   })
   .catch(error => {
-    toast.error("البطاقة موجودة سابقا يرجى التأكد من الاضافة", {
-        timeout: 2000,
-        position: "bottom-right",
-        rtl: true,
-      });
-  })
+    showModalAddCardsMobile.value = false;
+    showModalEditCardsMobile.value = false;
+    toast.error("يرجى التأكد من تعبئة البيانات بشكل صحيح", {
+      timeout: 5000,
+      position: "bottom-right",
+      rtl: true,
+    });
+  });
 }
+
+
+
 </script>
 
 <template>
@@ -148,12 +177,22 @@ function confirmEditCardsMobile(V) {
       </h2>
     </template>
  
- 
+    <ModaAddCardsMobile
+      :show="showModalAddCardsMobile ? true : false"
+      :data="form"
+      @a="confirmAddCardsMobile($event)"
+      @close="showModalAddCardsMobile = false"
+    >
+      <template #header>
+        <h3 class="text-center fw-10">اضافة بطاقة جديدة للتطبيق - الخطوة الاولى</h3>
+      </template>
+    </ModaAddCardsMobile>
+    
 
     <ModaEditCardsMobile
       :show="showModalEditCardsMobile ? true : false"
       :data="form"
-      @a="confirmEditCardsMobile($event)"
+      @a="confirmAddCardsMobile($event)"
       @close="showModalEditCardsMobile = false"
     >
       <template #header>
@@ -161,22 +200,18 @@ function confirmEditCardsMobile(V) {
       </template>
     </ModaEditCardsMobile>
 
-    <div v-if="$page.props.success">
-      <div
-        id="alert-2"
-        class="p-4 mb-4 bg-red-100 rounded-lg dark:bg-red-200 text-center"
-        role="alert"
-      >
-        <div class="ml-3 text-sm font-medium text-red-700 dark:text-red-800">
-          {{ $page.props.success }}
-        </div>
-      </div>
-    </div>
     <div class="py-12">
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
-     
+            <button
+                    style="width: 100%;text-align: center;    display: block;"
+                    className="px-6 mb-12 py-2 mt-1 font-bold text-white bg-rose-500 rounded"
+                    @click="openModalAddCardsMobile()"
+
+                    >
+                    إنشاء بطاقة جديدة
+                </button>
       
 
             <div class="overflow-x-auto shadow-md">
@@ -264,6 +299,8 @@ function confirmEditCardsMobile(V) {
         </div>
       </div>
     </div>
+
+    
   </AuthenticatedLayout>
 </template>
 <style>

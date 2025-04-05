@@ -15,8 +15,13 @@ class Card extends Model
         'name_en',
         'day',
         'price',
+        'currency',
         'expir_date',
         'show_on_app',
+        'description_ar',
+        'description_en',
+        'image'
+
     ];
 
     protected $appends = ['name'];

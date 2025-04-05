@@ -3,23 +3,26 @@ export default {
   props: {
     show: Boolean,
     data: Object,
-    editMode: Boolean,
+    parents: Array, // التصنيفات الأب
+    editMode: Boolean, // حالة التعديل
   },
   data() {
     return {
-      localData: { ...this.data },
-      image: null,
+      localData: { ...this.data }, // نسخ البيانات لتمكين التعديل
+      image: null, // حقل الصورة
     };
   },
   methods: {
+    // معالجة رفع الصورة
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        this.image = file;
+        this.localData.icon = file; // تخزين الأيقونة في localData
       }
     }
   },
   watch: {
+    // تحديث localData عندما تتغير البيانات
     data: {
       immediate: true,
       handler(newData) {
@@ -37,7 +40,7 @@ export default {
         <!-- Header -->
         <div class="px-6 py-4 border-b border-gray-200">
           <h3 class="text-lg font-semibold text-gray-800">
-            {{ editMode ? "تعديل البطاقة" : "إضافة بطاقة" }}
+            {{ editMode ? "تعديل التصنيف" : "إضافة تصنيف" }}
           </h3>
         </div>
 
@@ -56,58 +59,34 @@ export default {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">عدد الأيام</label>
-            <input type="number" v-model="localData.day"
+            <label class="block text-sm font-medium text-gray-700">الخصم (%)</label>
+            <input type="number" v-model="localData.discount"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">السعر</label>
-            <input type="number" v-model="localData.price"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label class="block text-sm font-medium text-gray-700">الأيقونة</label>
+            <input
+              id="icon"
+              type="file"
+              accept="image/*"
+              @change="handleImageUpload"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
 
+          <!-- تصنيف الأب -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">العملة</label>
-            <input type="text" v-model="localData.currency"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label class="block text-sm font-medium text-gray-700">التصنيف الأب</label>
+            <select v-model="localData.parent_id"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+              <option value="">تصنيف أب</option>
+              <!-- جلب التصنيفات الرئيسية من props -->
+              <option v-for="parent in parents" :key="parent.id" :value="parent.id">
+                {{ parent.name_ar }}
+              </option>
+            </select>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700">تاريخ الانتهاء</label>
-            <input type="date" v-model="localData.expir_date"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-          </div>
-
-          <div class="flex items-center mt-4">
-            <input type="checkbox" id="show_on_app" v-model="localData.show_on_app"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-            <label for="show_on_app" class="ml-2 block text-sm text-gray-700">عرض في التطبيق</label>
-          </div>
-
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700">الوصف بالعربية</label>
-            <textarea v-model="localData.description_ar" rows="2"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-          </div>
-
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700">الوصف بالإنجليزية</label>
-            <textarea v-model="localData.description_en" rows="2"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-          </div>
-        </div>
-
-        <!-- صورة -->
-        <div class="px-6 mb-4">
-          <label for="image" class="block text-sm font-medium text-gray-700">الصورة</label>
-          <input
-            id="image"
-            type="file"
-            accept="image/*"
-            @change="handleImageUpload"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
         </div>
 
         <!-- Footer -->
@@ -117,9 +96,7 @@ export default {
               <button @click="$emit('close')" class="px-4 py-2 w-full rounded bg-gray-500 text-white">تراجع</button>
             </div>
             <div class="basis-1/2 px-4">
-              <button @click="$emit('a', { ...localData, image })" class="px-4 w-full py-2 rounded bg-blue-600 text-white">
-                حفظ
-              </button>
+              <button @click="$emit('a', localData)" class="px-4 w-full py-2 rounded bg-blue-600 text-white">حفظ</button>
             </div>
           </div>
         </div>
@@ -127,6 +104,7 @@ export default {
     </div>
   </Transition>
 </template>
+
 
 
 

@@ -8,16 +8,16 @@ export default {
   data() {
     return {
       localData: { ...this.data },
-      image: null,
+      image: null, // <-- هنا أضفنا حقل الصورة
     };
   },
   methods: {
-    handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.image = file;
-      }
+  handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      this.localData.image = file;
     }
+  }
   },
   watch: {
     data: {
@@ -97,9 +97,7 @@ export default {
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
           </div>
         </div>
-
-        <!-- صورة -->
-        <div class="px-6 mb-4">
+        <div class="mb-4">
           <label for="image" class="block text-sm font-medium text-gray-700">الصورة</label>
           <input
             id="image"
@@ -112,22 +110,19 @@ export default {
 
         <!-- Footer -->
         <div class="modal-footer my-2">
-          <div class="flex flex-row">
-            <div class="basis-1/2 px-4">
-              <button @click="$emit('close')" class="px-4 py-2 w-full rounded bg-gray-500 text-white">تراجع</button>
-            </div>
-            <div class="basis-1/2 px-4">
-              <button @click="$emit('a', { ...localData, image })" class="px-4 w-full py-2 rounded bg-blue-600 text-white">
-                حفظ
-              </button>
-            </div>
+              <div class="flex flex-row">
+                <div class="basis-1/2 px-4">   
+                <button @click="$emit('close')" class="px-4 py-2  w-full rounded bg-gray-500 text-white">تراجع</button>
+              </div>
+              <div class="basis-1/2 px-4">   
+                <button @click="$emit('a', localData)" class="px-4  w-full py-2 rounded bg-blue-600 text-white">حفظ</button>
+              </div>
           </div>
         </div>
       </div>
     </div>
   </Transition>
 </template>
-
 
 
   
