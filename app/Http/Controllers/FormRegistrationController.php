@@ -688,4 +688,54 @@ class FormRegistrationController extends Controller
                 'data' => $service,
             ], 201);
         }
+        public function UpdateCardService(Request $request, $id)
+        {
+            $validated = $request->validate([
+                'service_name_ar' => 'required|string|max:255',
+                'service_name_en' => 'required|string|max:255',
+                'description_ar' => 'nullable|string',
+                'description_en' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'working_days' => 'nullable|string',
+                'working_hours' => 'nullable|string',
+                'appointments_per_day' => 'nullable|integer|min:0',
+                'expir_date' => 'nullable|date',
+                'currency' => 'required|string|max:10',
+                'is_popular' => 'nullable',
+                'category_id' => 'nullable|exists:categories,id',
+                'card_id' => 'required',
+                'review_rate' => 'nullable|numeric|min:0|max:5',
+                'ex_year' => 'nullable|integer|min:0',
+                'show_on_app' => 'nullable',
+                'specialty_ar' => 'nullable|string|max:255',
+                'specialty_en' => 'nullable|string|max:255',
+            ]);
+        
+            $validated['show_on_app'] = $request->has('show_on_app') 
+                ? (boolean) $request->input('show_on_app') 
+                : false;
+        
+            $validated['is_popular'] = $request->has('is_popular') 
+                ? (boolean) $request->input('is_popular') 
+                : false;
+        
+            // البحث عن الخدمة
+            $service = CardService::findOrFail($id);
+        
+            // معالجة الصورة الجديدة إن وجدت
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $path = $image->store('card_services_images', 'public');
+                $validated['image'] = $path;
+            }
+        
+            // تحديث البيانات
+            $service->update($validated);
+        
+            return response()->json([
+                'message' => 'تم تحديث الخدمة بنجاح',
+                'data' => $service,
+            ]);
+        }
+        
     }

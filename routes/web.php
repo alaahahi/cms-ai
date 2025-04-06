@@ -87,7 +87,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
 
     Route::post('UpdateCategoryCardsMobile/{id}', [FormRegistrationController::class, 'AddCategoryCardsMobile'])->name('UpdateCategoryCardsMobile');
 
-    Route::post('UpdateAddCardService/{id}', [FormRegistrationController::class, 'AddCardService'])->name('UpdateAddCardService');
+    Route::post('UpdateAddCardService/{id}', [FormRegistrationController::class, 'UpdateAddCardService'])->name('UpdateAddCardService');
 
     Route::get('formRegistrationEdit/{id}',[FormRegistrationController::class, 'formRegistrationEdit'])->name('formRegistrationEdit');
     
