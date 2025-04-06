@@ -76,15 +76,19 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('PendingRequest',[FormRegistrationController::class, 'PendingRequest'])->name('PendingRequest');
     Route::get('CardsMobile',[FormRegistrationController::class, 'CardsMobile'])->name('CardsMobile');
     Route::get('CategoryCardMobile',[FormRegistrationController::class, 'CategoryCardMobile'])->name('CategoryCardMobile');
+    Route::get('ServicesCardMobile',[FormRegistrationController::class, 'ServicesCardMobile'])->name('ServicesCardMobile');
 
     Route::post('AddCardsMobile', [FormRegistrationController::class, 'AddCardsMobile'])->name('AddCardsMobile');
     Route::post('AddCategoryCardsMobile', [FormRegistrationController::class, 'AddCategoryCardsMobile'])->name('AddCategoryCardsMobile');
+    Route::post('AddCardService', [FormRegistrationController::class, 'AddCardService'])->name('AddCardService');
+
     
     Route::post('UpdateCardsMobile/{id}', [FormRegistrationController::class, 'UpdateCardsMobile'])->name('UpdateCardsMobile');
 
     Route::post('UpdateCategoryCardsMobile/{id}', [FormRegistrationController::class, 'AddCategoryCardsMobile'])->name('UpdateCategoryCardsMobile');
 
-    
+    Route::post('UpdateAddCardService/{id}', [FormRegistrationController::class, 'AddCardService'])->name('UpdateAddCardService');
+
     Route::get('formRegistrationEdit/{id}',[FormRegistrationController::class, 'formRegistrationEdit'])->name('formRegistrationEdit');
     
     
@@ -96,6 +100,8 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('getIndexPendingRequest',[FormRegistrationController::class, 'getIndexPendingRequest'])->name("getIndexPendingRequest");
     Route::get('getIndexCardsMobile',[FormRegistrationController::class, 'getIndexCardsMobile'])->name("getIndexCardsMobile");
     Route::get('getIndexCategoryCardMobile',[FormRegistrationController::class, 'getIndexCategoryCardMobile'])->name("getIndexCategoryCardMobile");
+    Route::get('getIndexServicesCardMobile',[FormRegistrationController::class, 'getIndexServicesCardMobile'])->name("getIndexServicesCardMobile");
+
     
     
     Route::get('getIndexFormRegistrationSaved',[FormRegistrationController::class, 'getIndexSaved'])->name("getIndexFormRegistrationSaved");

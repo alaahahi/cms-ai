@@ -63,6 +63,12 @@ export default {
             <input type="number" v-model="localData.discount"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
           </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">اللون</label>
+            <input type="color" v-model="localData.color"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+          </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700">الأيقونة</label>

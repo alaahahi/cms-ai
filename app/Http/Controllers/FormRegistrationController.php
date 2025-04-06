@@ -15,6 +15,7 @@ use App\Models\Results;
 use App\Models\DoctorResults;
 use App\Models\Transactions;
 use App\Models\SystemConfig;
+use App\Models\CardService;
 use App\Models\PendingRequest;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
@@ -107,6 +108,16 @@ class FormRegistrationController extends Controller
 
         return Inertia::render('FormRegistration/CategoryCardMobile', ['card'=> $card,'parents'=>$parents]);
     }
+
+    public function ServicesCardMobile()
+    {   
+        $card = Card::orderBy('id', 'DESC')->get();
+
+        $category = Category::get();
+
+        return Inertia::render('FormRegistration/ServicesCardMobile', ['card'=> $card,'category'=>$category]);
+    }
+
     public function formRegistrationEdit($id)
     {
         $data = Profile::where('id',$id)->first();
@@ -250,6 +261,15 @@ class FormRegistrationController extends Controller
         $card_id =  $request->card_id ?? 0;
         
         $data = Category::with('parent')->with('card')->where('card_id',$card_id)->orderBy('id', 'DESC')->paginate(25);
+         
+        return Response::json($data, 200);
+    }
+    public function getIndexServicesCardMobile(Request $request)
+    {
+
+        $card_id =  $request->card_id ?? 0;
+        
+        $data = CardService::with('category')->with('card')->where('card_id',$card_id)->orderBy('id', 'DESC')->paginate(25);
          
         return Response::json($data, 200);
     }
@@ -410,29 +430,7 @@ class FormRegistrationController extends Controller
             
         return Inertia::render('FormRegistration/Index', ['url'=>$this->url]);
     }
-    public function labResults($id){
-        $profile=Profile::where('id',$id)->first();
-        
-        return Inertia::render('FormRegistration/AddlabResults', ['url'=>$this->url,'profile_id'=>$id,'profile'=>$profile]);
-    }
-    public function labResultsEdit($id){
-        $profile=Profile::where('id',$id)->first();
-        $data = Results::where('profile_id',$id)->latest()->first();
-        return Inertia::render('FormRegistration/EditlabResults', ['url'=>$this->url,'profile_id'=>$id,'profile'=>$profile,'data'=>$data]);
-    }
-    
-    public function doctorResults($id){
-        $profiles=Profile::where('id',$id)->first();
-        $profile = Results::where('profile_id',$id)->latest()->first();
-        return Inertia::render('FormRegistration/AddDoctorResults', ['url'=>$this->url,'is_doctor'=>true,'profile'=>$profile ,'profile_id'=>$id,'profiles'=>$profiles]);
-    }
-    public function doctorResultsEdit($id){
-        $profiles=Profile::where('id',$id)->first();
-        $profile = Results::where('profile_id',$id)->latest()->first();
-        $data = DoctorResults::where('profile_id',$id)->latest()->first();
-        return Inertia::render('FormRegistration/EditDoctorResults', ['url'=>$this->url,'is_doctor'=>true,'profile'=>$profile ,'profile_id'=>$id,'profiles'=>$profiles,'data'=>$data]);
-    }
-    
+
 
     public function Authorization($request){
         $token = substr($request->header('Authorization') ,7);
@@ -558,6 +556,7 @@ class FormRegistrationController extends Controller
             $validated = $request->validate([
                 'name_ar' => 'required|string|max:255',
                 'name_en' => 'required|string|max:255',
+                'color' => 'nullable|string', 
                 'card_id' => 'required|numeric',
                 'discount' => 'nullable|numeric|min:0|max:100', // التحقق من الخصم
                 'parent_id' => 'nullable|exists:categories,id', // تحقق من وجود parent_id إذا كان فرعيًا
@@ -578,6 +577,7 @@ class FormRegistrationController extends Controller
                     'name_ar' => $validated['name_ar'],
                     'name_en' => $validated['name_en'],
                     'card_id' => $validated['card_id'],
+                    'color' => $validated['color'] ?? '#fff',
                     'icon' => $validated['icon'] ?? $category->icon, // إذا لم يتم رفع أي صورة، الإبقاء على الصورة الحالية
                     'discount' => $validated['discount'] ?? $category->discount, // إذا لم يتم إدخال خصم، الإبقاء على الخصم القديم
                     'parent_id' => $validated['parent_id'] ?? $category->parent_id, // إذا لم يتم إدخال parent_id، الإبقاء على التصنيف الأب القديم
@@ -588,6 +588,7 @@ class FormRegistrationController extends Controller
                     'name_ar' => $validated['name_ar'],
                     'name_en' => $validated['name_en'],
                     'card_id' => $validated['card_id'],
+                    'color' => $validated['color'] ?? '#fff',
                     'icon' => $validated['icon'] ?? null,
                     'discount' => $validated['discount'] ?? 0,
                     'parent_id' => $validated['parent_id'] ?? null, // إذا كان التصنيف فرعيًا، سيحتفظ بـ parent_id
@@ -643,5 +644,48 @@ class FormRegistrationController extends Controller
         }
         
 
-    
+    public function AddCardService(Request $request)
+        {
+            $validated = $request->validate([
+                'service_name_ar' => 'required|string|max:255',
+                'service_name_en' => 'required|string|max:255',
+                'description_ar' => 'nullable|string',
+                'description_en' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'working_days' => 'nullable|string',
+                'working_hours' => 'nullable|string',
+                'appointments_per_day' => 'nullable|integer|min:0',
+                'expir_date' => 'nullable|date',
+                'currency' => 'required|string|max:10',
+                'is_popular' => 'nullable',
+                'category_id' => 'nullable|exists:categories,id',
+                'card_id' => 'required',
+                'review_rate' => 'nullable|numeric|min:0|max:5',
+                'ex_year' => 'nullable|integer|min:0',
+                'show_on_app' => 'nullable',
+                'specialty_ar' => 'nullable|string|max:255',
+                'specialty_en' => 'nullable|string|max:255',
+            ]);
+            $validated['show_on_app'] = $request->has('show_on_app') 
+            ? (boolean) $request->input('show_on_app') 
+            : false;
+
+            $validated['is_popular'] = $request->has('is_popular') 
+            ? (boolean) $request->input('is_popular') 
+            : false;
+            
+            // معالجة الصورة
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $path = $image->store('card_services_images', 'public');
+                $validated['image'] = $path;
+            }
+        
+            $service = CardService::create($validated);
+        
+            return response()->json([
+                'message' => 'تمت إضافة الخدمة بنجاح',
+                'data' => $service,
+            ], 201);
+        }
     }

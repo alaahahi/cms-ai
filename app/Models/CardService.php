@@ -11,7 +11,6 @@ class CardService extends Model
     protected $table = 'card_services';
 
     protected $fillable = [
-        'card_id',
         'service_name_ar',
         'description_ar',
         'price',
@@ -19,6 +18,12 @@ class CardService extends Model
         'working_hours',
         'appointments_per_day',
         'expir_date',
+        'currency',
+        'is_popular',
+        'category_id',
+        'card_id',
+        'review_rate',
+        'ex_year',
         'show_on_app',
         'specialty_ar',
         'service_name_en',
@@ -70,6 +75,7 @@ class CardService extends Model
     protected $casts = [
         'expir_date' => 'date', // Automatically cast to Carbon instance
         'show_on_app' => 'boolean', // Cast to boolean
+        'is_popular' =>  'boolean',
   
     ];
 
@@ -104,10 +110,14 @@ class CardService extends Model
     public function getWorkingHoursAttribute($value)
     {
         $hours = explode('-', $value);
-        return [
-            'start' => $hours[0], // Start time
-            'end' => $hours[1],   // End time
-        ];
+        if($hours){
+            return [
+                'start' => $hours[0] ?? 0, // Start time
+                'end' => $hours[1] ?? 0,   // End time
+            ];
+        }else
+        return '';
+      
     }
     /**
      * Boot method for default ordering.
