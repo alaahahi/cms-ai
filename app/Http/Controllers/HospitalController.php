@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Profile;
+use App\Models\Card;
 use App\Models\UserType;
 use App\Models\Appointment;
 use App\Models\DoctorResults;
@@ -60,7 +61,9 @@ class HospitalController extends Controller
     public function create()
     {
         $userDoctor = User::where('type_id',$this->userDoctor)->get();
-        return Inertia::render('Hospital/Add', ['url'=>$this->url,'userDoctor'=>$userDoctor]);
+        $cards = Card::orderBy('id', 'DESC')->get();
+
+        return Inertia::render('Hospital/Add', ['url'=>$this->url,'userDoctor'=>$userDoctor,'cards'=>$cards]);
     }
     public function store(Request $request)
     {

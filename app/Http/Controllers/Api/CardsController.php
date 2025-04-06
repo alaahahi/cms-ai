@@ -556,8 +556,16 @@ class CardsController extends Controller
         }
     }
 
-    
-    
+    public function getServicesByCard($card_id)
+    {
+        $services = CardService::where('card_id', $card_id)->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $services,
+        ]);
+    }
+        
 
     
     

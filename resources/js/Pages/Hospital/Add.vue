@@ -13,12 +13,12 @@ const selectedDate = ref('');
 const appointments = ref([]);
 const bookedSlots = ref([]);
 const isLoading = ref(false);
-
+let userDoctor = ref([]);
 const props = defineProps({
     url:String,
-    userDoctor:Array,
+    cards:Array,
 });
-
+let card_id = ref(0)
 const form = useForm({
     user_id: '',
     card_id: '',
@@ -32,6 +32,16 @@ const submit = () => {
     isLoading.value=true; 
     form.post(route('hospitalAdd'));
 };
+const changeGetResults = () => {
+  axios.get('/api/v1/card-services/'+card_id.value)
+  .then(response => {
+    userDoctor.value=response.data.data;
+  })
+  .catch(error => {
+    userDoctor.value=[];
+
+  })
+ }
 
 
 const timeSlots = (() => {
@@ -135,11 +145,22 @@ const checkCard = (v) => {
     <div class="max-w-8xl mx-auto sm:px-3 lg:px-4 mt-4">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
+            <div className="mb-4 mx-5">
+            <label for="card_id" > نوع البطاقة</label>
+            <select
+              @change="changeGetResults()"
+              v-model="card_id"
+              id="card_id"
+              class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <option selected disabled>تحديد البطاقة</option>
+              <option v-for="(card, index) in cards" :key="index" :value="card.id">{{ card.name }}</option>
+            </select>
+          </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-4">
                 <div class="px-4">
                   <select v-model="form.user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
                     <option value="" disabled>يرجى اختيار طبيب</option>
-                    <option v-for="(user, index) in userDoctor" :key="index" :value="user.id">{{ user.name }}</option>
+                    <option v-for="(user, index) in userDoctor" :key="index" :value="user.id">{{ user.service_name_ar }}</option>
                   </select>
                 </div>
                 <div class=" px-4">
