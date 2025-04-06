@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Cache;
 
+
 class CardsController extends Controller
 {
     protected $whatsAppController;
@@ -158,53 +159,49 @@ class CardsController extends Controller
     }
     public function requestCard(Request $request)
     {
-        // Validation rules
         $rules = [
             'name' => 'required|string|max:255',
             'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // Validate a single image file
-            'card_number' => 'nullable|string', // Check if card_number is unique
+            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'card_number' => 'nullable|string',
             'family_members_names' => 'nullable|string',
             'is_admin' => 'nullable|boolean',
         ];
     
-        // Validate input
         $validator = Validator::make($request->all(), $rules);
     
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+    
         try {
-            // Handle image upload if provided
             $imagePath = null;
             if ($request->hasFile('image')) {
                 $imagePath = $request->file('image')->store('uploads', 'public');
             }
     
-            // Get token and extract user_id if exists
             $token = $request->bearerToken();
             $user_id = null;
+            $user_phone = $request->phone_number; // افتراضيًا من الريكوست
     
             if ($token) {
-                // Extract user_id from the token
                 $user = Auth::guard('api')->setToken($token)->user();
                 if ($user) {
                     $user_id = $user->id;
+                    $user_phone = $user->phone_number; // استخدام رقم الهاتف من المستخدم
                 }
             }
     
-            // If no token, use user_id from the request
             if (!$user_id) {
                 $user_id = $request->user_id;
             }
     
-            // If user_id is still null, save as a pending request
+            // في حال لا يوجد مستخدم معرف، سجل كطلب بانتظار المراجعة
             if (!$user_id) {
-                // Store in PendingRequest table for unauthenticated users
                 $pendingRequest = PendingRequest::create([
                     'name' => $request->name,
-                    'phone' => $request->phone_number,
+                    'phone' => $user_phone,
                     'address' => $request->address,
                     'card_number' => $request->card_number,
                     'family_members_names' => $request->family_members_names,
@@ -213,9 +210,8 @@ class CardsController extends Controller
                     'created_at' => now(),
                 ]);
     
-                // Send WhatsApp message
                 $this->whatsAppController->sendWhatsAppMessage(
-                    $request->phone_number,
+                    $user_phone,
                     'أهلاً وسهلاً بك..' . "\n\n" .
                     'تم استلام طلبك بنجاح. سيتم التواصل معك قريباً لاستكمال الإجراءات.' . "\n\n" .
                     'شكراً لتواصلك معنا!'
@@ -227,14 +223,12 @@ class CardsController extends Controller
                 ], 201);
             }
     
-            // If card_number is provided, check if it already exists
             if ($request->card_number) {
                 $existingCard = Profile::where('card_number', $request->card_number)->first();
                 if ($existingCard) {
-                    // If card_number exists, save as pending request instead of creating profile
                     $pendingRequest = PendingRequest::create([
                         'name' => $request->name,
-                        'phone' => $request->phone_number,
+                        'phone' => $user_phone,
                         'address' => $request->address,
                         'user_id' => $user_id,
                         'card_number' => $request->card_number,
@@ -244,11 +238,8 @@ class CardsController extends Controller
                         'created_at' => now(),
                     ]);
     
-                   
-
-                    // Send WhatsApp message
                     $this->whatsAppController->sendWhatsAppMessage(
-                        $request->phone_number,
+                        $user_phone,
                         'أهلاً وسهلاً بك..' . "\n\n" .
                         'رقم البطاقة الذي أدخلته موجود مسبقًا. سيتم التواصل معك قريباً لاستكمال الإجراءات.' . "\n\n" .
                         'شكراً لتواصلك معنا!'
@@ -261,26 +252,23 @@ class CardsController extends Controller
                 }
             }
     
-            // Handle max 'no' for new profile
             $maxNo = Profile::max('no');
             $no = $maxNo + 1;
-            $user = User::where('phone_number', $request->phone_number)->first();
- 
-            if ($user) {
-                
-            } else {
-                // إنشاء مستخدم جديد إذا لم يكن موجودًا
+    
+            $user = User::where('phone_number', $user_phone)->first();
+    
+            if (!$user) {
                 $user = User::create([
-                    'phone_number' => $request->phone_number,
-                    'verification_user_type'=>'selas',
-                    'user_type' => 7, // النوع 6
+                    'phone_number' => $user_phone,
+                    'verification_user_type' => 'selas',
+                    'user_type' => 7,
                 ]);
             }
-            // Store in Profile table for authenticated users
+    
             $profile = Profile::create([
                 'no' => $no,
                 'name' => $request->name,
-                'phone_number' => $request->phone_number,
+                'phone_number' => $user_phone,
                 'address' => $request->address,
                 'user_id' => $user_id,
                 'card_number' => $request->card_number,
@@ -288,14 +276,13 @@ class CardsController extends Controller
                 'image' => $imagePath,
                 'results' => $request->is_admin ? 1 : 3,
                 'user_add' => $user_id,
-                'cardHolder_id'=>$user->id,
+                'cardHolder_id' => $user->id,
                 'source' => 'mobile',
                 'created' => now()->format('Y-m-d'),
             ]);
-         
-            // Send WhatsApp message
+    
             $this->whatsAppController->sendWhatsAppMessage(
-                $request->phone_number,
+                $user_phone,
                 'أهلاً وسهلاً بك..' . "\n\n" .
                 'تم تسجيل طلبك بنجاح في حسابك. يمكنك متابعة التفاصيل من خلال التطبيق.' . "\n\n" .
                 'شكراً لتواصلك معنا!'
@@ -305,7 +292,6 @@ class CardsController extends Controller
                 'message' => 'Card created successfully',
                 'data' => $profile,
             ], 201);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to process the request',
@@ -313,6 +299,7 @@ class CardsController extends Controller
             ], 500);
         }
     }
+    
     public function deletePendingRequest(Request $request)
     {
         // البحث عن الطلب المعلق
