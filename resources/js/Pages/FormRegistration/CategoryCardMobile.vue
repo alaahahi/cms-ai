@@ -257,7 +257,7 @@ function confirmAddCategoryCardsMobile(V) {
                 <td class="border px-4 py-2">{{ category.name_ar }}</td>
                 <td class="border px-4 py-2">{{ category.name_en }}</td>
                 <td class="border px-4 py-2">
-                  <img v-if="category.icon" :src="`/public/storage/${category.icon}`" alt="Icon" style="width:40px;" />
+                  <img v-if="category.icon" :src="`${category.icon}`" alt="Icon" style="width:100px;" />
                 </td>
                 <td class="border px-4 py-2">{{ category.discount }}%</td>
                 <td class="border px-4 py-2">
