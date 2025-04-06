@@ -72,9 +72,9 @@ class CardsController extends Controller
                           ->withCount('appointments'); // حساب عدد المواعيد المحجوزة
                 }
             ])
+            ->where('card_id', $request->card_id)
             ->whereNull('parent_id') // فقط التصنيفات الرئيسية
             ->get();
-    
         // تنسيق النتيجة
         $result = $categories->map(function ($category) use ($locale) {
             return [
