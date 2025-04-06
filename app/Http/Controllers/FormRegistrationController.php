@@ -688,7 +688,7 @@ class FormRegistrationController extends Controller
                 'data' => $service,
             ], 201);
         }
-        public function UpdateCardService(Request $request, $id)
+        public function UpdateAddCardService(Request $request, $id)
         {
             $validated = $request->validate([
                 'service_name_ar' => 'required|string|max:255',
