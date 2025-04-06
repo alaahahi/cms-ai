@@ -31,7 +31,7 @@ class AppSettingsController extends Controller
         $validated = $request->validate([
             'key' => 'required|string|max:255',
             'value' => 'required|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // صورة شريط التمرير
+            'image' => 'nullable|image|mimes:jpg,jpeg,webp,png|max:2048', // صورة شريط التمرير
             'description' => 'nullable|string',
         ]);
 
