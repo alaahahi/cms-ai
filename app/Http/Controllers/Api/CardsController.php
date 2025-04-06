@@ -198,7 +198,7 @@ class CardsController extends Controller
             }
     
             // في حال لا يوجد مستخدم معرف، سجل كطلب بانتظار المراجعة
-            if (!$user_id) {
+            if (!($request->is_admin??0)) {
                 $pendingRequest = PendingRequest::create([
                     'name' => $request->name,
                     'phone' => $user_phone,
@@ -251,7 +251,7 @@ class CardsController extends Controller
                     ], 201);
                 }
             }
-    
+            if($request->is_admin){
             $maxNo = Profile::max('no');
             $no = $maxNo + 1;
     
@@ -264,7 +264,7 @@ class CardsController extends Controller
                     'user_type' => 7,
                 ]);
             }
-    
+            
             $profile = Profile::create([
                 'no' => $no,
                 'name' => $request->name,
@@ -287,7 +287,7 @@ class CardsController extends Controller
                 'تم تسجيل طلبك بنجاح في حسابك. يمكنك متابعة التفاصيل من خلال التطبيق.' . "\n\n" .
                 'شكراً لتواصلك معنا!'
             );
-    
+            }
             return response()->json([
                 'message' => 'Card created successfully',
                 'data' => $profile,
