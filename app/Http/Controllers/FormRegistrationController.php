@@ -529,7 +529,7 @@ class FormRegistrationController extends Controller
             ]);
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $imagePath = $image->store('cards_images', 'public'); // يخزنها في storage/app/public/cards_images
+                $imagePath =$this->url .'/public/storage/'. $image->store('settings', 'public'); // يخزنها في storage/app/public/cards_images
                 $validated['image'] = $imagePath;
             }
             $card = Card::create([
@@ -620,7 +620,7 @@ class FormRegistrationController extends Controller
         
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $imagePath = $image->store('cards_images', 'public');
+                $imagePath =  $this->url .'/public/storage/'. $image->store('settings', 'public');
                 $validated['image'] = $imagePath;
             }
         
