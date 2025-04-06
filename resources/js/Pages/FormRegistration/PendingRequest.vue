@@ -343,6 +343,7 @@ function confirmEditPendingRequest(V) {
                     <th className="px-4 py-2">تاريخ التسجيل</th>
                     <th className="px-4 py-2">أفراد العائلة</th>
                     <th className="px-4 py-2">المصدر</th>
+                    <th className="px-4 py-2">البطاقة</th>
                     <th className="px-4 py-2">مرفق</th>
                     <th className="px-4 py-2">تنفيذ</th>
                   </tr>
@@ -373,6 +374,9 @@ function confirmEditPendingRequest(V) {
                     </td>
                     <td className="border px-4 py-2 td">
                       {{ user.source }}
+                    </td>
+                    <td class="border px-4 py-2">
+                      {{ user?.card ? user.card.name_ar : 'غير معرف' }}
                     </td>
                     <td className="border px-4 py-2 td">
                       <a

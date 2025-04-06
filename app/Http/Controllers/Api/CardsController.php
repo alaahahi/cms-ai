@@ -165,6 +165,7 @@ class CardsController extends Controller
             'address' => 'nullable|string|max:500',
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
             'card_number' => 'nullable|string',
+            'card_id' => 'nullable',
             'family_members_names' => 'nullable|string',
             'is_admin' => 'nullable|boolean',
         ];
@@ -201,6 +202,7 @@ class CardsController extends Controller
             if (!($request->is_admin??0)) {
                 $pendingRequest = PendingRequest::create([
                     'name' => $request->name,
+                    'card_id' => $request->card_id,
                     'phone' => $user_phone,
                     'address' => $request->address,
                     'card_number' => $request->card_number,
@@ -229,6 +231,7 @@ class CardsController extends Controller
                     $pendingRequest = PendingRequest::create([
                         'name' => $request->name,
                         'phone' => $user_phone,
+                        'card_id' => $request->card_id,
                         'address' => $request->address,
                         'user_id' => $user_id,
                         'card_number' => $request->card_number,

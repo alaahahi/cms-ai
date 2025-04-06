@@ -225,7 +225,7 @@ class FormRegistrationController extends Controller
         if ($cacheKey) {
             // إذا لم يكن هناك فلاتر، نحاول الحصول على البيانات من الكاش
             $data = Cache::remember($cacheKey, 600, function () {
-                return PendingRequest::with('user')->orderBy('id', 'DESC')->paginate(25);
+                return PendingRequest::with('card')->with('user')->orderBy('id', 'DESC')->paginate(25);
             });
         } else {
             // استعلام مباشر إذا كانت هناك فلاتر
