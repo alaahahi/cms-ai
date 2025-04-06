@@ -9,7 +9,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name_en', 'name_ar','icon','discount', 'parent_id','card_id'];
+    protected $fillable = ['name_en', 'name_ar','icon','discount', 'parent_id','card_id','color'];
 
     // علاقة التصنيف مع الخدمات
     public function services()
