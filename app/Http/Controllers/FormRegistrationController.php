@@ -565,7 +565,7 @@ class FormRegistrationController extends Controller
             // معالجة رفع الصورة إذا كانت موجودة
             if ($request->hasFile('icon')) {
                 $image = $request->file('icon');
-                $imagePath = $image->store('categories_icons', 'public'); // تخزين الصورة في public/storage/categories_icons
+                $imagePath =  $this->url .'/public/storage/'. $image->store('categories_icons', 'public');
                 $validated['icon'] = $imagePath;
             }
             
