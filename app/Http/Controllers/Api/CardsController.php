@@ -97,6 +97,7 @@ class CardsController extends Controller
                                 'description' => $locale === 'ar' ? $service->description_ar : $service->description_en,
                                 'specialty' => $locale === 'ar' ? $service->specialty_ar : $service->specialty_en,
                                 'price' => $service->price,
+                                'image' => $service->image,
                                 'working_days' => $service->working_days,
                                 'working_hours' => $service->working_hours,
                                 'appointments_per_day' => $service->appointments_per_day,
