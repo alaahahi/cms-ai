@@ -242,6 +242,8 @@ function confirmAddServicesCardsMobile(V) {
                 <th class="px-4 py-2">اسم الخدمة (En)</th>
                 <th class="px-4 py-2">الوصف (ع)</th>
                 <th class="px-4 py-2">الوصف (En)</th>
+                <th class="px-4 py-2">الاختصاص (ع)</th>
+                <th class="px-4 py-2">الاختصاص (En)</th>
                 <th class="px-4 py-2">السعر</th>
                 <th class="px-4 py-2"> الأيام</th>
                 <th class="px-4 py-2">عدد الساعات</th>
@@ -254,8 +256,7 @@ function confirmAddServicesCardsMobile(V) {
                 <th class="px-4 py-2">التقييم</th>
                 <th class="px-4 py-2">سنة الخبرة</th>
                 <th class="px-4 py-2">عرض بالتطبيق؟</th>
-                <th class="px-4 py-2">الاختصاص (ع)</th>
-                <th class="px-4 py-2">الاختصاص (En)</th>
+
                 <th class="px-4 py-2">صورة</th>
                 <th class="px-4 py-2">التنفيذ</th>
               </tr>
@@ -267,6 +268,8 @@ function confirmAddServicesCardsMobile(V) {
                 <td class="border px-2 py-2">{{ service.service_name_en }}</td>
                 <td class="border px-2 py-2">{{ service.description_ar }}</td>
                 <td class="border px-2 py-2">{{ service.description_en }}</td>
+                <td class="border px-2 py-2">{{ service.specialty_ar }}</td>
+                <td class="border px-2 py-2">{{ service.specialty_en }}</td>
                 <td class="border px-2 py-2">{{ service.price }}</td>
                 <td class="border px-2 py-2">{{ service.working_days }}</td>
                 <td class="border px-2 py-2">{{ service.working_hours }}</td>
@@ -279,7 +282,8 @@ function confirmAddServicesCardsMobile(V) {
                 <td class="border px-2 py-2">{{ service.review_rate }}</td>
                 <td class="border px-2 py-2">{{ service.ex_year }}</td>
                 <td class="border px-2 py-2">{{ service.show_on_app ? 'نعم' : 'لا' }}</td>
-                <td class="border px-2 py-2">{{ service.specialty_ar }}</td>
+   
+
                 <td class="border px-4 py-2">
                       <a
                         :href="`${service.image}`"
@@ -293,7 +297,6 @@ function confirmAddServicesCardsMobile(V) {
                         />
                       </a>
                     </td>
-                <td class="border px-2 py-2">{{ service.specialty_en }}</td>
                 <td class="border px-2 py-2">
                   <button
                     tabIndex="1"
