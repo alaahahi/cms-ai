@@ -398,7 +398,7 @@ class FormRegistrationController extends Controller
                     'address' => $request->address,
                     'image' =>  $imageUrl,
                     'phone_number' => $request->phone_number,
-                    'card_id' => 1,
+                    'card_id' => $request->card_id ?? 1,
                     'user_id' =>$request->saler_id,
                     'family_name'=> $request->family_name,
                     'user_add'=>$authUser?->id,
