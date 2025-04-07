@@ -677,7 +677,8 @@ class FormRegistrationController extends Controller
             // معالجة الصورة
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $path = $image->store('card_services_images', 'public');
+                $path =  $this->url .'/public/storage/'. $image->store('card_services_images', 'public');
+
                 $validated['image'] = $path;
             }
         
@@ -725,7 +726,7 @@ class FormRegistrationController extends Controller
             // معالجة الصورة الجديدة إن وجدت
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $path = $image->store('card_services_images', 'public');
+                $path =  $this->url .'/public/storage/'. $image->store('card_services_images', 'public');
                 $validated['image'] = $path;
             }
         
