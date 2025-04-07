@@ -133,7 +133,7 @@ function openModalEditCategoryCardsMobile(v){
   form.value = v
   showModalEditCategoryCardsMobile.value = true
 }
-function openModalAddCategoryCardsMobile(){
+function openModalAddCategoryCardsMobile(){  
   showModalAddCategoryCardsMobile.value = true
 }
 
@@ -192,6 +192,7 @@ function confirmAddServicesCardsMobile(V) {
       :categories="category"
       :cards="card"
       :card_id="card_id"
+      :editMode="false"
       @submit="confirmAddServicesCardsMobile($event)"
       @close="showModalAddCategoryCardsMobile = false"
     >
@@ -207,6 +208,7 @@ function confirmAddServicesCardsMobile(V) {
       :cards="card"
       :card_id="card_id"
       :categories="category"
+      :editMode="true"
       @submit="confirmAddServicesCardsMobile($event)"
       @close="showModalEditCategoryCardsMobile = false"
     >

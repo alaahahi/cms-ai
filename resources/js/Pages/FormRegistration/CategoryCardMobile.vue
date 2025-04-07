@@ -150,7 +150,7 @@ function confirmAddCategoryCardsMobile(V) {
   .then(response => {
     showModalAddCategoryCardsMobile.value = false;
     showModalEditCategoryCardsMobile.value = false;
-
+    changeGetResults()
     toast.success(isEdit ? "تم تعديل البطاقة بنجاح" : "تم إضافة البطاقة بنجاح", {
       timeout: 2000,
       position: "bottom-right",

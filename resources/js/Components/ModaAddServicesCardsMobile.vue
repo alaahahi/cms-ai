@@ -32,6 +32,11 @@ export default {
   formatDate(expir_date) {
     this.localData.expir_date = expir_date?.substring(0, 10) 
   },
+  setEdit(editMode) {
+    if(editMode==false){
+      this.localData.id = null
+    }
+  },
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -65,6 +70,7 @@ export default {
         <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700">اسم الخدمة بالعربية</label>
+            {{setEdit(editMode)}}
             <input type="text" v-model="localData.service_name_ar" class="input-style" />
           </div>
 
