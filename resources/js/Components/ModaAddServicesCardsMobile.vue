@@ -187,12 +187,12 @@ export default {
             <input type="file" accept="image/*" @change="handleImageUpload" class="input-style" />
           </div>
 
-          <div>
+          <div>{{localData.category_id}}
             <label class="block text-sm font-medium text-gray-700">التصنيف</label>
             <select v-model="localData.category_id" class="input-style">
               <option value="">اختر تصنيف</option>
               <template v-for="cat in categories" :key="cat.id" >
-                <option  v-if="cat.card_id==card_id && cat.parent_id != null ">
+                <option  v-if="cat.card_id==card_id && cat.parent_id != null" :value="cat.id">
                 {{ cat.name_ar }}
                 </option>
               </template>
@@ -204,7 +204,7 @@ export default {
             <select :value="card_id" class="input-style" disabled>
               <option value="">اختر بطاقة</option>
               <option v-for="card in cards" :key="card.id" :value="card.id">
-                {{ card.name_ar }}
+                {{ card.name_ar }} 
               </option>
             </select>
           </div>
