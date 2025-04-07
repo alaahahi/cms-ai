@@ -256,6 +256,7 @@ function confirmAddServicesCardsMobile(V) {
                 <th class="px-4 py-2">عرض بالتطبيق؟</th>
                 <th class="px-4 py-2">الاختصاص (ع)</th>
                 <th class="px-4 py-2">الاختصاص (En)</th>
+                <th class="px-4 py-2">صورة</th>
                 <th class="px-4 py-2">التنفيذ</th>
               </tr>
             </thead>
@@ -279,6 +280,19 @@ function confirmAddServicesCardsMobile(V) {
                 <td class="border px-2 py-2">{{ service.ex_year }}</td>
                 <td class="border px-2 py-2">{{ service.show_on_app ? 'نعم' : 'لا' }}</td>
                 <td class="border px-2 py-2">{{ service.specialty_ar }}</td>
+                <td class="border px-4 py-2">
+                      <a
+                        :href="`${service.image}`"
+                        style="cursor: pointer"
+                        target="_blank">
+                        <img
+                        v-if="service.image"
+                        :src="`${service.image}`"
+                        alt="Setting Image"
+                        style="width:200px;"
+                        />
+                      </a>
+                    </td>
                 <td class="border px-2 py-2">{{ service.specialty_en }}</td>
                 <td class="border px-2 py-2">
                   <button

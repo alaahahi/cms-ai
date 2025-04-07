@@ -29,6 +29,7 @@ class CardService extends Model
         'service_name_en',
         'description_en',
         'specialty_en',
+        'image'
 
     ];
     protected $appends = ['service_name','description','specialty'];
