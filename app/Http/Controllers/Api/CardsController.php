@@ -26,6 +26,7 @@ class CardsController extends Controller
     public function __construct(WhatsAppController $whatsAppController)
     {
         $this->whatsAppController = $whatsAppController; 
+        $this->url = env('FRONTEND_URL');
 
     }
 
@@ -179,7 +180,7 @@ class CardsController extends Controller
         try {
             $imagePath = null;
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('uploads', 'public');
+                $imagePath =$this->url .'/public/storage/'. $request->file('image')->store('requestCard', 'public');
             }
     
             $token = $request->bearerToken();
