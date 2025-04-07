@@ -118,6 +118,13 @@ const results = (id) => {
 
 
 
+function formatWorkingHours(hours) {
+    if (typeof hours === 'object' && hours.start && hours.end) {
+      return  `${hours.start}-${hours.end}`;
+    }
+    return hours || '';
+  }
+
 let showModalEditCategoryCardsMobile = ref(false);
 let showModalAddCategoryCardsMobile = ref(false);
 
@@ -150,7 +157,7 @@ function confirmAddServicesCardsMobile(V) {
   .then(response => {
     showModalAddCategoryCardsMobile.value = false;
     showModalEditCategoryCardsMobile.value = false;
-
+    changeGetResults()
     toast.success(isEdit ? "تم تعديل البطاقة بنجاح" : "تم إضافة البطاقة بنجاح", {
       timeout: 2000,
       position: "bottom-right",
@@ -169,7 +176,6 @@ function confirmAddServicesCardsMobile(V) {
 }
 
 
-
 </script>
 
 <template>
@@ -185,6 +191,7 @@ function confirmAddServicesCardsMobile(V) {
       :data="form"
       :categories="category"
       :cards="card"
+      :card_id="card_id"
       @submit="confirmAddServicesCardsMobile($event)"
       @close="showModalAddCategoryCardsMobile = false"
     >
@@ -198,6 +205,7 @@ function confirmAddServicesCardsMobile(V) {
       :show="showModalEditCategoryCardsMobile ? true : false"
       :data="form"
       :cards="card"
+      :card_id="card_id"
       :categories="category"
       @submit="confirmAddServicesCardsMobile($event)"
       @close="showModalEditCategoryCardsMobile = false"
@@ -272,7 +280,7 @@ function confirmAddServicesCardsMobile(V) {
                 <td class="border px-2 py-2">{{ service.specialty_en }}</td>
                 <td class="border px-2 py-2">{{ service.price }}</td>
                 <td class="border px-2 py-2">{{ service.working_days }}</td>
-                <td class="border px-2 py-2">{{ service.working_hours }}</td>
+                <td class="border px-2 py-2">{{ formatWorkingHours(service.working_hours) }}</td>
                 <td class="border px-2 py-2">{{ service.appointments_per_day }}</td>
                 <td class="border px-2 py-2">{{ service.expir_date?.substring(0, 10) }}</td>
                 <td class="border px-2 py-2">{{ service.currency }}</td>

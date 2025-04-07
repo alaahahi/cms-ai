@@ -168,7 +168,12 @@ function confirmAddCategoryCardsMobile(V) {
   });
 }
 
-
+function   expandShortHex(hex) {
+    if (hex && hex.length === 4) {
+      return   '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    }
+    return hex;
+  }
 
 </script>
 
@@ -242,6 +247,8 @@ function confirmAddCategoryCardsMobile(V) {
                 <th class="px-4 py-2">الايقونة</th>
                 <th class="px-4 py-2">الخصم</th>
                 <th class="px-4 py-2">التصنيف الرئيسي</th>
+                <th class="px-4 py-2"> اللون</th>
+
                 <th class="px-4 py-2"> البطاقة</th>
 
                 <th class="px-4 py-2">تنفيذ</th>
@@ -263,6 +270,10 @@ function confirmAddCategoryCardsMobile(V) {
                 <td class="border px-4 py-2">
                   {{ category?.parent ? category.parent.name_ar : 'تصنيف رئيسي' }}
                 </td>
+                <th class="px-4 py-2" :style="{ backgroundColor: expandShortHex(category.color) }"> 
+                  {{ expandShortHex(category.color) }}
+                </th>
+
                 <td class="border px-4 py-2">
                   {{ category?.card ? category.card.name_ar : 'تصنيف رئيسي' }}
                 </td>

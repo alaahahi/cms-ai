@@ -6,6 +6,7 @@ export default {
     categories: Array,
     cards: Array,
     editMode: Boolean,
+    card_id:Number
   },
   data() {
     return {
@@ -14,6 +15,23 @@ export default {
     };
   },
   methods: {
+    setRating(star) {
+    this.localData.review_rate = star;
+  },
+  setRatingMax() {
+    if (this.localData.review_rate > 5) {
+      this.localData.review_rate = 5;
+    }
+  },
+    formatWorkingHours(hours) {
+    if (typeof hours === 'object' && hours.start && hours.end) {
+      this.localData.working_hours =  `${hours.start}-${hours.end}`;
+    }
+    return hours || '';
+  },
+  formatDate(expir_date) {
+    this.localData.expir_date = expir_date?.substring(0, 10) 
+  },
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -35,7 +53,7 @@ export default {
 <template>
   <Transition name="modal">
     <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-auto">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-6xl mx-auto">
         <!-- Header -->
         <div class="px-6 py-4 border-b border-gray-200">
           <h3 class="text-lg font-semibold text-gray-800">
@@ -44,7 +62,7 @@ export default {
         </div>
 
         <!-- Body -->
-        <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700">اسم الخدمة بالعربية</label>
             <input type="text" v-model="localData.service_name_ar" class="input-style" />
@@ -71,13 +89,24 @@ export default {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">أيام العمل</label>
+            <label class="block text-sm font-medium text-gray-700">أيام العمل
+
+            </label>
             <input type="text" v-model="localData.working_days" class="input-style" />
+            Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">ساعات العمل</label>
-            <input type="text" v-model="localData.working_hours" class="input-style" />
+            <label class="block text-sm font-medium text-gray-700">ساعات العمل 
+              <span class="d-none">              {{formatWorkingHours(localData.working_hours)}}
+              </span>
+            </label>
+            <input
+              type="text"
+              v-model="localData.working_hours"
+              class="input-style"
+            />
           </div>
 
           <div>
@@ -86,12 +115,13 @@ export default {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">تاريخ الانتهاء</label>
+            <label class="block text-sm font-medium text-gray-700">تاريخ الانتهاء العقد</label>
+            {{ formatDate(localData.expir_date) }}
             <input type="date" v-model="localData.expir_date" class="input-style" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">العملة</label>
+            <label class="block text-sm font-medium text-gray-700" >العملة</label>
             <input type="text" v-model="localData.currency" class="input-style" />
           </div>
 
@@ -115,8 +145,36 @@ export default {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">معدل التقييم</label>
-            <input type="number" step="0.1" v-model="localData.review_rate" class="input-style" />
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">تقييم الخدمة</label>
+
+              <!-- حقل الإدخال اليدوي -->
+              <input
+              @input="setRatingMax()"
+                type="number"
+                step="0.1"
+                v-model="localData.review_rate"
+                class="input-style mb-2"
+                min="0"
+                max="5"
+              />
+
+              <!-- عرض النجوم -->
+              <div class="flex items-center space-x-1 rtl:space-x-reverse">
+                <span
+                  v-for="star in 5"
+                  :key="star"
+                  class="text-2xl cursor-pointer"
+                  :class="{
+                    'text-yellow-400': star <= Math.floor(localData.review_rate),
+                    'text-gray-300': star > Math.floor(localData.review_rate)
+                  }"
+                  @click="setRating(star)"
+                >
+                  ★
+                </span>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -133,15 +191,17 @@ export default {
             <label class="block text-sm font-medium text-gray-700">التصنيف</label>
             <select v-model="localData.category_id" class="input-style">
               <option value="">اختر تصنيف</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+              <template v-for="cat in categories" :key="cat.id" >
+                <option  v-if="cat.card_id==card_id && cat.parent_id != null ">
                 {{ cat.name_ar }}
-              </option>
+                </option>
+              </template>
             </select>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700">البطاقة</label>
-            <select v-model="localData.card_id" class="input-style">
+            <select :value="card_id" class="input-style" disabled>
               <option value="">اختر بطاقة</option>
               <option v-for="card in cards" :key="card.id" :value="card.id">
                 {{ card.name_ar }}
