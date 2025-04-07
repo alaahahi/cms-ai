@@ -187,7 +187,7 @@ export default {
             <input type="file" accept="image/*" @change="handleImageUpload" class="input-style" />
           </div>
 
-          <div>{{localData.category_id}}
+          <div>
             <label class="block text-sm font-medium text-gray-700">التصنيف</label>
             <select v-model="localData.category_id" class="input-style">
               <option value="">اختر تصنيف</option>
