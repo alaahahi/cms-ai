@@ -380,12 +380,12 @@ function confirmEditPendingRequest(V) {
                     </td>
                     <td className="border px-4 py-2 td">
                       <a
-                        :href="`/public/storage/${user.image}`"
+                        :href="`${user.image}`"
                         style="cursor: pointer"
                         target="_blank">
                         <img
                         v-if="user.image"
-                        :src="`/public/storage/${user.image}`"
+                        :src="`${user.image}`"
                         alt="Setting Image"
                         style="width:200px;"
                         />
