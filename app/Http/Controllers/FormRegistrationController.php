@@ -579,7 +579,7 @@ class FormRegistrationController extends Controller
                     'color' => $validated['color'] ?? '#fff',
                     'icon' => $validated['icon'] ?? $category->icon, // إذا لم يتم رفع أي صورة، الإبقاء على الصورة الحالية
                     'discount' => $validated['discount'] ?? $category->discount, // إذا لم يتم إدخال خصم، الإبقاء على الخصم القديم
-                    'parent_id' => $validated['parent_id'] ?? $category->parent_id, // إذا لم يتم إدخال parent_id، الإبقاء على التصنيف الأب القديم
+                    'parent_id' => $request->parent_id, // إذا لم يتم إدخال parent_id، الإبقاء على التصنيف الأب القديم
                 ]);
             } else {
                 // إنشاء تصنيف جديد إذا لم يكن id موجودًا
