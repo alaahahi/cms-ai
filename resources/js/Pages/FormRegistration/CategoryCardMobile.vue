@@ -6,13 +6,13 @@ import { ref, watch } from 'vue'; // Import ref and watch from Vue
 import InfiniteLoading from "v3-infinite-loading";
 import axios from 'axios';
 import debounce from 'lodash/debounce'; // Import debounce function from Lodash
-import ModaEditCategoryCardsMobile from "@/Components/ModaEditCategoryCardsMobile.vue";
+import ModaEditCategoryCardsMobile from "@/Components/ModaAddCategoryCardsMobile.vue";
 import ModaAddCategoryCardsMobile from "@/Components/ModaAddCategoryCardsMobile.vue";
 
 
 import { useToast } from "vue-toastification";
 const toast = useToast();
-
+let add= ref(false);
 let laravelData = ref([]);
 const userLocation = ref({});
 let from = ref('')
@@ -123,24 +123,33 @@ let showModalAddCategoryCardsMobile = ref(false);
 
 
 function openModalEditCategoryCardsMobile(v){
+  add.value =false
+
   form.value = v
   showModalEditCategoryCardsMobile.value = true
 }
 function openModalAddCategoryCardsMobile(){
+
+  add.value =true
   showModalAddCategoryCardsMobile.value = true
 }
 
 function confirmAddCategoryCardsMobile(V) {
   showModalAddCategoryCardsMobile.value = false;
+
+
+  // إذا في editMode معناها تعديل، لازم نرسل ID ونغير الرابط
+  const url = !add.value ? `UpdateCategoryCardsMobile/${V.id}` : 'AddCategoryCardsMobile' + '?card_id=' + card_id.value;
+
+  if(add.value){
+    V.id=''
+  }
+
   let formData = new FormData();
 
   for (const key in V) {
     formData.append(key, V[key]);
   }
-
-  // إذا في editMode معناها تعديل، لازم نرسل ID ونغير الرابط
-  const isEdit = V.id !== undefined && V.id !== null;
-  const url = isEdit ? `UpdateCategoryCardsMobile/${V.id}` : 'AddCategoryCardsMobile' + '?card_id=' + card_id.value;
 
   axios.post(url, formData, {
     headers: {
@@ -151,13 +160,14 @@ function confirmAddCategoryCardsMobile(V) {
     showModalAddCategoryCardsMobile.value = false;
     showModalEditCategoryCardsMobile.value = false;
     changeGetResults()
-    toast.success(isEdit ? "تم تعديل البطاقة بنجاح" : "تم إضافة البطاقة بنجاح", {
+    toast.success(!add.value ? "تم تعديل البطاقة بنجاح" : "تم إضافة البطاقة بنجاح", {
       timeout: 2000,
       position: "bottom-right",
       rtl: true,
     });
   })
   .catch(error => {
+    console.log(error)
     showModalAddCategoryCardsMobile.value = false;
     showModalEditCategoryCardsMobile.value = false;
     toast.error("يرجى التأكد من تعبئة البيانات بشكل صحيح", {

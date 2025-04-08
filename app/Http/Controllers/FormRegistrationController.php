@@ -559,7 +559,6 @@ class FormRegistrationController extends Controller
                 'color' => 'nullable|string', 
                 'card_id' => 'required|numeric',
                 'discount' => 'nullable|numeric|min:0|max:100', // التحقق من الخصم
-                'parent_id' => 'nullable|exists:categories,id', // تحقق من وجود parent_id إذا كان فرعيًا
             ]);
             
             // معالجة رفع الصورة إذا كانت موجودة
@@ -570,7 +569,7 @@ class FormRegistrationController extends Controller
             }
             
             // إذا كان id موجودًا في البيانات، نقوم بتحديث التصنيف
-            if ($request->has('id')) {
+            if ($request->id??'') {
                 // تحديث التصنيف
                 $category = Category::findOrFail($request->id);
                 $category->update([

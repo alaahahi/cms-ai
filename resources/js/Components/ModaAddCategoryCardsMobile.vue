@@ -91,7 +91,7 @@ export default {
             <label class="block text-sm font-medium text-gray-700">التصنيف الأب</label>
             <select v-model="localData.parent_id"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-              <option value="">تصنيف أب</option>
+              <option value="null">تصنيف أب</option>
               <!-- يجب جلب التصنيفات الرئيسية هنا -->
               <option v-for="parent in parents" :key="parent.id" :value="parent.id">
                 {{ parent.name_ar }}
