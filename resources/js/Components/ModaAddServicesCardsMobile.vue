@@ -199,7 +199,12 @@ export default {
               <option value="">اختر تصنيف</option>
               <template v-for="cat in categories" :key="cat.id" >
                 <option  v-if="cat.card_id==card_id && cat.parent_id != null" :value="cat.id">
-                {{ cat.name_ar }}
+                {{ cat.name_ar }} -  {{
+                    categories.find(parent => parent.id === cat.parent_id)?.name_ar || 'غير معروف'
+                  }}
+                  -  {{
+                    cards.find(card => card.id === cat.card_id)?.name_ar || 'غير معروف'
+                  }}
                 </option>
               </template>
             </select>
