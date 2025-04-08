@@ -19,11 +19,6 @@ export default {
     }
     return hex;
   },
-  setEdit(editMode) {
-    if(editMode==false){
-      this.localData.id = null
-    }
-  },
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -57,7 +52,6 @@ export default {
         <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700">الاسم بالعربية</label>
-            {{setEdit(editMode)}}
             <input type="text" v-model="localData.name_ar"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
           </div>

@@ -6,7 +6,7 @@ import { ref, watch } from 'vue'; // Import ref and watch from Vue
 import InfiniteLoading from "v3-infinite-loading";
 import axios from 'axios';
 import debounce from 'lodash/debounce'; // Import debounce function from Lodash
-import ModaEditCategoryCardsMobile from "@/Components/ModaAddCategoryCardsMobile.vue";
+import ModaEditCategoryCardsMobile from "@/Components/ModaEditCategoryCardsMobile.vue";
 import ModaAddCategoryCardsMobile from "@/Components/ModaAddCategoryCardsMobile.vue";
 
 
@@ -190,7 +190,6 @@ function   expandShortHex(hex) {
       :show="showModalAddCategoryCardsMobile ? true : false"
       :data="form"
       :parents="parents"
-      :editMode="false"
       @a="confirmAddCategoryCardsMobile($event)"
       @close="showModalAddCategoryCardsMobile = false"
     >
@@ -204,7 +203,6 @@ function   expandShortHex(hex) {
       :show="showModalEditCategoryCardsMobile ? true : false"
       :data="form"
       :parents="parents"
-      :editMode="true"
       @a="confirmAddCategoryCardsMobile($event)"
       @close="showModalEditCategoryCardsMobile = false"
     >
