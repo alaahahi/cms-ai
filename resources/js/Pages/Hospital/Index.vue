@@ -193,6 +193,7 @@ function method1(id) {
                     <th className="px-4 py-2">رقم البطاقة</th>
                     <th className="px-4 py-2">التاريخ والساعة</th>
                     <th className="px-4 py-2">ملاحظة</th>
+                    <th className="px-4 py-2">المصدر</th>
                     <th className="px-4 py-2">الحالة</th>
                     <th className="px-4 py-2">تنفيذ</th>
                   </tr>
@@ -208,6 +209,7 @@ function method1(id) {
                   <td className="border px-4 py-2">{{ user.card_id }}</td>
                   <td className="border px-4 py-2">{{ user.start }}</td>
                   <td className="border px-4 py-2 td">{{ user.note }}</td>
+                  <td className="border px-4 py-2 td">{{ user.source }}</td>
                   <th className="border px-4 py-2">{{ user.is_come==2 ? 'تم التأكيد':user.is_come==0 ? 'تم الإلغاء' : 'في الانتظار' }}</th>
                   <td className="border px-4 py-2" style="max-width: 200px;">
                     <button 

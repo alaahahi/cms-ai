@@ -21,6 +21,7 @@ class Appointment extends Model
         'is_come',
         'service_provider_id',
         'created_at',
+        'source',
         'updated_at'
     ];
     public function user()

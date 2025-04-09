@@ -241,6 +241,7 @@ class HospitalController extends Controller
             'user_id' => $user->id, // استخدام id المستخدم المصادق
             'card_id' => $profile->card_id,
             'note' => $request->note,
+            'source' => 'mobile',
             'start' => $this->convertToTimestamp($request->start),
             'end' => $this->convertToTimestamp($request->end),
         ]);
