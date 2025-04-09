@@ -59,21 +59,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        // Handling JWT specific exceptions
-        if ($exception instanceof JWTException) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Token is invalid or expired.',
-            ], 401);
-        }
-
-        // Handling authentication exceptions (missing token)
-        if ($exception instanceof AuthenticationException) {
-            return redirect()->route('login')->with('error', 'Authentication required.');
-
-          
-        }
-
-        return parent::render($request, $exception);
+        return response()->json(['error' => 'Token expired'], 401);
     }
 }
