@@ -85,8 +85,7 @@ class CardService extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('expir_date', '>=', now())
-                     ->where('show_on_app', true);
+        return $query->where('expir_date', '>=', now());
     }
 
     /**
