@@ -198,7 +198,7 @@ class CardsController extends Controller
             }
     
             if (!$user_id) {
-                $user_id = Auth::user()->id;     
+                $user_id = 60;     
 
             }
     
