@@ -231,7 +231,6 @@ class CardsController extends Controller
             }else{
 
             if ($request->card_number) {
-                dd($request->is_admin);
 
                 $existingCard = Profile::where('card_number', $request->card_number)->first();
                 if ($existingCard) {
@@ -273,6 +272,7 @@ class CardsController extends Controller
                         ]);
                     }
                     $user_id = Auth::user()->id;     
+                    dd($request->is_admin);
 
                     $profile = Profile::create([
                         'no' => $no,
