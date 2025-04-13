@@ -32,6 +32,9 @@ class UserController extends Controller
          $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
          $this->userHospital =  UserType::where('name', 'hospital')->first()->id;
          $this->userAccount=  UserType::where('name', 'account')->first()->id;
+         $this->userMobile=  UserType::where('name', 'mobile')->first()->id;
+
+         
     }
 
     /**
@@ -71,8 +74,8 @@ class UserController extends Controller
                  'phone_number' => $phoneNumber,
                  'verification_code' => $verificationCode,
                  'verification_user_type'=>'whatsapp',
-                 'user_type' => 7, 
-             ]);
+                 'type_id' => $this->userMobile, // النوع 6
+                ]);
          }
          $config = SystemConfig::first();
          // إرسال الكود باستخدام API الواتساب
@@ -118,7 +121,7 @@ class UserController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60,
             'user' => $user,
-            'is_admin' => $user->is_admin
+            'is_admin' => $user->type_id== $this->userHospital ? true : false
         ]);
      }
      public function verifyCodeSms(Request $request)
@@ -152,7 +155,7 @@ class UserController extends Controller
               $user = User::create([
                   'phone_number' => $phoneNumber,
                   'verification_code' => $verificationCode,
-                  'user_type' => 7, // النوع 6
+                  'type_id' => $this->userMobile, // النوع 6
                   'verification_user_type'=>'sms'
               ]);
           }
@@ -174,7 +177,7 @@ class UserController extends Controller
              'token_type' => 'bearer',
              'expires_in' => auth('api')->factory()->getTTL() * 60,
              'user' => $user,
-             'is_admin' => $user->is_admin
+             'is_admin' => $user->type_id== $this->userHospital ? true : false
          ]);
      }
     public function index()
