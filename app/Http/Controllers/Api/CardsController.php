@@ -27,6 +27,7 @@ class CardsController extends Controller
     {
         $this->whatsAppController = $whatsAppController; 
         $this->url = env('FRONTEND_URL');
+        $this->userMobile=  UserType::where('name', 'mobile')->first()->id;
 
     }
 
@@ -266,7 +267,7 @@ class CardsController extends Controller
                         $user = User::create([
                             'phone_number' => $user_phone,
                             'verification_user_type' => 'selas',
-                            'user_type' => 7,
+                            'type_id' => $this->userMobile, // النوع 6
                         ]);
                     }
                     $user_id = Auth::user()->id;     
@@ -373,7 +374,7 @@ class CardsController extends Controller
             $user = User::create([
                 'phone_number' => $request->phone_number,
                 'verification_user_type'=>'selas',
-                'user_type' => 7, // النوع 6
+                'type_id' => $this->userMobile, // النوع 6
             ]);
         }
         // Store in Profile table for authenticated users
