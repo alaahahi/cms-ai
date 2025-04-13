@@ -227,8 +227,8 @@ class CardsController extends Controller
                     'message' => 'Request submitted successfully. Our team will contact you shortly.',
                     'data' => $pendingRequest,
                 ], 201);
-            }
-    
+            }else{
+
             if ($request->card_number) {
                 $existingCard = Profile::where('card_number', $request->card_number)->first();
                 if ($existingCard) {
@@ -256,38 +256,41 @@ class CardsController extends Controller
                         'message' => 'Card number already exists. Your request is being processed.',
                         'data' => $pendingRequest,
                     ], 201);
+                }else{
+                    $maxNo = Profile::max('no');
+                    $no = $maxNo + 1;
+            
+                    $user = User::where('phone_number', $user_phone)->first();
+            
+                    if (!$user) {
+                        $user = User::create([
+                            'phone_number' => $user_phone,
+                            'verification_user_type' => 'selas',
+                            'user_type' => 7,
+                        ]);
+                    }
+                    $user_id = Auth::user()->id;     
+
+                    $profile = Profile::create([
+                        'no' => $no,
+                        'name' => $request->name,
+                        'phone_number' => $user_phone,
+                        'address' => $request->address,
+                        'user_id' => $user->id,
+                        'card_id'=> $request->card_id,
+                        'card_number' => $request->card_number,
+                        'family_name' => $request->family_members_names,
+                        'image' => $imagePath,
+                        'results' => $request->is_admin ? 1 : 3,
+                        'user_add' => $user_id,
+                        'cardHolder_id' => $user->id,
+                        'source' => 'mobile',
+                        'created' => now()->format('Y-m-d'),
+                    ]);
                 }
             }
-            if($request->is_admin){
-            $maxNo = Profile::max('no');
-            $no = $maxNo + 1;
-    
-            $user = User::where('phone_number', $user_phone)->first();
-    
-            if (!$user) {
-                $user = User::create([
-                    'phone_number' => $user_phone,
-                    'verification_user_type' => 'selas',
-                    'user_type' => 7,
-                ]);
-            }
-            
-            $profile = Profile::create([
-                'no' => $no,
-                'name' => $request->name,
-                'phone_number' => $user_phone,
-                'address' => $request->address,
-                'user_id' => $user_id,
-                'card_id'=> $request->card_id,
-                'card_number' => $request->card_number,
-                'family_name' => $request->family_members_names,
-                'image' => $imagePath,
-                'results' => $request->is_admin ? 1 : 3,
-                'user_add' => $user_id,
-                'cardHolder_id' => $user->id,
-                'source' => 'mobile',
-                'created' => now()->format('Y-m-d'),
-            ]);
+
+         
     
             $this->whatsAppController->sendWhatsAppMessage(
                 $user_phone,
