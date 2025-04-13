@@ -217,7 +217,6 @@ class CardsController extends Controller
                     'source' => 'mobile',
                     'created_at' => now(),
                 ]);
-    
                 $this->whatsAppController->sendWhatsAppMessage(
                     $user_phone,
                     'أهلاً وسهلاً بك..' . "\n\n" .
@@ -232,6 +231,8 @@ class CardsController extends Controller
             }else{
 
             if ($request->card_number) {
+                dd($request->is_admin);
+
                 $existingCard = Profile::where('card_number', $request->card_number)->first();
                 if ($existingCard) {
                     $pendingRequest = PendingRequest::create([
@@ -308,7 +309,7 @@ class CardsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to process the request',
-                'error' => $e,
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
