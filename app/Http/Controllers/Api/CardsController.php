@@ -283,8 +283,7 @@ class CardsController extends Controller
                             $user_phone = $user->phone_number; // استخدام رقم الهاتف من المستخدم
                         }
                     }
-                    dd($request->is_admin);
-
+ 
 
                     $profile = Profile::create([
                         'no' => $no,
