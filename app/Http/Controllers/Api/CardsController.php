@@ -197,7 +197,8 @@ class CardsController extends Controller
             }
     
             if (!$user_id) {
-                $user_id = $request->user_id;
+                $user_id = Auth::user()->id;     
+
             }
     
             // في حال لا يوجد مستخدم معرف، سجل كطلب بانتظار المراجعة
