@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Card;
 use App\Models\CardService;
+use App\Models\UserType;
 use App\Models\Profile;
 use App\Models\Category;
 use App\Models\PendingRequest;
