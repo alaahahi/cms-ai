@@ -308,7 +308,7 @@ class CardsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to process the request',
-                'error' => $e->getMessage(),
+                'error' => $e,
             ], 500);
         }
     }
