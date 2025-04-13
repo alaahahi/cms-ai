@@ -209,6 +209,7 @@ class CardsController extends Controller
                     'address' => $request->address,
                     'card_number' => $request->card_number,
                     'family_members_names' => $request->family_members_names,
+                    'user_id' => $user_id,
                     'image' => $imagePath,
                     'source' => 'mobile',
                     'created_at' => now(),
