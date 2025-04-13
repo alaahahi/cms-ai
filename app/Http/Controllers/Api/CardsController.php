@@ -271,8 +271,9 @@ class CardsController extends Controller
                             'type_id' => $this->userMobile, // النوع 6
                         ]);
                     }
-                    $user_id = Auth::user()->id;     
                     dd($request->is_admin);
+
+                    $user_id = Auth::user()->id;     
 
                     $profile = Profile::create([
                         'no' => $no,
