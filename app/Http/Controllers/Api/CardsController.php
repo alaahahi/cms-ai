@@ -271,9 +271,20 @@ class CardsController extends Controller
                             'type_id' => $this->userMobile, // النوع 6
                         ]);
                     }
+
+                    $token = $request->bearerToken();
+                    $user_id = null;
+                    $user_phone = $request->phone_number; // افتراضيًا من الريكوست
+            
+                    if ($token) {
+                        $user = Auth::guard('api')->setToken($token)->user();
+                        if ($user) {
+                            $user_id = $user->id;
+                            $user_phone = $user->phone_number; // استخدام رقم الهاتف من المستخدم
+                        }
+                    }
                     dd($request->is_admin);
 
-                    $user_id = Auth::user()->id;     
 
                     $profile = Profile::create([
                         'no' => $no,
