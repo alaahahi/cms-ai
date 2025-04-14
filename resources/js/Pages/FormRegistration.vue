@@ -56,8 +56,12 @@ const submit = () => {
 
   })
   .catch(error => {
-    profileAdded.value=0;
-    errors.value = error.response.data.errors
+    profileAdded.value = false;
+    if (error.response && error.response.data && error.response.data) {
+      errors.value = error.response.data;
+    } else {
+      errors.value = { general: ['حدث خطأ غير متوقع'] };
+    }
     isLoading.value = false;
 
     
@@ -200,14 +204,18 @@ const sendWhatsAppMessageArray = (phoneNumbers) => {
         </div>
       </div>
     </div>
-    <div v-if="errors && !(profileAdded)">
+    <div v-if="errors && !profileAdded">
       <div
         id="alert-2"
         class="p-4 mb-4 bg-red-300 rounded-lg dark:bg-red-300 text-center"
         role="alert"
       >
-        <div class="ml-3 text-sm font-medium text-red-700 dark:text-red-800">
-        يرجى ادخال المعلومات المطلوبة 
+        <div
+          v-for="(messages, field) in errors"
+          :key="field"
+          class="ml-3 text-sm font-medium text-red-700 dark:text-red-800"
+        >
+        {{ errors }}
         </div>
       </div>
     </div>

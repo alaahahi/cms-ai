@@ -356,59 +356,58 @@ class FormRegistrationController extends Controller
      */
     public function store(Request $request)
     {
-        $maxNo = Profile::max('no');
-        $no = $maxNo + 1;
-        $authUser = auth()?->user();
-        Validator::make($request->all(), [
-                    'card_number' =>'required|string|max:255|unique:profile,card_number',
-                    'name' => 'required|string|max:255',
-             
-
-                     ])->validate();
-
-                     $base64Image = $request->image;
-
-                    // Remove the data:image/{extension};base64, prefix from the base64 string
-                    $base64Image = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
-
-                    // Decode the base64 string into binary data
-                    $imageData = base64_decode($base64Image);
-
-                    // Specify the directory where you want to store the image
-                    $imagePath = public_path('uploads');
-
-                    // Create the directory if it doesn't exist
-                    if (!file_exists($imagePath)) {
-                        mkdir($imagePath, 0777, true);
-                    }
-
-                    // Generate a unique name for the image
-                    $imageName = time() . '.png'; // You can specify a different image format if needed
-
-                    // Save the decoded image data to the specified directory as an image file
-                    file_put_contents("$imagePath/$imageName", $imageData);
-
-                    // Save the image URL in the database
-                    $imageUrl = 'uploads/' . $imageName;
-
-         $profile = Profile::create([
-                    'card_number'=> $request->card_number,
-                    'name' => $request->name,
-                    'address' => $request->address,
-                    'image' =>  $imageUrl,
-                    'phone_number' => '+964'+$request->phone_number,
-                    'card_id' => $request->card_id ?? 1,
-                    'user_id' =>$request->saler_id,
-                    'family_name'=> $request->family_name,
-                    'user_add'=>$authUser?->id,
-                    'source' => 'dashboard',
-                    'created'=>$request->created,
-                    'no'=> $no
-                     ]);
-
-        $sales = User::where('type_id', $this->userSeles)->get();
-        return response()->json($profile);
+        try {
+            $maxNo = Profile::max('no');
+            $no = $maxNo + 1;
+        
+            $request->validate([
+                'card_number' => 'required|string|max:255|unique:profile,card_number',
+                'name' => 'required|string|max:255',
+                'address' => 'nullable|string|max:500',
+                'phone_number' => 'required|string|max:20',
+                'image' => 'string', // base64 image
+                'card_id' => 'nullable|integer|exists:card,id',
+                'saler_id' => 'required|integer|exists:users,id',
+                'family_name' => 'nullable|string|max:255',
+                'user_add' => 'nullable|string|max:255',
+                'created' => 'nullable|date',
+            ]);
+        
+            $base64Image = $request->image;
+            $base64Image = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
+            $imageData = base64_decode($base64Image);
+        
+            $imagePath = public_path('uploads');
+            if (!file_exists($imagePath)) {
+                mkdir($imagePath, 0777, true);
+            }
+        
+            $imageName = time() . '.png';
+            file_put_contents("$imagePath/$imageName", $imageData);
+            $imageUrl = 'uploads/' . $imageName;
+        
+            $profile = Profile::create([
+                'card_number' => $request->card_number,
+                'name' => $request->name,
+                'address' => $request->address,
+                'image' => $imageUrl,
+                'phone_number' => '+964' . $request->phone_number,
+                'card_id' => $request->card_id ?? 1,
+                'user_id' => $request->saler_id,
+                'family_name' => $request->family_name,
+                'user_add' => $request->user_add ?? $this->userSeles,
+                'source' => 'dashboard',
+                'created' => $request->created,
+                'no' => $no
+            ]);
+            // ✅ إعادة البيانات كـ JSON
+            return response()->json($profile);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()], 500);
+        }
+    
     }
+    
     public function storeEdit(Request $request,$id)
     {
         $user = Auth::user();
