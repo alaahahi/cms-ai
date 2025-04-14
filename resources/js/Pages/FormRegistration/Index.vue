@@ -9,18 +9,17 @@ const laravelData = ref({});
 const userLocation = ref({});
 let from = ref('')
 let to = ref('')
-
+let card_id = ref(0)
 const getResults = async (page = 1) => {
-  const response = await fetch(`/getIndexFormRegistration?page=${page}&from=${from.value}&to=${to.value}`);
+  const response = await fetch(`/getIndexFormRegistration?page=${page}&from=${from.value}&to=${to.value}&card_id=${card_id.value}`);
   laravelData.value = await response.json();
 };
 const searchTerm = ref("");
 
-getResults();
-
+ 
 const props = defineProps({
   url: String,
-  card: String,
+  cards: Array,
 });
 const search = async (q) => {
   laravelData.value = [];
@@ -69,7 +68,21 @@ let showModal = ref(false);
           <div class="p-6 bg-white border-b border-gray-200">
      
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-1">
-              
+              <div className="mb-4 mx-5">
+                <label for="card_id" > نوع البطاقة</label>
+                <select
+                  @change="getResults()"
+                  v-model="card_id"
+                  id="card_id"
+                  class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                  <option selected disabled>تحديد البطاقة</option>
+                  <option v-for="(card, index) in cards" :key="index" :value="card.id">{{ card.name }}</option>
+                </select>
+              </div>
+              </div>
+              <div v-if="card_id">
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-1">
+
                 <div className="mb-4  mr-5 print:hidden">
                 <InputLabel for="pay" value="فلترة" />
                 <Link
@@ -158,85 +171,86 @@ let showModal = ref(false);
                   <span>طباعة</span>
                 </a>
               </div>
-            </div>
+              </div>
 
-            <div class="overflow-x-auto shadow-md">
-              <table class="w-full my-5">
-                <thead
-                  class="700 bg-rose-500 text-white text-center rounded-l-lg"
-                >
-                  <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
-                    <th className="px-4 py-2 w-20">تسلسل</th>
-                    <th className="px-4 py-2">رقم البطاقة</th>
-                    <th className="px-4 py-2">الأسم كامل</th>
-                    <th className="px-4 py-2">رقم الموبايل</th>
-                    <th className="px-4 py-2">العنوان</th>
-                    <th className="px-4 py-2">المندوب</th>
-                    <th className="px-4 py-2">تاريخ التسجيل</th>
-                    <th className="px-4 py-2">أفراد العائلة</th>
-                    <th className="px-4 py-2">المصدر</th>
-                    <th className="px-4 py-2">الحالة</th>
-                    <th className="px-4 py-2">تنفيذ</th>
-                  </tr>
-                </thead>
-                <tbody class="flex-1 sm:flex-none">
-                  <tr
-                    v-for="user in laravelData.data"
-                    :key="user.id"
-                    class="mb-2 sm:mb-0 hover:bg-gray-100 text-center"
+              <div class="overflow-x-auto shadow-md">
+                <table class="w-full my-5">
+                  <thead
+                    class="700 bg-rose-500 text-white text-center rounded-l-lg"
                   >
-                    <td className="border px-4 py-2">{{ user.no }}</td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.card_number }}
-                    </td>
-                    <td className="border px-4 py-2 td">{{ user.name }}</td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.phone_number }}
-                    </td>
-                    <td className="border px-4 py-2 td">{{ user.address }}</td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.user?.name }}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {{ user.created_at.substring(0, 10) }}
-                    </td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.family_name }}
-                    </td>
-                    <td className="border px-4 py-2 td">
-                      {{ user.source }}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {{ results(user.results) }}
-                    </td>
-                    <td className="border px-2 py-2">
-                      <a
-                        tabIndex="-1"
-                        className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
-                        :href="route('document', user.id)"
-                        target="_self"
-                      >
-                        طباعة
-                      </a>
-                      <Link
-                        tabIndex="1"
-                        className="px-2 py-1 text-sm text-white mx-1 bg-slate-500 rounded"
-                        :href="route('formRegistrationEdit', user.id)"
-                      >
-                        تعديل
-                      </Link>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="mt-3 text-center" style="direction: ltr">
-              <TailwindPagination
-                :data="laravelData"
-                @pagination-change-page="getResults"
-                :limit="2"
-              />
-            </div>
+                    <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
+                      <th className="px-4 py-2 w-20">تسلسل</th>
+                      <th className="px-4 py-2">رقم البطاقة</th>
+                      <th className="px-4 py-2">الأسم كامل</th>
+                      <th className="px-4 py-2">رقم الموبايل</th>
+                      <th className="px-4 py-2">العنوان</th>
+                      <th className="px-4 py-2">المندوب</th>
+                      <th className="px-4 py-2">تاريخ التسجيل</th>
+                      <th className="px-4 py-2">أفراد العائلة</th>
+                      <th className="px-4 py-2">المصدر</th>
+                      <th className="px-4 py-2">الحالة</th>
+                      <th className="px-4 py-2">تنفيذ</th>
+                    </tr>
+                  </thead>
+                  <tbody class="flex-1 sm:flex-none">
+                    <tr
+                      v-for="user in laravelData.data"
+                      :key="user.id"
+                      class="mb-2 sm:mb-0 hover:bg-gray-100 text-center"
+                    >
+                      <td className="border px-4 py-2">{{ user.no }}</td>
+                      <td className="border px-4 py-2 td">
+                        {{ user.card_number }}
+                      </td>
+                      <td className="border px-4 py-2 td">{{ user.name }}</td>
+                      <td className="border px-4 py-2 td">
+                        {{ user.phone_number }}
+                      </td>
+                      <td className="border px-4 py-2 td">{{ user.address }}</td>
+                      <td className="border px-4 py-2 td">
+                        {{ user.user?.name }}
+                      </td>
+                      <td className="border px-4 py-2">
+                        {{ user.created_at.substring(0, 10) }}
+                      </td>
+                      <td className="border px-4 py-2 td">
+                        {{ user.family_name }}
+                      </td>
+                      <td className="border px-4 py-2 td">
+                        {{ user.source }}
+                      </td>
+                      <td className="border px-4 py-2">
+                        {{ results(user.results) }}
+                      </td>
+                      <td className="border px-2 py-2">
+                        <a
+                          tabIndex="-1"
+                          className="mx-1 px-2 py-1 text-sm text-white bg-gray-400 rounded"
+                          :href="route('document', user.id)"
+                          target="_self"
+                        >
+                          طباعة
+                        </a>
+                        <Link
+                          tabIndex="1"
+                          className="px-2 py-1 text-sm text-white mx-1 bg-slate-500 rounded"
+                          :href="route('formRegistrationEdit', user.id)"
+                        >
+                          تعديل
+                        </Link>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="mt-3 text-center" style="direction: ltr">
+                <TailwindPagination
+                  :data="laravelData"
+                  @pagination-change-page="getResults"
+                  :limit="2"
+                />
+              </div>
+              </div>
           </div>
         </div>
       </div>

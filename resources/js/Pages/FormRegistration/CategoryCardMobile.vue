@@ -204,7 +204,7 @@ function   expandShortHex(hex) {
       @close="showModalAddCategoryCardsMobile = false"
     >
       <template #header>
-        <h3 class="text-center fw-10">اضافة بطاقة جديدة للتطبيق - الخطوة الاولى</h3>
+        <h3 class="text-center fw-10">اضافة تصنيف جديدة للتطبيق - الخطوة الثانية</h3>
       </template>
     </ModaAddCategoryCardsMobile>
     

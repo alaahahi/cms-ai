@@ -8,6 +8,8 @@ const props = defineProps({
   show: Boolean,
   data: Array,
   accounts: Array,
+  cards: Array,
+  card_id: String,
 });
 const form = ref({
   user: {
@@ -86,6 +88,18 @@ const calculateAmount = () => {
                             <option v-for="(user, index) in data" :key="index" :value="user">{{ user.name }}</option>
                           </select>
                         </div>
+
+                        <div className="mb-4 mx-5">
+                          <label for="user_id" >البطاقة</label>
+                          <select
+                            :value="card_id"
+                            id="user_id"
+                            class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" disabled>
+                            <option selected > البطاقة</option>
+                            <option v-for="(user, index) in cards" :key="index" :value="user.id">{{ user.name }}</option>
+                          </select>
+                        </div>
+
                         </div>
                         <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">

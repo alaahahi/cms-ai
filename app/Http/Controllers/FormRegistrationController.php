@@ -70,8 +70,8 @@ class FormRegistrationController extends Controller
             $authUser = auth()?->user();
             if($authUser){
                 $wallet = Wallet::where('user_id', $authUser->id)->first();
-                $card = $wallet->card ??'';
-                return Inertia::render('FormRegistration/Index', ['url'=>$this->url,'card'=>$card]);
+                $cards = Card::orderBy('id', 'DESC')->get();
+                return Inertia::render('FormRegistration/Index', ['url'=>$this->url,'cards'=>$cards]);
             }
             else {
                 return Inertia::render('Auth/Login');
@@ -195,9 +195,8 @@ class FormRegistrationController extends Controller
         $to = $_GET['to'] ?? 0;
         $print = $_GET['print'] ?? 0;
         $config = SystemConfig::first();
-
-
-        $data = Profile::with('user')->orderBy('no', 'DESC');
+        $card_id = $_GET['card_id'] ?? 0;
+        $data = Profile::with('user')->orderBy('no', 'DESC')->where('card_id', $card_id);
         if ($from && $to) {
             $data->whereBetween('created', [$from, $to]);
         } 
@@ -335,7 +334,7 @@ class FormRegistrationController extends Controller
             $authUser = auth()?->user();
             if($authUser){
                                 //$usersType = UserType::all();
-                $cards= Card::all();
+                $cards = Card::orderBy('id', 'DESC')->get();
                 $sales = User::where('type_id', $this->userSeles)->get();
                 $apiKey =$config->api_key;
                 $third_title_ar =$config->third_title_ar;
@@ -397,7 +396,7 @@ class FormRegistrationController extends Controller
                     'name' => $request->name,
                     'address' => $request->address,
                     'image' =>  $imageUrl,
-                    'phone_number' => $request->phone_number,
+                    'phone_number' => '+964'+$request->phone_number,
                     'card_id' => $request->card_id ?? 1,
                     'user_id' =>$request->saler_id,
                     'family_name'=> $request->family_name,
@@ -500,7 +499,8 @@ class FormRegistrationController extends Controller
     {
         try {
             $card_id = $_GET['card_id'] ?? 0;
-            $profiles=Profile::with('user')->with('appointment.user')->where('card_number',$card_id)->first();
+            $card_number = $_GET['card_number'] ?? 0;
+            $profiles=Profile::with('user')->with('appointment.user')->where('card_id',$card_id)->where('card_number',$card_number)->first();
             if($profiles)
             return response()->json($profiles);
             else

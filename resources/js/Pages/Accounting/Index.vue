@@ -13,6 +13,7 @@ import axios from 'axios';
 const laravelData = ref({});
 const user_id = ref(0);
 const searchTerm = ref('');
+let card_id = ref(0);
 let showModalAddSales = ref(false);
 let showModaldebtSales = ref(false);
 let showModalAddExpenses = ref(false);
@@ -21,7 +22,7 @@ let from = ref(0);
 let to = ref(0);
 const getResults = async (page = 1) => {
   searchTerm.value = '';
-  const response = await fetch(`/getIndexAccounting?page=${page}&user_id=${props.boxes[0].id}&from=${from.value}&to=${to.value}`);
+  const response = await fetch(`/getIndexAccounting?page=${page}&user_id=${props.boxes[0].id}&from=${from.value}&to=${to.value}&card_id=${card_id.value}`);
   laravelData.value = await response.json();
 };
 function openAddSales() {
@@ -33,13 +34,13 @@ function opendebtSales() {
 function openAddExpenses(){
   showModalAddExpenses.value = true;
 }
-getResults();
 
 const props = defineProps({
   url: String,
   users:Array,
   accounts:Array,
   boxes:Array,
+  cards:Array
 });
 const search = async (q) => {
   user_id.value=0;
@@ -112,7 +113,7 @@ const getcountComp = async () => {
     countComp.value = await response.json();
 }
 function confirm(V) {
-  axios.post('/api/salesCard',V)
+  axios.post('/api/salesCard?card_id='+card_id.value,V)
   .then(response => {
     showModalAddSales.value=false;
     getResults();
@@ -169,6 +170,8 @@ function delTransactions(id){
     <ModalAddSales
             :show="showModalAddSales ? true : false"
             :data="users"
+            :card_id="card_id"
+            :cards="cards"
             :accounts="accounts"
             @a="confirm($event)"
             @close="showModalAddSales = false"
@@ -215,6 +218,32 @@ function delTransactions(id){
     <div class="py-12">
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div className="mb-4">
+                      <InputLabel for="sales_id" value="البطاقة" />
+                      <select
+                         @change="getResults()"
+
+                        v-model="card_id"
+                        id="userType"
+                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      >
+                        <option selected disabled>البطاقة</option>
+                        <option
+                          v-for="(type ,index) in cards"
+                          :key="index"
+                          :value="type.id"
+                        >
+                          {{ type.name }}
+                        </option>
+                      </select>
+                      <div v-if="errors?.saler_id">
+                        البطاقة حقل مطلوب
+                      </div>
+                    </div>
+                </div>
+
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" v-if="card_id">
+          
           <div class="p-6 bg-white border-b border-gray-200">
             <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 lg:gap-3">
               <div class="pt-5  print:hidden">
@@ -223,7 +252,7 @@ function delTransactions(id){
                                             مبيعات جديدة
               </button>
               </div>
-              <div class="pt-5  print:hidden">
+              <!-- <div class="pt-5  print:hidden">
               <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2|| $page.props.auth.user.type_id==5" className="px-4 py-2 text-white bg-yellow-500 rounded-md focus:outline-none"
                                             @click="opendebtSales()">
                                             سلفة مندوبين 
@@ -234,7 +263,7 @@ function delTransactions(id){
                                             @click="openAddExpenses()">
                                              اضافة مصاريف
               </button>
-              </div>
+              </div> -->
               <div class=" px-4">
                           <div >
                               <InputLabel for="from" value="من تاريخ" />
@@ -280,54 +309,7 @@ function delTransactions(id){
                           </a>
               </div>
              </div>
-             <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 lg:gap-3">
-              <div class=" px-4">
-                            <div >
-                              <InputLabel for="to" value="حساب الصندوق" />
-                              <TextInput
-                                id="to"
-                                type="number"
-                                disabled
-                                class="mt-1 block w-full"
-                                :value="laravelData.sum_transactions"
-                              />
-                            </div>
-              </div>
-              <div class=" px-4">
-                            <div >
-                              <InputLabel for="to" value="مسحوبات الصندوق" />
-                              <TextInput
-                                id="to"
-                                type="number"
-                                disabled
-                                class="mt-1 block w-full"
-                                :value="laravelData.sum_transactions_debit"
-                              />
-                            </div>
-              </div>
-              <div class=" px-4">
-                            <div >
-                              <InputLabel for="to" value="دخل الصندوق" />
-                              <TextInput
-                                id="to"
-                                type="number"
-                                disabled
-                                class="mt-1 block w-full"
-                                :value="laravelData.sum_transactions_in"
-                              />
-                            </div>
-              </div>
-              <div >
-                              <InputLabel for="to" value="رصيد الصندوق" />
-                              <TextInput
-                                id="to"
-                                type="number"
-                                disabled
-                                class="mt-1 block w-full"
-                                :value="laravelData?.user?.wallet.balance"
-                              />
-                            </div>
-            </div>
+          
             <!-- <div class="flex flex-row">
               <div class="basis-1/2 ">
                 <select @change="getResults()" v-model="user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">

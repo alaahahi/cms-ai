@@ -20,7 +20,8 @@ class Transactions extends Model
         'is_pay',
         'created',
         'card',
-        'parent_id'
+        'parent_id',
+        'card_id'
     ];
     protected $dates = ['deleted_at'];
 
@@ -31,5 +32,9 @@ class Transactions extends Model
     public function morphed()
     {
         return $this->morphTo('morphed', 'morphed_type', 'morphed_id');
+    }
+    public function card()
+    {
+        return $this->belongsTo(Card::class);
     }
 }

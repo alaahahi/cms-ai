@@ -66,7 +66,10 @@ class Profile extends Model
     {
         return $query->where('expir_date', '<', now());
     }
-
+    public function card()
+    {
+        return $this->belongsTo(Card::class);
+    }
     /**
      * Accessor for formatted expiry date.
      */

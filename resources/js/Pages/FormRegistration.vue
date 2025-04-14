@@ -42,7 +42,7 @@ const isLoading = ref(false);
 
 const submit = () => {
   isLoading.value = true;
-  sendWhatsAppMessageArray(form.value.phone_number,form.value.card_number)
+  sendWhatsAppMessageArray([form.value.phone_number])
 
   axios.post('/api/formRegistration', form.value)
   .then(response => {
@@ -100,15 +100,15 @@ const createBase64ImageWife = (fileObject) => {
 let timer = null;
 const delay = 1000; // Delay in milliseconds
 
-const handleInput = (v) => {
+const handleInput = (v,id) => {
   clearTimeout(timer); // Clear the previous timer
 
   timer = setTimeout(() => {
-    checkCard(v); // Call the function to make the Axios request after the delay
+    checkCard(v,id); // Call the function to make the Axios request after the delay
   }, delay);
 };
-const checkCard = (v) => {
-  axios.get('/api/checkCard?card_id='+v)
+const checkCard = (v,id) => {
+  axios.get('/api/checkCard?card_number='+v+'&card_id='+id)
   .then(response => {
     userCard.value=response.data;
   })
@@ -116,72 +116,64 @@ const checkCard = (v) => {
     userCard.value=0;
   })
 };
-const sendWhatsAppMessageArray = (phoneNumber, card_number) => {
+const sendWhatsAppMessageArray = (phoneNumbers) => {
     const baseUrl = 'https://api.textmebot.com/send.php';
     const apiKey = props.apiKey;
-    
-    const textMessage = 
-        'اهلاً وسهلاً بك..' + '\n\n' +
-        'نشكر انضمامك لأسرة  '+
-        props.third_title_ar +
-        '، ونود إعلامك بأنه تم تنشيط بطاقتك الصحية وباستطاعتك الاستفادة من كافة خدمات البطاقة انتمنى لك تجربة سعيدة وصحة جيدة.' + '\n\n' +
-        'للتذكير: يرجى حجز موعد مسبق دائماً.' + '\n\n' +
-        'للحجز والاستعلام، تواصل معنا على الرقم:' + '\n' +
-        '📲: '+
-        props.phone 
-        + '\n\n' +
-        'من فريق الهدف المباشر، كل المحبة ودعواتنا بتمام الصحة والعافية.';
 
-  
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-    let promise = Promise.resolve(); // Start with a resolved promise
 
-    if (phoneNumber) {
-      if( phoneNumber.startsWith('0')){
-        phoneNumber=phoneNumber.slice(1)
-      }
+    let promise = Promise.resolve(); // البداية بوعد محلول
+
+    phoneNumbers.forEach((phone, index) => {
         promise = promise.then(() => {
-            const url = `${baseUrl}?recipient=+964${phoneNumber}&apikey=${apiKey}&text=${encodeURIComponent(textMessage)}&json=yes`;
+            if (phone.startsWith('0')) {
+                phone = phone.slice(1); // إزالة الصفر من البداية
+            }
+
+            const textMessage =
+                'اهلاً وسهلاً بك..' + '\n\n' +
+                'نشكر انضمامك لأسرة الهدف المباشر، ' +
+                'ونود إعلامك بأنه تم تنشيط بطاقتك الصحية وباستطاعتك الاستفادة من كافة خدمات البطاقة. نتمنى لك تجربة سعيدة وصحة جيدة.' + '\n\n' +
+                'للتذكير: يرجى حجز موعد مسبق دائماً.' + '\n\n' +
+                'للحجز والاستعلام، تواصل معنا على الرقم:' + '\n' +
+                '📲: ' + props.phone + '\n\n' +
+                'من فريق الهدف المباشر، كل المحبة ودعواتنا بتمام الصحة والعافية.';
+
+            const url = `${baseUrl}?recipient=+964${phone}&apikey=${apiKey}&text=${encodeURIComponent(textMessage)}&json=yes`;
+
             return fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "success") {
-                        const index = phoneNumbers.indexOf(phoneNumber);
-                        if (index !== -1) {
-                            phoneNumbers.splice(index, 1);
-                        }
-                        toast.success("تم الارسال بنجاح", {
+                        toast.success(`تم الإرسال إلى ${phone} بنجاح`, {
                             timeout: 2000,
                             position: "bottom-right",
                             rtl: true,
                         });
                     } else {
-                        throw new Error("Sending failed");
+                        throw new Error("فشل الإرسال");
                     }
                 })
                 .catch(error => {
-                    const index = phoneNumbers.indexOf(phoneNumber);
-                    if (index !== -1) {
-                        phoneNumbers.splice(index, 1);
-                    }
                     if (error.message === 'NetworkError') {
-                        toast.success("تم الارسال بنجاح", {
+                        toast.success(`تم الإرسال إلى ${phone} (بوجود مشكلة بالشبكة)`, {
                             timeout: 2000,
                             position: "bottom-right",
                             rtl: true,
                         });
                     } else {
-                        toast.error("خطأ في الارسال", {
+                        toast.error(`فشل الإرسال إلى ${phone}`, {
                             timeout: 2000,
                             position: "bottom-right",
                             rtl: true,
                         });
                     }
                 })
-                .then(() => delay(5000)); // Wait for 5 seconds before sending the next message
+                .then(() => delay(5000)); // تأخير 5 ثواني بين كل رسالة
         });
-    }
+    });
 };
+
 </script>
 
 <template>
@@ -225,6 +217,28 @@ const sendWhatsAppMessageArray = (phoneNumber, card_number) => {
           <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
               <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div className="mb-4">
+                      <InputLabel for="sales_id" value="البطاقة" />
+                      <select
+                        v-model="form.card_id"
+                        id="userType"
+                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      >
+                        <option selected disabled>البطاقة</option>
+                        <option
+                          v-for="(type ,index) in cards"
+                          :key="index"
+                          :value="type.id"
+                        >
+                          {{ type.name }}
+                        </option>
+                      </select>
+                      <div v-if="errors?.saler_id">
+                        البطاقة حقل مطلوب
+                      </div>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" v-if="form.card_id">
                 <div class="p-6 bg-white border-b border-gray-200">
                   <h2 class="text-center text-xl py-2">معلومات البطاقة</h2>
                   <div className="flex flex-col">
@@ -247,7 +261,7 @@ const sendWhatsAppMessageArray = (phoneNumber, card_number) => {
                         type="number"
                         class="mt-1 block w-full"
                         autofocus
-                        @input="handleInput(form.card_number)"
+                        @input="handleInput(form.card_number,form.card_id)"
                         v-model="form.card_number"
                       />
 

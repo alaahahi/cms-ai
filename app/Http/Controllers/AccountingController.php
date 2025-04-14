@@ -54,40 +54,36 @@ class AccountingController extends Controller
 
    public function index()
    {
-       $users = User::with('wallet')->where('type_id',$this->userSeles)->orWhere('email', 'doctor@cms.com')->orWhere('email', 'hospital@cms.com')->orWhere('email', 'main@cms.com')->get();
+       $users = User::with('wallet')->where('type_id',$this->userSeles)->get();
+       $cards = Card::orderBy('id', 'DESC')->get();
 
        $accounts = User::with('wallet')->where('type_id',$this->userHospital)->get();
 
        $boxes = User::with('wallet')->where('email', 'main@cms.com')->get();
-       return Inertia::render('Accounting/Index', ['boxes'=>$boxes,'users'=>$users,'accounts'=>$this->mainAccount]);
+       return Inertia::render('Accounting/Index', ['boxes'=>$boxes,'users'=>$users,'accounts'=>$this->mainAccount,'cards'=>$cards]);
    }
    public function getIndexAccounting(Request $request)
    {
     $user_id = $_GET['user_id'] ?? 0;
     $from =  $_GET['from'] ?? 0;
     $to =$_GET['to'] ?? 0;
+    $card_id = $_GET['card_id'] ?? 0;
     $print =$_GET['print'] ?? 0;
     $transactions_id = $_GET['transactions_id'] ?? 0;
     $user = User::with('wallet')->where('id',$user_id)->first();
     if($from && $to ){
-        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->orderBy('id','desc')->whereBetween('created', [$from, $to]);
+        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->where('card_id', $card_id)->orderBy('id','desc')->whereBetween('created', [$from, $to]);
 
     }else{
-        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->orderBy('id','desc');
+        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->where('card_id', $card_id)->orderBy('id','desc');
     }
     $allTransactions = $transactions->get();
-
-    $sumAllTransactions = $allTransactions->sum('amount');
-    $sumDebitTransactions = $allTransactions->where('type', 'debt')->sum('amount');
-    $sumInTransactions = $allTransactions->where('type', 'in')->sum('amount');
     
     // Additional logic to retrieve client data
     $data = [
         'user' => $user,
         'transactions' => $allTransactions,
-        'sum_transactions' => $sumAllTransactions,
-        'sum_transactions_debit' => $sumDebitTransactions,
-        'sum_transactions_in' => $sumInTransactions,
+      
     ];
 
     if($print==1){
@@ -202,6 +198,7 @@ class AccountingController extends Controller
     {
         $account_id= $this->mainAccount->id??0;
         $amount= $request->amount??0;
+        $card_id = $request->card_id??0;
         $card= $request->card??0;
         $date= $request->date??0;
         $user_id= $request->user['id']??0;
@@ -224,10 +221,8 @@ class AccountingController extends Controller
 
         
         $desc=" مبيعات المندوب"." ".$request->user['name'].' '.'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
-        $transaction = $this->increaseWallet($box, $desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$user_id, $date);
-        $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date,$transaction->id,$card);
-        // $this->increaseWallet($doctor, $desc,$this->doctours->id,$this->doctours->id,'App\Models\User',$user_id, $date);
-        // $this->increaseWallet($hospital, $desc,$this->hospital->id,$this->hospital->id,'App\Models\User',$user_id, $date);
+        $transaction = $this->increaseWallet($box, $desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$user_id, $date,0,0,$card_id);
+        $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date,$transaction->id,$card,$card_id);
         return Response::json($request, 200);
     }
     public function paySelse(Request $request,$id)
@@ -305,11 +300,11 @@ class AccountingController extends Controller
         return Response::json($new_balance, 200);
 
     }
-    public function increaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0) 
+    public function increaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0,$card_id=1) 
     {
         $user=  User::with('wallet')->find($user_id);
         if($id = $user->wallet->id){
-        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card];
+        $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card,'card_id'=>$card_id];
         $Transactions =Transactions::create($transactionDetils);
         $wallet = Wallet::find($id);
         $wallet->increment('balance', $amount);
