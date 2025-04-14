@@ -425,8 +425,9 @@ class FormRegistrationController extends Controller
                     'created'=>$request->created,
 
                      ]);
-            
-        return Inertia::render('FormRegistration/Index', ['url'=>$this->url]);
+                     $cards = Card::orderBy('id', 'DESC')->get();
+
+        return Inertia::render('FormRegistration/Index', ['url'=>$this->url,'cards'=>$cards]);
     }
 
 

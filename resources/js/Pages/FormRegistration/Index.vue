@@ -163,7 +163,7 @@ let showModal = ref(false);
               <div className="mb-4  mr-5 print:hidden">
                 <InputLabel for="pay" value="طباعة" />
                 <a
-                  :href="`/getIndexFormRegistration?from=${from}&to=${to}&print=1`"
+                  :href="`/getIndexFormRegistration?from=${from}&to=${to}&print=1&card_id=${card_id}`"
                   target="_blank"
                   class="px-6 mb-12 py-2 mt-1 font-bold text-white bg-orange-500 rounded block text-center"
                   style="width: 100%"

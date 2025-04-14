@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>بطاقات {{$config['third_title_ar']}}</title>
+    <title> جميع بطاقات</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   </head>
 <body  dir="rtl">
-    <h3 class="text-center py-2">بطاقات {{$config['third_title_ar']}}</h3>
+    <h3 class="text-center py-2"> جميع بطاقات</h3>
     <h4 class="text-center py-2 mb-4">
         من تاريخ 
         {{$from}}
