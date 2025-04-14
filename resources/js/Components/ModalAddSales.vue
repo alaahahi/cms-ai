@@ -45,9 +45,26 @@ const restform =()=>{
 };
 }
 const calculateAmount = () => {
+  const userPercentage = form.value.user.percentage ?? 0;
+  const totalCards = form.value.card ?? 0;
 
-  form.value.amount = (form.value.card*form.value.user.percentage) ;
-  form.value.box = (85000 * form.value.card);
+  form.value.amount = totalCards * userPercentage;
+
+  if(props.card_id==1){
+    form.value.amount = (form.value.card*userPercentage) ;
+    form.value.box = (85000 * form.value.card);
+  }
+  if(props.card_id==2){
+    if (totalCards > 0) {
+      form.value.amount = 19000 + (totalCards - 1) * userPercentage;
+      form.value.box = (65000 * form.value.card);
+
+    } else {
+      form.value.amount =0;
+      form.value.box = 0;
+    }
+ 
+  }
   
 
 };
@@ -99,8 +116,7 @@ const calculateAmount = () => {
                             <option v-for="(user, index) in cards" :key="index" :value="user.id">{{ user.name }}</option>
                           </select>
                         </div>
-
-                        </div>
+                         </div>
                         <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-3">
                         <div className="mb-4 mx-5">
                         <label for="card" >نسبة المبيع للبطاقة</label>
