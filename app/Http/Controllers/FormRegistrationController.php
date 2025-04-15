@@ -361,7 +361,7 @@ class FormRegistrationController extends Controller
             $no = $maxNo + 1;
         
             $request->validate([
-                'card_number' => 'required|string|max:255|unique:profile,card_number',
+                'card_number' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
                 'address' => 'nullable|string|max:500',
                 'phone_number' => 'required|string|max:20',
