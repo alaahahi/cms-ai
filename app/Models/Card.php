@@ -38,6 +38,18 @@ class Card extends Model
                 break;
         }
     }
+    public function getDescriptionAttribute()
+    {
+        $language =  app()->getLocale();
+        switch ($language) {
+            case 'ar':
+                return $this->description_ar;
+                break;
+            default:
+                return $this->description_en;
+                break;
+        }
+    }
 
     protected $casts = [
         'expir_date' => 'date', // Automatically cast to Carbon instance
