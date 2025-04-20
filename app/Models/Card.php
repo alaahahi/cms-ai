@@ -24,7 +24,7 @@ class Card extends Model
 
     ];
 
-    protected $appends = ['name'];
+    protected $appends = ['name','description'];
 
     public function getNameAttribute()
     {
