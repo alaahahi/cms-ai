@@ -225,7 +225,7 @@ class CardsController extends Controller
                 );
     
                 return response()->json([
-                    'message' => 'Request submitted successfully. Our team will contact you shortly.',
+                    'message' => 'Request submitted successfully.',
                     'data' => $pendingRequest,
                 ], 201);
             }else{
@@ -255,7 +255,7 @@ class CardsController extends Controller
                     );
     
                     return response()->json([
-                        'message' => 'Card number already exists. Your request is being processed.',
+                        'message' => 'Request submitted successfully.',
                         'data' => $pendingRequest,
                     ], 201);
                 }else{
