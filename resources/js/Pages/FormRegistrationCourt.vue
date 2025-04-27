@@ -10,12 +10,12 @@ import TextInput from "@/Components/TextInput.vue";
 const laravelData = ref({});
 const user_id = ref(0);
 const isLoading = ref(0);
-
+let card_id = ref(0);
 
 const showReceiveBtn = ref(0);
 const getResults = async (page = 1) => {
   const response = await fetch(
-    `/getIndexAccountsSelas?page=${page}&user_id=${user_id.value}`
+    `/getIndexAccountsSelas?page=${page}&user_id=${user_id.value}&card_id=${card_id.value}`
   );
   laravelData.value = await response.json();
 };
@@ -23,7 +23,9 @@ const getResults = async (page = 1) => {
 
 const props = defineProps({
   url: String,
-  users:Array
+  users:Array,
+  cards:Array
+
 });
 
 const form = useForm();
@@ -92,6 +94,31 @@ function method1(id) {
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white  border-gray-200">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div className="mb-4">
+                      <InputLabel for="sales_id" value="البطاقة" />
+                      <select
+                         @change="getResults()"
+
+                        v-model="card_id"
+                        id="userType"
+                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      >
+                        <option selected disabled>البطاقة</option>
+                        <option
+                          v-for="(type ,index) in cards"
+                          :key="index"
+                          :value="type.id"
+                        >
+                          {{ type.name }}
+                        </option>
+                      </select>
+                      <div v-if="errors?.saler_id">
+                        البطاقة حقل مطلوب
+                      </div>
+                    </div>
+                </div>
+
             <div class="flex flex-row">
               <div class="basis-1/2 px-4">
                 <InputLabel class="mb-1" for="invoice_number" value="حساب" />

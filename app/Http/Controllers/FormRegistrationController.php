@@ -146,7 +146,8 @@ class FormRegistrationController extends Controller
                 })
                 
                 ->get();
-            return Inertia::render('FormRegistrationCourt', ['url'=>$this->url,'users'=>$users]);
+                $cards = Card::orderBy('id', 'DESC')->get();
+            return Inertia::render('FormRegistrationCourt', ['url'=>$this->url,'users'=>$users,'cards'=>$cards]);
             }
             else {
                 return Inertia::render('Auth/Login');
@@ -281,19 +282,22 @@ class FormRegistrationController extends Controller
     { 
         $user_id = $_GET['user_id'] ?? 0;
         $sales = User::with('wallet')->where('id', $user_id)->first();
-        $transactions = Transactions::where('wallet_id', $sales?->wallet?->id)->where('is_pay',0)->get();
+        $card_id = $_GET['card_id'] ?? 0;
+        $transactions = Transactions::where('wallet_id', $sales?->wallet?->id)->where('card_id', $card_id)->where('is_pay',0)->get();
         
         $data = $transactions;
         $profile_count = Profile::where('user_id', $sales?->id)->where('results', 1)->count();
         
         // Calculate the total amount for transactions with pay == 0
-        $totalAmount = $transactions->sum(function ($transaction) {
-            return ($transaction->is_pay == 0 && $transaction->type=='in') ? $transaction->amount : 0;
+        $filteredIn = $transactions->filter(function ($transaction) use ($card_id) {
+            return $transaction->is_pay == 0 && $transaction->type == 'in' && $transaction->card_id == $card_id;
         });
-
-        $debt = $transactions->sum(function ($transaction) {
-            return ($transaction->is_pay == 0 && $transaction->type=='debt') ? $transaction->amount : 0;
+        $totalAmount = $filteredIn->sum('amount');
+        
+        $filteredDebt = $transactions->filter(function ($transaction) use ($card_id) {
+            return $transaction->is_pay == 0 && $transaction->type == 'debt' && $transaction->card_id == $card_id;
         });
+        $debt = $filteredDebt->sum('amount');
 
         // Additional logic to retrieve sales data
         $salesData = [
