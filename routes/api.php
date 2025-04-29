@@ -91,7 +91,7 @@ Route::get('/settings/{key}', [AppSettingsController::class, 'show']);
 
 Route::post('/request-card', [CardsController::class, 'requestCard']);
 Route::post('deletePendingRequest', [CardsController::class, 'deletePendingRequest'])->name('deletePendingRequest');
-
+Route::get('/wheelItem ', [CardsController::class, 'wheelItem']);
 
 
 });

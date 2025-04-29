@@ -11,6 +11,7 @@ use App\Models\Profile;
 use App\Models\Category;
 use App\Models\PendingRequest;
 use App\Models\User;
+use App\Models\WheelItem;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -579,10 +580,15 @@ class CardsController extends Controller
         ]);
     }
         
-
+    public function wheelItem()
+    {
+        $items = WheelItem::orderBy('position')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
+    }
     
-    
-    
-    
+ 
     
 }
