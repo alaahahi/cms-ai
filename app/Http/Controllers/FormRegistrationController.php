@@ -141,9 +141,9 @@ class FormRegistrationController extends Controller
                 $users = User::with('wallet')
                 ->whereIn('email', ['doctor@cms.com', 'hospital@cms.com', 'main@cms.com'])
                 ->orWhere('type_id', $this->userSeles)
-                ->whereHas('wallet', function ($query) {
-                    $query->where('balance', '>', 0);
-                })
+                // ->whereHas('wallet', function ($query) {
+                //     $query->where('balance', '>', 0);
+                // })
                 
                 ->get();
                 $cards = Card::orderBy('id', 'DESC')->get();
