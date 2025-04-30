@@ -228,6 +228,8 @@ class AccountingController extends Controller
     public function paySelse(Request $request,$id)
     {
         $authUser = auth()->user();
+        $card_id = $request->card_id??1;
+
         try {
             DB::beginTransaction();
             // Perform your database operations with Eloquent
@@ -239,8 +241,8 @@ class AccountingController extends Controller
             $wallet->update(['card' => 0]);
             $transactions->update(['is_pay' => 1]);
             $profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
-            $this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id,$user->id,'App\Models\User',$authUser->id,$this->currentDatef);
-            $Transactions =$this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser->id,$this->currentDatef);
+            $this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id,$user->id,'App\Models\User',$authUser->id,$this->currentDatef,0,0,$card_id);
+            $Transactions =$this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser->id,$this->currentDatef,0,0,$card_id);
 
             // If everything is successful, commit the transaction
             DB::commit();
@@ -316,13 +318,13 @@ class AccountingController extends Controller
         return $Transactions;
     }
 
-    public function decreaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0) 
+    public function decreaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0,$card_id=1) 
     {
         $user=  User::with('wallet')->find($user_id);
         if($id = $user->wallet->id){
         $wallet = Wallet::find($id);
             $wallet->decrement('balance', $amount);
-            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>1,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card];
+            $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>1,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card,'card_id'=>$card_id];
             $Transactions =Transactions::create($transactionDetils);
          
         

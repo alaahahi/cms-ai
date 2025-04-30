@@ -32,7 +32,7 @@ const form = useForm();
 
 let showModal = ref(false);
 const pay = async (id) => {
-  const response = await fetch(`/paySelse/${id}`);
+  const response = await fetch(`/paySelse/${id}?card_id=${card_id.value}`);
   getResults();
 
 };
