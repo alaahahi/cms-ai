@@ -483,7 +483,12 @@ class FormRegistrationController extends Controller
         $term = $request->get('q');
         $card_id = $request->get('card_id');
 
-        $data = Profile::with('user')->where('card_id',$card_id )->orwhere('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->paginate(10);
+        $data = Profile::with('user')
+        ->where('card_id', $card_id)
+        ->orWhere('name', 'LIKE', '%' . $term . '%')
+        ->orWhere('card_number', 'LIKE', '%' . $term . '%')
+        ->paginate(10);
+        
         return response()->json($data); 
 
     }
