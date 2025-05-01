@@ -481,7 +481,9 @@ class FormRegistrationController extends Controller
     public function getProfiles(Request $request)
     {
         $term = $request->get('q');
-        $data = Profile::with('user')->orwhere('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->paginate(10);
+        $card_id = $request->get('card_id');
+
+        $data = Profile::with('user')->where('card_id',$card_id )->orwhere('name', 'LIKE','%'.$term.'%')->orwhere('card_number', 'LIKE','%'.$term.'%')->paginate(10);
         return response()->json($data); 
 
     }
