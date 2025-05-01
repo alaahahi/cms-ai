@@ -485,10 +485,15 @@ class FormRegistrationController extends Controller
 
         $data = Profile::with('user')
         ->where('card_id', $card_id)
-        ->orWhere('name', 'LIKE', '%' . $term . '%')
-        ->orWhere('card_number', 'LIKE', '%' . $term . '%')
+        ->orWhere(function($query) use ($term) {
+            $query->where('name', 'LIKE', '%' . $term . '%');
+        })
+        ->orWhere(function($query) use ($term) {
+            $query->where('card_number', 'LIKE', '%' . $term . '%')
+                  ->where('card_id', '!=', 1); // شرط إضافي عند البحث برقم البطاقة
+        })
         ->paginate(10);
-        
+
         return response()->json($data); 
 
     }
