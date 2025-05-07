@@ -605,7 +605,7 @@ class CardsController extends Controller
         }
     
         try {
-            WheelResult::create([
+          $wheelResult=  WheelResult::create([
                 'user_id' => Auth::id(),
                 'wheel_item_id' => $request->wheel_item_id,
             ]);
@@ -617,6 +617,7 @@ class CardsController extends Controller
     
         return response()->json([
             'message' => 'تمت العملية بنجاح',
+            'data'=>$wheelResult
         ]);
     }
 }
