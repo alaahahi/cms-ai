@@ -65,6 +65,25 @@ const calculateAmount = () => {
     }
  
   }
+
+  if(props.card_id==3){
+    if (totalCards > 0) 
+    {
+      if(totalCards==1){
+        form.value.amount = 20000 + (totalCards - 1) * userPercentage;
+      }else if(totalCards==2){
+        form.value.amount = 40000 + (totalCards - 2) * userPercentage;
+      }else if(totalCards>2){
+        form.value.amount = 40000 + (totalCards - 2) * userPercentage;
+      }
+      form.value.box = (8500 * form.value.card) - form.value.amount ;
+
+    } else {
+      form.value.amount =0;
+      form.value.box = 0;
+    }
+ 
+  }
   
 
 };
