@@ -76,7 +76,7 @@ const calculateAmount = () => {
       }else if(totalCards>2){
         form.value.amount = 40000 + (totalCards - 2) * userPercentage;
       }
-      form.value.box = (8500 * form.value.card) - form.value.amount ;
+      form.value.box = (85000 * form.value.card) - form.value.amount ;
 
     } else {
       form.value.amount =0;
