@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SystemConfig;
+use App\Models\WheelResult;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Cache;
@@ -591,4 +592,31 @@ class CardsController extends Controller
     
  
     
+    public function storeWheelResult(Request $request)
+    {
+        $request->validate([
+            'wheel_item_id' => 'required|exists:wheel_items,id',
+        ]);
+    
+        if (Auth::user() === null) {
+            return response()->json([
+                'message' => 'يجب عليك تسجيل الدخول اولا',
+            ], 401);
+        }
+    
+        try {
+            WheelResult::create([
+                'user_id' => Auth::id(),
+                'wheel_item_id' => $request->wheel_item_id,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'حدث خطأ ما',
+            ], 500);
+        }
+    
+        return response()->json([
+            'message' => 'تمت العملية بنجاح',
+        ]);
+    }
 }

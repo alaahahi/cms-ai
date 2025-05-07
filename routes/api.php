@@ -56,6 +56,8 @@ Route::post('delTransactions',[AccountingController::class, 'delTransactions'])-
 
 Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('makePayment');
 Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->name('payment-webhook');
+
+
 Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {
@@ -69,7 +71,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/appointment/delete/{id}', [HospitalController::class, 'deleteAppointment']);
 
     Route::post('/appointment/canBookAppointment', [CardsController::class, 'canBookAppointment']);
+    Route::post('/storeWheelResult', [CardsController::class, 'storeWheelResult']);
 
+    
     
 
 });
