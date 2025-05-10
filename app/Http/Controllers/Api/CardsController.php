@@ -605,19 +605,44 @@ class CardsController extends Controller
         }
     
         try {
-          $wheelResult=  WheelResult::create([
+            $wheelResult = WheelResult::create([
                 'user_id' => Auth::id(),
                 'wheel_item_id' => $request->wheel_item_id,
             ]);
+
+            // Update user's can_lots field to true
+            $user = Auth::user();
+            $user->can_lots = 0;
+            $user->save();
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'حدث خطأ ما',
+                'message' => $e,
             ], 500);
         }
     
         return response()->json([
             'message' => 'تمت العملية بنجاح',
-            'data'=>$wheelResult
+            'data' => $wheelResult
+        ]);
+    }
+
+    public function getMyWins(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'يجب عليك تسجيل الدخول اولا',
+            ], 401);
+        }
+
+        // Get all wheel results for the user with their items
+        $wins = WheelResult::where('user_id', $user->id)
+            ->with('wheelItem')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $wins,
         ]);
     }
 }
