@@ -167,6 +167,8 @@ Route::group(['middleware' => ['auth','verified']], function () {
  Route::get('card',[FormRegistrationController::class, 'saved'])->name('card');
  Route::get('hospitalPrint',[HospitalController::class, 'hospitalPrint'])->name('hospitalPrint');
  Route::get('car_check',[DashboardController::class, 'car_check'])->name('car_check');
+ Route::get('image',[DashboardController::class, 'image'])->name('image');
+ Route::post('/extract-phones', [DashboardController::class, 'extractPhonesFromImage'])->name('extract-phones');
 
  
 require __DIR__.'/auth.php';

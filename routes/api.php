@@ -73,6 +73,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/appointment/canBookAppointment', [CardsController::class, 'canBookAppointment']);
     Route::post('/storeWheelResult', [CardsController::class, 'storeWheelResult']);
     Route::get('/my-wins', [CardsController::class, 'getMyWins']);
+
 });
 
 Route::get('/cards/active', [CardsController::class, 'activeCards']);
