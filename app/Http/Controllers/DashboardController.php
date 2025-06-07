@@ -12,7 +12,7 @@ use App\Models\Wallet;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use thiagoalessio\TesseractOCR\TesseractOCR;
+//use thiagoalessio\TesseractOCR\TesseractOCR;
 use Intervention\Image\Facades\Image;
 use App\Models\ExtractedPhone;
 
@@ -123,23 +123,23 @@ class DashboardController extends Controller
             }
     
             // قراءة النص باستخدام Tesseract بدون أي تعديل على الصورة
-            $ocr = new TesseractOCR($fullPath);
-            $ocr->executable('C:\\Program Files\\Tesseract-OCR\\tesseract.exe');
-            $ocr->lang('eng');
+            //$ocr = new TesseractOCR($fullPath);
+            //$ocr->executable('C:\\Program Files\\Tesseract-OCR\\tesseract.exe');
+            //$ocr->lang('eng');
             //$ocr->config('tessedit_char_whitelist', '0123456789');
             // يمكن إزالة whitelist أو إضافتها حسب الحاجة
             // $ocr->config('tessedit_char_whitelist', '0123456789');
       
 
-            $text = $ocr->run();
-            if (trim($text) === '') {
-                \Log::warning("OCR output was empty for image: {$fullPath}");
-                $results[] = [
-                    'index' => $index,
-                    'error' => 'No text detected from OCR',
-                ];
-                continue;
-            }
+            //$text = $ocr->run();
+           // if (trim($text) === '') {
+           //     \Log::warning("OCR output was empty for image: {$fullPath}");
+           //     $results[] = [
+           //         'index' => $index,
+           //         'error' => 'No text detected from OCR',
+           //     ];
+           //     continue;
+            //}
             // استخراج أرقام الهواتف (ممكن تعديل regex حسب التنسيق)
             preg_match_all('/0[0-9](?:[\s\-]?\d){7,9}/', $text, $matches);
 
@@ -203,10 +203,10 @@ class DashboardController extends Controller
                  // محاولة استخراج الأرقام
                 $phones = $this->extractPhonesFromText($text);
                  // المرحلة الثانية: استخدام Tesseract إذا لم توجد أرقام
-                if (count($phones) === 0) {
-                    $textFallback = $this->extractTextWithTesseract($fullPath);
-                    $phones = $this->extractPhonesFromText($textFallback);
-                }
+                    //if (count($phones) === 0) {
+                    //    $textFallback = $this->extractTextWithTesseract($fullPath);
+                    //    $phones = $this->extractPhonesFromText($textFallback);
+                    //}
 
                 $uniquePhones = [];
                 foreach ($phones as $phone) {
