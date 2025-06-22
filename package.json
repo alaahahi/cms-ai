@@ -21,18 +21,20 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
-        "v3-infinite-loading": "^1.3.1",
-        "vue-toastification": "^2.0.0-rc.5",
-        "vue-search-select": "^3.2.0",
-        "vue-media-upload": "^2.1.2",
         "@fawmi/vue-google-maps": "^0.9.79",
         "@vitejs/plugin-vue": "^3.1.2",
         "@vuepic/vue-datepicker": "^5.2.0",
+        "flowbite": "^3.1.2",
         "laravel-vue-pagination": "^4.0.0",
+        "simple-datatables": "^10.0.0",
+        "v3-infinite-loading": "^1.3.1",
         "vue": "^3.2.36",
         "vue-camera-lib": "^1.0.4",
         "vue-final-modal": "^3.4.11",
         "vue-loader": "^17.0.0",
-        "vue-tailwind-datepicker": "^1.2.6"
+        "vue-media-upload": "^2.1.2",
+        "vue-search-select": "^3.2.0",
+        "vue-tailwind-datepicker": "^1.2.6",
+        "vue-toastification": "^2.0.0-rc.5"
     }
 }

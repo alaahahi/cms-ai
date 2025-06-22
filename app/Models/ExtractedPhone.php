@@ -10,6 +10,13 @@ class ExtractedPhone extends Model
     protected $fillable = [
         'phone',
         'image_name',
-        'status'
+        'status',
+        'user_id',
+        'name',
+        'note'
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

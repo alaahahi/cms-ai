@@ -13,6 +13,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\CardsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PhoneController;
 
 
 Route::get('/clear-config-cache', function () {
@@ -56,7 +57,8 @@ Route::post('delTransactions',[AccountingController::class, 'delTransactions'])-
 
 Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('makePayment');
 Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->name('payment-webhook');
-
+Route::get('/unassigned-numbers', [PhoneController::class, 'unassignedNumbers'])->name('unassigned-numbers');
+Route::post('/assign-numbers', [PhoneController::class, 'assignNumbers'])->name('assign-numbers');
 
 Route::group(['prefix' => 'v1'], function() {
 

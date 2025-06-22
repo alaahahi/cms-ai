@@ -45,6 +45,7 @@ const props = defineProps({
   cardCompany: String,
   cardRegister: String,
   balance: String,
+  numbersStats: Array,
 });
 </script>
 
@@ -58,7 +59,7 @@ const props = defineProps({
       </h2>
     </template>
 
-    <div class="py-12">
+    <div class="py-12" v-if="$page.props.auth.user.type_id!=8&&$page.props.auth.user.type_id!=9">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
@@ -218,7 +219,7 @@ const props = defineProps({
         </div>
       </div>
     </div>
-    <div>
+    <div v-if="$page.props.auth.user.type_id==8&&$page.props.auth.user.type_id==9">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div
           class="p-6 bg-white border-b border-gray-200"
@@ -351,6 +352,127 @@ const props = defineProps({
           </div>
         </div>
       </div>
+    </div>
+    <div class="py-12" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="p-6 bg-white border-b border-gray-200" style="border-radius: 8px">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">جميع الارقام</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.total}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الارقام لم تم اسنادها</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.Unassigned}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الارقام  يتم اسنادها</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.Assigned}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الارقام قبول العرض</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.OfferAccepted}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الارقام تم رفض العرض</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.OfferRejected}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الارقام  معاودة مره اخرى</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.FollowUp}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الارقام مشغولة</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.Busy}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 text-white bg-blue-600 rounded-full">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4H1m3 4H1m3 4H1m3 4H1m6.071.286a3.429 3.429 0 1 1 6.858 0M4 1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Zm9 6.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                </svg>
+              </div>
+              <div class="px-3">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الارقام المعلقة </p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{numbersStats.Unknown}}</p>
+              </div>
+            </div>
+          </div>
+
+          </div>
+        </div>
+        </div>
     </div>
   </AuthenticatedLayout>
 </template>

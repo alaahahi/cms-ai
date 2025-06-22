@@ -141,4 +141,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return []; // Add custom claims if necessary
     }
+    
+    public function contactNumbers()
+    {
+        return $this->hasMany(ExtractedPhone::class);
+    }
 }

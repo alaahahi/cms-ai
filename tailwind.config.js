@@ -1,7 +1,6 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
 const colors = require("tailwindcss/colors")
 
-/** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
@@ -23,5 +22,5 @@ module.exports = {
         },
     },
 
-    plugins: [require('@tailwindcss/forms')],
+    plugins: [require('@tailwindcss/forms'), require('flowbite/plugin'),require('simple-datatables')],
 };

@@ -24,7 +24,7 @@ const showingNavigationDropdown = ref(false);
                                     <ApplicationLogo class="block h-9 w-auto" />
                                 </Link>
                             </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5||$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     الرئيسية
                                 </NavLink>
@@ -34,7 +34,7 @@ const showingNavigationDropdown = ref(false);
                                     المندوبين
                                 </NavLink>
                             </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"  v-if="$page.props.auth.user.type_id!=5">
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"  v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5">
                                 <NavLink :href="route('formRegistration')" :active="route().current('formRegistration')">
                                      العقد الإلكتروني
                                 </NavLink>
@@ -85,6 +85,26 @@ const showingNavigationDropdown = ref(false);
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
                                 <NavLink :href="route('settings')" :active="route().current('settings')">
                                        اعدادات التطبيق
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8" >
+                                <NavLink :href="route('sort_phone')" :active="route().current('sort_phone')">
+                                        فرز ارقام
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
+                                <NavLink :href="route('contact_phone')" :active="route().current('contact_phone')">
+                                        ارقام تم التواصل
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
+                                <NavLink :href="route('not_contact_phone')" :active="route().current('not_contact_phone')">
+                                        ارقام لم يتم التواصل
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
+                                <NavLink :href="route('pending_phone')" :active="route().current('pending_phone')">
+                                        قيد الانتظار
                                 </NavLink>
                             </div>
                         </div>
@@ -162,6 +182,18 @@ const showingNavigationDropdown = ref(false);
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('card')" :active="route().current('card')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6">
                                 عرض البطاقات
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('sort_phone')" :active="route().current('sort_phone')" v-if="$page.props.auth.user.type_id==8">
+                                 فرز ارقام
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('contact_phone')" :active="route().current('contact_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+                                 ارقام تم التواصل
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('not_contact_phone')" :active="route().current('not_contact_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+                                 ارقام لم يتم التواصل
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('pending_phone')" :active="route().current('pending_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+                                  قيد الانتظار
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 تسجيل الخروج    

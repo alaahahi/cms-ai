@@ -11,6 +11,7 @@ use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\HospitalController;
 use App\Models\SystemConfig;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\Admin\AppSettingsController;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Api\CardsController;
@@ -160,6 +161,12 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::post('deleteCardsMobile', [CardsController::class, 'deleteCardsMobile'])->name('deleteCardsMobile');
     Route::post('AccepteCardsMobile', [CardsController::class, 'AccepteCardsMobile'])->name('AccepteCardsMobile');
     Route::post('EditCardsMobile', [CardsController::class, 'EditCardsMobile'])->name('EditCardsMobile');
+
+    Route::get('dashboard_phone',[PhoneController::class, 'dashboard_phone'])->name('dashboard_phone');
+    Route::get('sort_phone',[PhoneController::class, 'sort_phone'])->name('sort_phone');
+    Route::get('contact_phone',[PhoneController::class, 'contact_phone'])->name('contact_phone');
+    Route::get('not_contact_phone',[PhoneController::class, 'not_contact_phone'])->name('not_contact_phone');
+    Route::get('pending_phone',[PhoneController::class, 'pending_phone'])->name('pending_phone');
  });
 
  Route::get('document/{id}', [FormRegistrationController::class, 'document'])->name('document');

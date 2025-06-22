@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 //use thiagoalessio\TesseractOCR\TesseractOCR;
 use Intervention\Image\Facades\Image;
 use App\Models\ExtractedPhone;
+use App\Enums\ContactStatus;
 
 class DashboardController extends Controller
 {
@@ -41,12 +42,52 @@ class DashboardController extends Controller
         $authUser = auth()->user();
 
         $results = null;
-        $user=  User::all()->count();
-        $wallet = Wallet::where('user_id',$authUser->id)->first();
+        $user = User::count();
+        $wallet = Wallet::where('user_id', $authUser->id)->first();
         
-        $profile=  Profile::all();
-        $profileUser=  $profile->where('user_id', $authUser->id)->count();
-        return Inertia::render('Dashboard', ['url'=>$this->url,'user'=> $user,'profile'=> $profile->count(),'cardCompany'=>$wallet->card??'','comp'=> $profile->where('user_accepted','!=',null)->count(),'working'=> $profile->where('user_accepted',null)->count(),'cardRegister'=>$profileUser,'balance'=>$wallet->balance??'']);   
+        $profile = Profile::all();
+        $profileUser = $profile->where('user_id', $authUser->id)->count();
+    
+        // إحصائيات الأرقام
+        $numberStats = [];
+    
+        if ($authUser->type_id == 8) {
+            // أدمن: جميع الأرقام
+            $numberStats = [
+                'total' => ExtractedPhone::count(),
+                'Unassigned' => ExtractedPhone::where('status', ContactStatus::Unassigned->value)->count(),
+                'Assigned' => ExtractedPhone::where('status', ContactStatus::Assigned->value)->count(),
+                'Unknown' => ExtractedPhone::where('status', ContactStatus::Unknown->value)->count(),
+                'Busy' => ExtractedPhone::where('status', ContactStatus::Busy->value)->count(),
+                'OfferAccepted' => ExtractedPhone::where('status', ContactStatus::OfferAccepted->value)->count(),
+                'OfferRejected' => ExtractedPhone::where('status', ContactStatus::OfferRejected->value)->count(),
+                'FollowUp' => ExtractedPhone::where('status', ContactStatus::FollowUp->value)->count(),
+            ];
+        } elseif ($authUser->type_id == 9) {
+            // مستخدم: الأرقام الخاصة به فقط
+            $numberStats = [
+                'total' => ExtractedPhone::where('user_id', $authUser->id)->count(),
+                'Unassigned' => ExtractedPhone::where('user_id', $authUser->id)->where('status', ContactStatus::Unassigned->value)->count(),
+                'Assigned' => ExtractedPhone::where('user_id', $authUser->id)->where('status', ContactStatus::Assigned->value)->count(),
+                'Unknown' => ExtractedPhone::where('user_id', $authUser->id)->where('status', ContactStatus::Unknown->value)->count(),
+                'Busy' => ExtractedPhone::where('user_id', $authUser->id)->where('status', ContactStatus::Busy->value)->count(),
+                'OfferAccepted' => ExtractedPhone::where('user_id', $authUser->id)->where('status', ContactStatus::OfferAccepted->value)->count(),
+                'OfferRejected' => ExtractedPhone::where('user_id', $authUser->id)->where('status', ContactStatus::OfferRejected->value)->count(),
+                'FollowUp' => ExtractedPhone::where('user_id', $authUser->id)->where('status', ContactStatus::FollowUp->value)->count(),
+            ];
+        }
+        
+         return Inertia::render('Dashboard', [
+            'url' => $this->url,
+            'user' => $user,
+            'profile' => $profile->count(),
+            'cardCompany' => $wallet->card ?? '',
+            'comp' => $profile->where('user_accepted', '!=', null)->count(),
+            'working' => $profile->where('user_accepted', null)->count(),
+            'cardRegister' => $profileUser,
+            'balance' => $wallet->balance ?? '',
+            'numbersStats' => $numberStats,
+        ]);
 
     }
     public function getcountComp(Request $request)
