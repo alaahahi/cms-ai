@@ -37,49 +37,92 @@ public function sort_phone()
 }
 public function contact_phone()
 {
-    $numbers = ExtractedPhone::where('user_id', '!=', null)->where('status', 1)->get();
+    $authUser = auth()->user();
+    if ($authUser->type_id == 8) {
+        $numbers = ExtractedPhone::where('status',  ContactStatus::Assigned->value)->get();
+    }
+    elseif($authUser->type_id == 9) {
+        $numbers = ExtractedPhone::where('user_id', $authUser->id)->where('status',  ContactStatus::Assigned->value)->get();
+    }
     return Inertia::render('Phone/ContactPhone', [
         'numbers' => $numbers
     ]);
 }
 public function unassignedNumbers()
 {
-    $numbers = ExtractedPhone::where('user_id', null)->where('status', 1)->get();
+    $numbers = ExtractedPhone::where('user_id', null)->where('status', ContactStatus::Unassigned->value)->get();
     return response()->json($numbers);
 }
 public function accept_offer(Request $request)
 {
-    $numbers = ExtractedPhone::where('id', $request->id)->update(['status' => ContactStatus::OfferAccepted->value]);
-    return Inertia::render('Phone/ContactPhone', [
+    $authUser = auth()->user();
+    if ($authUser->type_id == 8) {
+        $numbers = ExtractedPhone::where('status',  ContactStatus::OfferAccepted->value)->get();
+    }
+    elseif($authUser->type_id == 9) {
+        $numbers = ExtractedPhone::where('user_id', $authUser->id)->where('status',  ContactStatus::OfferAccepted->value)->get();
+    }
+
+     return Inertia::render('Phone/ContactPhone', [
         'numbers' => $numbers
     ]);
 }  
 public function reject_offer(Request $request)
 {
-    $numbers = ExtractedPhone::where('id', $request->id)->update(['status' => ContactStatus::OfferRejected->value]);
-    return Inertia::render('Phone/ContactPhone', [
+    $authUser = auth()->user();
+    if ($authUser->type_id == 8) {
+        $numbers = ExtractedPhone::where('status',  ContactStatus::OfferRejected->value)->get();
+    }
+    elseif($authUser->type_id == 9) {
+        $numbers = ExtractedPhone::where('user_id', $authUser->id)->where('status',  ContactStatus::OfferRejected->value)->get();
+    }
+
+     return Inertia::render('Phone/ContactPhone', [
         'numbers' => $numbers
     ]);
+
+ 
 }  
 public function offer_accepted(Request $request)
 {
-    $numbers = ExtractedPhone::where('id', $request->id)->update(['status' => ContactStatus::OfferAccepted->value]);
-    return Inertia::render('Phone/ContactPhone', [
+    $authUser = auth()->user();
+    if ($authUser->type_id == 8) {
+        $numbers = ExtractedPhone::where('status',  ContactStatus::OfferAccepted->value)->get();
+    }
+    elseif($authUser->type_id == 9) {
+        $numbers = ExtractedPhone::where('user_id', $authUser->id)->where('status',  ContactStatus::OfferAccepted->value)->get();
+    }
+
+     return Inertia::render('Phone/ContactPhone', [
         'numbers' => $numbers
     ]);
+
+ 
 }  
  
 public function follow_up(Request $request)
 {
-    $numbers = ExtractedPhone::where('id', $request->id)->update(['status' => ContactStatus::FollowUp->value]);
+    $authUser = auth()->user();
+    if ($authUser->type_id == 8) {
+        $numbers = ExtractedPhone::where('status',  ContactStatus::FollowUp->value)->get();
+    }
+    elseif($authUser->type_id == 9) {
+        $numbers = ExtractedPhone::where('user_id', $authUser->id)->where('status',  ContactStatus::FollowUp->value)->get();
+    }
     return Inertia::render('Phone/ContactPhone', [
         'numbers' => $numbers
     ]);
 }
 public function busy(Request $request)
 {
-    $numbers = ExtractedPhone::where('id', $request->id)->update(['status' => ContactStatus::Busy->value]);
-    return Inertia::render('Phone/ContactPhone', [
+    $authUser = auth()->user();
+    if ($authUser->type_id == 8) {
+        $numbers = ExtractedPhone::where('status',  ContactStatus::Busy->value)->get();
+    }
+    elseif($authUser->type_id == 9) {
+        $numbers = ExtractedPhone::where('user_id', $authUser->id)->where('status',  ContactStatus::Busy->value)->get();
+    }
+     return Inertia::render('Phone/ContactPhone', [
         'numbers' => $numbers
     ]);
 }

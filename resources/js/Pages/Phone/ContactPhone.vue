@@ -27,8 +27,7 @@ function getStatusHtml(status) {
 }
 
 const showModalSure = (phone, status) => {
-  alert(status)
-  phoneSelected.value= phone
+   phoneSelected.value= phone
   showSure.value = true
   status = status
 }
@@ -109,7 +108,7 @@ const surePhone = () => {
             <td class="px-4 py-2 text-center" style="min-width: 140px;"  v-html="getStatusHtml(user.status)"></td>
 
             <td class="px-4 py-2 text-center">
-              <button
+               <button
                     tabIndex="1"
                     :className="'px-2 py-1 text-white mx-1 bg-slate-500 rounded '"
                      @click="showModalSure(user,'OfferAccepted')">
