@@ -59,6 +59,7 @@ Route::post('/make-payment', [PaymentController::class, 'makePayment'])->name('m
 Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->name('payment-webhook');
 Route::get('/unassigned-numbers', [PhoneController::class, 'unassignedNumbers'])->name('unassigned-numbers');
 Route::post('/assign-numbers', [PhoneController::class, 'assignNumbers'])->name('assign-numbers');
+Route::post('/number-decision', [PhoneController::class, 'numberDecision'])->name('number-decision');
 
 Route::group(['prefix' => 'v1'], function() {
 

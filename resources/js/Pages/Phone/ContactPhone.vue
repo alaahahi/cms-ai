@@ -4,12 +4,12 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head } from "@inertiajs/inertia-vue3";
 import { onMounted } from 'vue'
 import { DataTable } from 'simple-datatables'
-import ModalAsinPhone from "@/Components/ModalAsinPhone.vue";
-import ModalSure from "@/Components/ModalSure.vue";
+ import ModalSure from "@/Components/ModalSure.vue";
 import { ref } from 'vue'
-let show = ref(false)
-let ids = 0;
+const props = defineProps({  numbers: Array});
+
 let showSure = ref(false)
+let phoneSelected = ref();
 let status = 0;
 function getStatusHtml(status) {
   const map = {
@@ -17,26 +17,22 @@ function getStatusHtml(status) {
     1: ['تم الإسناد', 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'],
     2: ['تم قبول العرض', 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'],
     3: ['رفض العرض', 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'],
-    3: ['معاودة مره اخرى', 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'],
-    4: ['مشغول', 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100'],
+    4: ['معاودة مره اخرى', 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'],
+    5: ['مشغول', 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100'],
   }
 
   const [label, classes] = map[status] || ['غير معروف', 'bg-gray-100 text-gray-800']
 
   return `<span class="text-xs text-white font-medium me-2 px-2.5 py-0.5 rounded-full ${classes}">${label}</span>`
 }
-const showModalAssign = (id) => {
-   ids= id
-  show.value = true
-}
-const showModalSure = (id, status) => {
-   ids= id
-   status = status
-   console.log(status)
-      showSure.value = true
-}
-const props = defineProps({  numbers: Array});
 
+const showModalSure = (phone, status) => {
+  alert(status)
+  phoneSelected.value= phone
+  showSure.value = true
+  status = status
+}
+  
 
 onMounted(() => {
   const el = document.querySelector("#default-table")
@@ -60,20 +56,18 @@ onMounted(() => {
 })
 const surePhone = () => {
   console.log(ids)
-  console.log(status)
 }
   </script>
 
 <template>
   <Head title="Dashboard" />
-  <ModalAsinPhone :show="show" :userId="ids" @close="show = false" @a="assignPhone" >
-    </ModalAsinPhone>
-    <ModalSure :show="showSure" :userId="ids" :status="status" @close="showSure = false" @a="surePhone" >
-      </ModalSure>
+ 
+  <ModalSure :show="showSure" :phone="phoneSelected" :status="status" @close="showSure = false" @a="surePhone" >
+  </ModalSure>
 
 
   <AuthenticatedLayout>
-    <template #header>
+    <template #header> 
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
          ارقام تم التواصل معها 
       </h2>
@@ -112,15 +106,15 @@ const surePhone = () => {
             <td class="px-4 py-2 text-center">{{ user.image_name }}</td>
             <td class="px-4 py-2 text-center">{{ user.name }}</td>
             <td class="px-4 py-2 text-center">{{ user.note }}</td>
-            <td class="px-4 py-2 text-center"  v-html="getStatusHtml(user.status)"></td>
+            <td class="px-4 py-2 text-center" style="min-width: 140px;"  v-html="getStatusHtml(user.status)"></td>
 
             <td class="px-4 py-2 text-center">
               <button
                     tabIndex="1"
-                    :className="'px-2 py-1 text-white mx-1 bg-slate-500 rounded user-' + user.id  "
-                     @click="showModalSure(user.id, 'OfferAccepted')">
-                     قبول العرض
-                  </button>
+                    :className="'px-2 py-1 text-white mx-1 bg-slate-500 rounded '"
+                     @click="showModalSure(user,'OfferAccepted')">
+                     تنفيذ
+            </button>
             </td>
           </tr>
         </tbody>
@@ -130,3 +124,64 @@ const surePhone = () => {
   </div>
   </AuthenticatedLayout>
 </template>
+
+<style>
+/* الحاوية العامة للـ pagination */
+.datatable-pagination {
+  @apply flex justify-center mt-4 rtl:flex-row-reverse;
+  direction: ltr;
+}
+.datatable-pagination-list-item-link {
+    border-radius: 0.25rem !important;
+    border-width: 1px !important;
+    --tw-border-opacity: 1;
+    border-color: rgb(209 213 219 / var(--tw-border-opacity)) !important;
+    --tw-bg-opacity: 1;
+    background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition-duration: 150ms !important;
+}
+/* قائمة الصفحات */
+.datatable-pagination-list {
+  @apply inline-flex items-center space-x-1 rtl:space-x-reverse;
+  font-family: 'Tahoma', sans-serif; /* خط واضح وداعم للعربية */
+}
+
+/* العنصر الواحد في القائمة */
+.datatable-pagination-list-item {
+  @apply inline-block;
+}
+
+/* الزر داخل كل عنصر */
+.datatable-pagination-list-item-link {
+  @apply px-3 py-1.5 text-sm border border-gray-300 rounded bg-white hover:bg-gray-100 transition;
+
+  /* لون الخط الافتراضي */
+  color: #1f2937; /* Tailwind: text-gray-800 */
+  font-weight: 500;
+}
+
+/* العنصر النشط (الصفحة الحالية) */
+.datatable-pagination-list-item.datatable-active .datatable-pagination-list-item-link {
+  @apply bg-blue-600 text-white border-blue-600;
+}
+
+/* العناصر المعطلة مثل (…) */
+.datatable-pagination-list-item.datatable-disabled .datatable-pagination-list-item-link {
+  @apply cursor-not-allowed bg-gray-100 text-gray-400;
+}
+
+.datatable-active > button {
+ background-color: #007bff !important;
+ color: #fff !important;
+}
+</style>

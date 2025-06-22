@@ -165,8 +165,11 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('dashboard_phone',[PhoneController::class, 'dashboard_phone'])->name('dashboard_phone');
     Route::get('sort_phone',[PhoneController::class, 'sort_phone'])->name('sort_phone');
     Route::get('contact_phone',[PhoneController::class, 'contact_phone'])->name('contact_phone');
-    Route::get('not_contact_phone',[PhoneController::class, 'not_contact_phone'])->name('not_contact_phone');
-    Route::get('pending_phone',[PhoneController::class, 'pending_phone'])->name('pending_phone');
+    Route::get('accept_offer',[PhoneController::class, 'accept_offer'])->name('accept_offer');
+    Route::get('reject_offer',[PhoneController::class, 'reject_offer'])->name('reject_offer');
+    Route::get('follow_up',[PhoneController::class, 'follow_up'])->name('follow_up');
+    Route::get('busy',[PhoneController::class, 'busy'])->name('busy');
+
  });
 
  Route::get('document/{id}', [FormRegistrationController::class, 'document'])->name('document');

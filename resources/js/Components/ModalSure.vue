@@ -4,46 +4,27 @@ import axios from 'axios'
 
 const props = defineProps({
   show: Boolean,
-  userId: Number,
+  phone: Object,
   status: Number
 })
 
-const emit = defineEmits(['close', 'updated'])
+const emit = defineEmits(['close'])
 
-const numbers = ref([])
-const loading = ref(false)
+ const loading = ref(false)
 const assignCount = ref(1)
 const name = ref('')
 const note = ref('')
 
-watch(() => props.show, async (value) => {
-  if (value) {
-    await fetchSure()
-  }
-})
-
-async function fetchSure() {
-  loading.value = true
-  try {
-    const { data } = await axios.get('/api/sure-numbers')
-    numbers.value = data
-  } catch (error) {
-    console.error('Error fetching sure numbers:', error)
-  } finally {
-    loading.value = false
-  }
-}
+ 
 
 // إرسال العملية (قبول أو رفض)
 async function submitDecision(type) {
   try {
-    const selectedNumbers = numbers.value.slice(0, assignCount.value)
     const payload = {
-      user_id: props.userId,
-      type, // 'accept' or 'reject'
-      name: name.value,
-      note: note.value,
-      numbers: selectedNumbers.map(n => n.id)
+      id: props.phone.id,
+      type,              // نوع القرار: 'accept' أو 'reject'
+      name: props.phone.name,  // اسم المندوب أو المستخدم
+      note: props.phone.note,  // ملاحظة إضافية
     }
 
     await axios.post('/api/number-decision', payload)
@@ -65,49 +46,63 @@ async function submitDecision(type) {
             </div>
   
             <div class="modal-body">
-              <h2 class="text-center mb-4">قبول أو رفض العرض</h2>
+              <h2 class="text-center mb-4">قبول أو رفض العرض {{ phone.phone }} </h2>
   
               <div class="mb-4">
                 <label>الاسم:</label>
-                <input v-model="name" type="text" class="w-full p-2 border rounded mt-1" />
+                <input v-model="phone.name" type="text" class="w-full p-2 border rounded mt-1" />
               </div>
   
               <div class="mb-4">
                 <label>ملاحظة:</label>
-                <textarea v-model="note" class="w-full p-2 border rounded mt-1"></textarea>
+                <textarea v-model="phone.note" class="w-full p-2 border rounded mt-1"></textarea>
               </div>
   
               <div class="mb-4">
-                <label>عدد الأرقام التي تريد إسنادها:</label>
-                <input
-                  v-model.number="assignCount"
-                  type="number"
-                  min="1"
-                  :max="numbers.length"
-                  class="w-full p-2 border rounded mt-1"
-                />
+        
               </div>
   
-              <div class="text-center text-gray-500 py-3" v-if="numbers.length > 0">
-                عدد الأرقام التي لم يتم الإسناد للمندوب: {{ numbers.length - assignCount }}
-              </div>
+             
   
-              <div v-if="loading">جاري تحميل الأرقام...</div>
-              <ul v-else class="max-h-64 overflow-y-auto border rounded p-2 bg-gray-50 text-sm">
-                <li v-for="number in numbers.slice(0, assignCount)" :key="number.id" class="py-1 border-b">
-                  {{ number.phone }}
-                </li>
-              </ul>
-  
-              <div class="mt-4 flex justify-between">
-                <button @click="submitDecision('accept')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+              <div class="mt-4">
+                <button @click="submitDecision('accept')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">
                   قبول العرض
                 </button>
-                <button @click="submitDecision('reject')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                </div>
+                <div class="mt-4">
+                <button @click="submitDecision('followup')" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 w-full">
+                  معاودة مره اخرى
+                </button>
+                </div>
+                <div class="mt-4">
+                <button @click="submitDecision('busy')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full">
+                  مشغول
+                </button>
+                </div>
+                <div class="mt-4">
+                <button @click="submitDecision('reject')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full">
                   رفض العرض
                 </button>
+                </div>
+             
+         
               </div>
-  
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+          
+                <div class="mt-4">
+                <button @click="emit('close')" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full">
+                    تراجع
+                </button>
+                </div>
+                <div class="mt-4">
+                <button @click="submitDecision('edit')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">
+                   تعديل
+                </button>
+                </div>
+                </div>
             </div>
           </div>
         </div>

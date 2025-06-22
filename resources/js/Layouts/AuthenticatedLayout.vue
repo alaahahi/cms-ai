@@ -89,22 +89,33 @@ const showingNavigationDropdown = ref(false);
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8" >
                                 <NavLink :href="route('sort_phone')" :active="route().current('sort_phone')">
-                                        فرز ارقام
+                                     الإسناد
                                 </NavLink>
                             </div>
+
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
                                 <NavLink :href="route('contact_phone')" :active="route().current('contact_phone')">
-                                        ارقام تم التواصل
+                                       تم الاسناد
                                 </NavLink>
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
-                                <NavLink :href="route('not_contact_phone')" :active="route().current('not_contact_phone')">
-                                        ارقام لم يتم التواصل
+                                <NavLink :href="route('accept_offer')" :active="route().current('accept_offer')">
+                                    تم قبول العرض
                                 </NavLink>
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
-                                <NavLink :href="route('pending_phone')" :active="route().current('pending_phone')">
-                                        قيد الانتظار
+                                <NavLink :href="route('reject_offer')" :active="route().current('reject_offer')">
+                                    رفض العرض
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
+                                <NavLink :href="route('follow_up')" :active="route().current('follow_up')">
+                                    معاودة مره اخرى
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
+                                <NavLink :href="route('busy')" :active="route().current('busy')">
+                                    مشغول
                                 </NavLink>
                             </div>
                         </div>
@@ -168,7 +179,7 @@ const showingNavigationDropdown = ref(false);
                             <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.index')" v-if="$page.props.auth.user.type_id==1 ||$page.props.auth.user.type_id==5">
                                     المندوبين
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('formRegistration')" :active="route().current('formRegistration')" v-if="$page.props.auth.user.type_id!=5">
+                            <ResponsiveNavLink :href="route('formRegistration')" :active="route().current('formRegistration')"  v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5">
                                      العقد الإلكتروني
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
@@ -184,16 +195,22 @@ const showingNavigationDropdown = ref(false);
                                 عرض البطاقات
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('sort_phone')" :active="route().current('sort_phone')" v-if="$page.props.auth.user.type_id==8">
-                                 فرز ارقام
+                                الإسناد
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('contact_phone')" :active="route().current('contact_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                 ارقام تم التواصل
+                                تم الاسناد
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('not_contact_phone')" :active="route().current('not_contact_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                 ارقام لم يتم التواصل
+                            <ResponsiveNavLink :href="route('accept_offer')" :active="route().current('accept_offer')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+                                تم قبول العرض
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('pending_phone')" :active="route().current('pending_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                  قيد الانتظار
+                            <ResponsiveNavLink :href="route('reject_offer')" :active="route().current('reject_offer')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+                                رفض العرض
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('follow_up')" :active="route().current('follow_up')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+                                معاودة مره اخرى
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('busy')" :active="route().current('busy')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
+                                مشغول
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 تسجيل الخروج    

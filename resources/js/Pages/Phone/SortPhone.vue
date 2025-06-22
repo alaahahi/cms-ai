@@ -86,3 +86,63 @@ onMounted(() => {
   </div>
   </AuthenticatedLayout>
 </template>
+<style>
+/* الحاوية العامة للـ pagination */
+.datatable-pagination {
+  @apply flex justify-center mt-4 rtl:flex-row-reverse;
+  direction: ltr;
+}
+.datatable-pagination-list-item-link {
+    border-radius: 0.25rem !important;
+    border-width: 1px !important;
+    --tw-border-opacity: 1;
+    border-color: rgb(209 213 219 / var(--tw-border-opacity)) !important;
+    --tw-bg-opacity: 1;
+    background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition-duration: 150ms !important;
+}
+/* قائمة الصفحات */
+.datatable-pagination-list {
+  @apply inline-flex items-center space-x-1 rtl:space-x-reverse;
+  font-family: 'Tahoma', sans-serif; /* خط واضح وداعم للعربية */
+}
+
+/* العنصر الواحد في القائمة */
+.datatable-pagination-list-item {
+  @apply inline-block;
+}
+
+/* الزر داخل كل عنصر */
+.datatable-pagination-list-item-link {
+  @apply px-3 py-1.5 text-sm border border-gray-300 rounded bg-white hover:bg-gray-100 transition;
+
+  /* لون الخط الافتراضي */
+  color: #1f2937; /* Tailwind: text-gray-800 */
+  font-weight: 500;
+}
+
+/* العنصر النشط (الصفحة الحالية) */
+.datatable-pagination-list-item.datatable-active .datatable-pagination-list-item-link {
+  @apply bg-blue-600 text-white border-blue-600;
+}
+
+/* العناصر المعطلة مثل (…) */
+.datatable-pagination-list-item.datatable-disabled .datatable-pagination-list-item-link {
+  @apply cursor-not-allowed bg-gray-100 text-gray-400;
+}
+
+.datatable-active > button {
+ background-color: #007bff !important;
+ color: #fff !important;
+}
+</style>
