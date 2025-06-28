@@ -38,12 +38,12 @@ onMounted(() => {
   const el = document.querySelector("#default-table")
   if (el) {
     const dataTable = new DataTable(el, {
-      perPage: 10,
-      perPageSelect: [5, 10, 25, 50],
+      perPage: 25,
+      perPageSelect: [25, 50,100,200,500],
       searchable: true,
       fixedHeight: true,
       pagination: true,
-      perPageDropdown: [5, 10, 25, 50],
+      perPageDropdown: [ 25, 50,100,200,500],
       labels: {
         placeholder: "بحث...",
         perPage: "عرض كل صفحة",
