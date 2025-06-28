@@ -54,7 +54,7 @@ const props = defineProps({
 
   <AuthenticatedLayout>
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <h2 class="font-semibold text-xl text-gray-800 dark:text-white leading-tight">
         لوحة القيادة
       </h2>
     </template>
@@ -62,7 +62,7 @@ const props = defineProps({
     <div class="py-12" v-if="$page.props.auth.user.type_id!=8&&$page.props.auth.user.type_id!=9">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
+          <div class="p-6 bg-white  dark:bg-gray-900">
             <div class="flex flex-col">
               <h2 class="mb-4 text-2xl font-bold">احصائيات
                 -
@@ -222,7 +222,7 @@ const props = defineProps({
     <div v-if="$page.props.auth.user.type_id==8&&$page.props.auth.user.type_id==9">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div
-          class="p-6 bg-white border-b border-gray-200"
+          class="p-6 bg-white  dark:bg-gray-900"
           style="border-radius: 8px"
         >
           <div class="flex flex-row">
@@ -355,7 +355,7 @@ const props = defineProps({
     </div>
     <div class="py-12" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="p-6 bg-white border-b border-gray-200" style="border-radius: 8px">
+        <div class="p-6 bg-white  dark:bg-gray-900" style="border-radius: 8px">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-2xl shadow-sm sm:p-6 dark:bg-gray-800 dark:border-gray-700">

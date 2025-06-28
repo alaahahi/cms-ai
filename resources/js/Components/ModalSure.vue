@@ -14,7 +14,8 @@ const emit = defineEmits(['close'])
 const assignCount = ref(1)
 const name = ref('')
 const note = ref('')
-
+import { useToast } from "vue-toastification";
+const toast = useToast();
  
 
 // إرسال العملية (قبول أو رفض)
@@ -28,9 +29,12 @@ async function submitDecision(type) {
     }
 
     await axios.post('/api/number-decision', payload)
-
+ 
     emit('updated') // إعادة تحميل البيانات في الصفحة الأم
     emit('close')   // إغلاق المودال
+    toast.success('تم التنفيذ بنجاح')
+    window.location.reload()
+
   } catch (error) {
     console.error('خطأ في إرسال البيانات:', error)
   }

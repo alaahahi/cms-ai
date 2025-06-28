@@ -6,14 +6,15 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/inertia-vue3';
+import DarkModeToggle from '@/Components/DarkToggle.vue';
 
 const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
     <div >
-        <div class="min-h-screen bg-gray-100">
-            <nav class="bg-white border-b border-gray-100  print:hidden">
+        <div class="min-h-screen bg-gray-100   dark:bg-gray-800">
+            <nav class="bg-white border-gray-100 dark:bg-gray-900  print:hidden">
                 <!-- Primary Navigation Menu -->
                 <div class=" mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
@@ -29,7 +30,7 @@ const showingNavigationDropdown = ref(false);
                                     الرئيسية
                                 </NavLink>
                             </div> 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5||$page.props.auth.user.type_id==2">
                                 <NavLink :href="route('users.index')" :active="route().current('users.index')">
                                     المندوبين
                                 </NavLink>
@@ -142,6 +143,7 @@ const showingNavigationDropdown = ref(false);
                                     </template>
                                 </Dropdown>
                             </div>
+                            <DarkModeToggle></DarkModeToggle>
                         </div>
 
                         <!-- Hamburger -->
@@ -220,7 +222,7 @@ const showingNavigationDropdown = ref(false);
                 </div>
             </nav>
             <!-- Page Heading -->
-            <header class="bg-white shadow" v-if="$slots.header">
+            <header class="bg-white shadow dark:bg-gray-900 dark:text-gray-200" v-if="$slots.header">
                 <div class="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-row">
                         <div class="basis-1/2 flex flex-col justify-center">

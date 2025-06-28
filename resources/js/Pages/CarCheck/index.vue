@@ -245,10 +245,10 @@ function getDownloadUrl(name) {
         <div class="py-2" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==7">
           <ul class="sm:px-6 lg:px-8 text-sm font-medium text-center text-gray-500 rounded-lg  flex dark:divide-gray-700 dark:text-gray-400">
             <li class="w-full">
-                <button @click="swiptab(true)" class="inline-block w-full p-4 border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50  focus:outline-none  dark:text-white" :class="!currentWork ? 'dark:bg-gray-800 dark:hover:bg-gray-700':'bg-white  dark:bg-gray-900'" >قيد العمل </button>
+                <button @click="swiptab(true)" class="inline-block w-full p-4 border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900  focus:outline-none  dark:text-white" :class="!currentWork ? 'dark:bg-gray-800 dark:hover:bg-gray-700':'bg-white  dark:bg-gray-900'" >قيد العمل </button>
             </li>
             <li class="w-full">
-                <button @click="swiptab(false)" class="inline-block w-full p-4 border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50  focus:outline-none  dark:text-white" :class="currentWork ? 'dark:bg-gray-800 dark:hover:bg-gray-700':'bg-white  dark:bg-gray-900'" >السيارة المكتملة</button>
+                <button @click="swiptab(false)" class="inline-block w-full p-4 border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900  focus:outline-none  dark:text-white" :class="currentWork ? 'dark:bg-gray-800 dark:hover:bg-gray-700':'bg-white  dark:bg-gray-900'" >السيارة المكتملة</button>
             </li>
      
           </ul>

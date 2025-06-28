@@ -163,7 +163,7 @@ function delTransactions(id){
   <Head title="Dashboard" />
   <AuthenticatedLayout>
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <h2 class="font-semibold text-xl text-gray-800 dark:text-white  leading-tight">
         المحاسبة
       </h2>
     </template>
@@ -244,7 +244,7 @@ function delTransactions(id){
 
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" v-if="card_id">
           
-          <div class="p-6 bg-white border-b border-gray-200">
+          <div class="p-6 bg-white  dark:bg-gray-900">
             <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 lg:gap-3">
               <div class="pt-5  print:hidden">
               <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2 || $page.props.auth.user.type_id==5" className="px-4 py-2 text-white bg-rose-500 rounded-md focus:outline-none"

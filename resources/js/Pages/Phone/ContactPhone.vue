@@ -28,6 +28,7 @@ function getStatusHtml(status) {
 
 const showModalSure = (phone, status) => {
    phoneSelected.value= phone
+   console.log(phoneSelected.value)
   showSure.value = true
   status = status
 }
@@ -36,14 +37,13 @@ const showModalSure = (phone, status) => {
 onMounted(() => {
   const el = document.querySelector("#default-table")
   if (el) {
-    new DataTable(el, {
+    const dataTable = new DataTable(el, {
       perPage: 10,
       perPageSelect: [5, 10, 25, 50],
       searchable: true,
       fixedHeight: true,
       pagination: true,
       perPageDropdown: [5, 10, 25, 50],
-      
       labels: {
         placeholder: "بحث...",
         perPage: "عرض كل صفحة",
@@ -51,8 +51,17 @@ onMounted(() => {
         info: "عرض {start} إلى {end} من أصل {rows} سجل"
       }
     })
+
+    // إضافة listener على الزر "تنفيذ"
+    el.addEventListener('click', (e) => {
+      const raw = e.target.getAttribute('data-id')
+      const user = JSON.parse(raw)
+      const type = e.target.getAttribute('data-type') || 'OfferAccepted'
+      showModalSure(user, type)
+    })
   }
 })
+
 const surePhone = () => {
   console.log(ids)
 }
@@ -66,16 +75,11 @@ const surePhone = () => {
 
 
   <AuthenticatedLayout>
-    <template #header> 
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-         ارقام تم التواصل معها 
-      </h2>
-    </template>
     <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">قائمة المندوبين</h1>
+    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">عرض الارقام</h1>
 
     <div class="overflow-x-auto">
-      <div class="overflow-x-auto rounded-lg border">
+      <div class="overflow-x-auto rounded-lg">
       <table id="default-table" class="w-full text-sm text-gray-700">
         <thead class="bg-gray-100 text-xs uppercase">
           <tr>
@@ -90,7 +94,7 @@ const surePhone = () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, i) in numbers" :key="user.id" class="border-b hover:bg-gray-50">
+          <tr v-for="(user, i) in numbers" :key="user.id" class="border-b hover:bg-gray-50 dark:hover:bg-gray-900">
             <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
             <td class="px-4 py-2 text-center">
               <a :href="`https://wa.me/${user.phone}`" target="_blank">
@@ -109,9 +113,10 @@ const surePhone = () => {
 
             <td class="px-4 py-2 text-center">
                <button
-                    tabIndex="1"
-                    :className="'px-2 py-1 text-white mx-1 bg-slate-500 rounded '"
-                     @click="showModalSure(user,'OfferAccepted')">
+                     class="px-3 py-1 text-white mx-1 bg-rose-600 rounded"
+                     :data-id="JSON.stringify(user)"
+                     data-type="OfferAccepted"
+                     @click="showModalSure(user.id, 'OfferAccepted')">
                      تنفيذ
             </button>
             </td>

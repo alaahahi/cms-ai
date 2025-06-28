@@ -127,7 +127,7 @@ const checkCard = (v) => {
       <Head title="Dashboard" />
   <AuthenticatedLayout>
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <h2 class="font-semibold text-xl text-gray-800 dark:text-white  leading-tight">
          حجز وتثبيت موعد للمستخدمين 
       </h2>
     </template>
@@ -144,7 +144,7 @@ const checkCard = (v) => {
     </div>
     <div class="max-w-8xl mx-auto sm:px-3 lg:px-4 mt-4">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
+          <div class="p-6 bg-white  dark:bg-gray-900">
             <div className="mb-4 mx-5">
             <label for="card_id" > نوع البطاقة</label>
             <select

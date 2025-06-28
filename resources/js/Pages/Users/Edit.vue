@@ -36,14 +36,14 @@ const submit = () => {
     <Head title="Dashboard" />
     <AuthenticatedLayout v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-white  leading-tight">
                 تعديل معلومات المستخدم
             </h2>
         </template>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
+                    <div class="p-6 bg-white  dark:bg-gray-900">
 
                         <div className="flex items-center justify-between mb-6">
                             <Link

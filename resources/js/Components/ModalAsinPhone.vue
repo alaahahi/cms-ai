@@ -4,7 +4,8 @@ import axios from 'axios'
 
 const props = defineProps({
   show: Boolean,
-  userId: Number
+  userId: Number,
+  names: String
 })
 
 const emit = defineEmits(['close', 'updated'])
@@ -60,7 +61,7 @@ async function assignNumbers() {
 
           <div class="modal-body">
             <h2 class="text-center mb-4">إسناد أرقام هاتف للمندوب
-              {{ userId }}
+              {{ names }}
 
 
             </h2>

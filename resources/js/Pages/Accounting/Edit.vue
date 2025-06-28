@@ -92,7 +92,7 @@ const bookAppointment = (slot, type) => {
       <Head title="Dashboard" />
   <AuthenticatedLayout>
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <h2 class="font-semibold text-xl text-gray-800 dark:text-white  leading-tight">
          حجز وتثبيت موعد للمستخدمين 
       </h2>
     </template>
@@ -109,7 +109,7 @@ const bookAppointment = (slot, type) => {
     </div>
     <div class="max-w-8xl mx-auto sm:px-3 lg:px-4 mt-4">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
+          <div class="p-6 bg-white  dark:bg-gray-900">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-4">
                 <div class="px-4">
                   <select v-model="form.user_id" id="default" class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">

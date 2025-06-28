@@ -74,7 +74,7 @@ function open1() {
   <Head title="Dashboard" />
   <AuthenticatedLayout>
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <h2 class="font-semibold text-xl text-gray-800 dark:text-white  leading-tight">
         محافظة كركوك - نتائج الطبيب
       </h2>
     </template>
@@ -115,7 +115,7 @@ function open1() {
       <div class="basis-1/2">
         <div class="max-w-7xl mt-4 mx-auto sm:px-6 lg:px-8 text-center">
           <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
+            <div class="p-6 bg-white  dark:bg-gray-900">
               اسم الزوج:
               {{ profiles.husband_name }}
             </div>
@@ -125,7 +125,7 @@ function open1() {
       <div class="basis-1/2">
         <div class="max-w-7xl mt-4 mx-auto sm:px-6 lg:px-8 text-center">
           <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
+            <div class="p-6 bg-white  dark:bg-gray-900">
               اسم الزوجة:
               {{ profiles.wife_name }}
             </div>
@@ -139,7 +139,7 @@ function open1() {
           <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
               <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+                <div class="p-6 bg-white  dark:bg-gray-900">
                   <h2 class="text-center text-xl py-2">
                     نتائج الفحوصات المختبرية للزوج
                   </h2>
@@ -788,7 +788,7 @@ function open1() {
           <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
               <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+                <div class="p-6 bg-white  dark:bg-gray-900">
                   <h2 class="text-center text-xl py-2">
                     نتائج الفحوصات المختبرية للزوجة
                   </h2>
