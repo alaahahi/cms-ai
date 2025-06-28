@@ -87,6 +87,7 @@ const surePhone = () => {
             <th class="px-4 py-3 text-center">رقم واتساب</th>
             <th class="px-4 py-3 text-center">رقم الهاتف</th>
             <th class="px-4 py-3 text-center">الصورة</th>
+            <th class="px-4 py-3 text-center">تاريخ</th>
             <th class="px-4 py-3 text-center">الاسم</th>
             <th class="px-4 py-3 text-center">الملاحظات</th>
             <th class="px-4 py-3 text-center">الحالة</th>
@@ -107,6 +108,7 @@ const surePhone = () => {
               </a>
             </td>
             <td class="px-4 py-2 text-center">{{ user.image_name }}</td>
+            <td class="px-4 py-2 text-center">{{ user.created_at.split('T')[0] }}</td>
             <td class="px-4 py-2 text-center">{{ user.name }}</td>
             <td class="px-4 py-2 text-center">{{ user.note }}</td>
             <td class="px-4 py-2 text-center" style="min-width: 140px;"  v-html="getStatusHtml(user.status)"></td>
