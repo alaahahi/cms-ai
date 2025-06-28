@@ -169,7 +169,7 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('reject_offer',[PhoneController::class, 'reject_offer'])->name('reject_offer');
     Route::get('follow_up',[PhoneController::class, 'follow_up'])->name('follow_up');
     Route::get('busy',[PhoneController::class, 'busy'])->name('busy');
-
+    Route::get('new_phone',[PhoneController::class, 'new_phone'])->name('new_phone');
  });
 
  Route::get('document/{id}', [FormRegistrationController::class, 'document'])->name('document');

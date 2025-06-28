@@ -93,7 +93,11 @@ const showingNavigationDropdown = ref(false);
                                      الإسناد
                                 </NavLink>
                             </div>
-
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8" >
+                                <NavLink :href="route('new_phone')" :active="route().current('sort_phone')">
+                                     ارقام جديدة
+                                </NavLink>
+                            </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
                                 <NavLink :href="route('contact_phone')" :active="route().current('contact_phone')">
                                        تم الاسناد
@@ -198,6 +202,9 @@ const showingNavigationDropdown = ref(false);
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('sort_phone')" :active="route().current('sort_phone')" v-if="$page.props.auth.user.type_id==8">
                                 الإسناد
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('new_phone')" :active="route().current('new_phone')" v-if="$page.props.auth.user.type_id==8">
+                                ارقام جديدة
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('contact_phone')" :active="route().current('contact_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
                                 تم الاسناد

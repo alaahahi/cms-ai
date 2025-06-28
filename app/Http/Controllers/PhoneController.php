@@ -193,7 +193,13 @@ public function addUser(Request $request)
     ]);
     return response()->json(['success' => true, 'message' => 'تم إضافة المستخدم بنجاح.']);
 }   
-    
+public function new_phone()
+{
+    $numbers = ExtractedPhone::where('user_id', null)->where('status', ContactStatus::Unassigned->value)->get();
+    return Inertia::render('Phone/ContactPhone', [
+        'numbers' => $numbers
+    ]);
+}
     
     
 }
