@@ -255,7 +255,7 @@ class DashboardController extends Controller
                         ExtractedPhone::create([
                             'phone' => $phone,
                             'image_name' => $originalName,
-                            'status' => 1,
+                            'status' => 0,
                         ]);
                         $uniquePhones[] = $phone;
                     }
