@@ -200,6 +200,49 @@ public function new_phone()
         'numbers' => $numbers
     ]);
 }
-    
-    
+private function extractPhonesFromText(string $text): array
+{
+    preg_match_all('/\b0[7-9][0-9]{9}\b/', $text, $matches);
+    return array_unique(array_map(fn($num) => preg_replace('/[\s\-]/', '', $num), $matches[0]));
+}
+
+public function sendTextPhone(Request $request)
+{
+    $request->validate([
+        'text' => 'required|string',
+    ]);
+
+    $rawText = $request->input('text');
+
+    // تقسيم النص إلى أسطر بناءً على Enter أو \n
+    $lines = preg_split('/\r\n|\r|\n/', $rawText);
+
+    $phones = [];
+
+    foreach ($lines as $line) {
+        // استخلاص الأرقام من كل سطر
+        $linePhones = $this->extractPhonesFromText($line);
+        $phones = array_merge($phones, $linePhones);
+    }
+
+    $phones = array_unique($phones); // إزالة التكرار
+
+    $savedPhones = [];
+
+    foreach ($phones as $phone) {
+        if (!ExtractedPhone::where('phone', $phone)->exists()) {
+            ExtractedPhone::create([
+                'phone' => $phone,
+                'image_name' => 'from_text_input',
+                'status' => 0,
+            ]);
+            $savedPhones[] = $phone;
+        }
+    }
+ 
+    return response()->json([
+        'success' => true,
+        'phones' => $phones
+    ]);
+}
 }

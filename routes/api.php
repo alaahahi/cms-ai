@@ -61,7 +61,7 @@ Route::get('/unassigned-numbers', [PhoneController::class, 'unassignedNumbers'])
 Route::post('/assign-numbers', [PhoneController::class, 'assignNumbers'])->name('assign-numbers');
 Route::post('/number-decision', [PhoneController::class, 'numberDecision'])->name('number-decision');
 Route::post('/add-user', [PhoneController::class, 'addUser'])->name('add-user');
-
+Route::post('/send-text-phone', [PhoneController::class, 'sendTextPhone'])->name('send-text-phone');
 Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {
