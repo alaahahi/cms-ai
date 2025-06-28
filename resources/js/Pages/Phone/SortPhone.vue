@@ -77,7 +77,7 @@ const addUser = (form) => {
       </ModalUsers>
 
   <AuthenticatedLayout>
-    <div class="p-6">
+    <div class="p-6" v-if="$page.props.auth.user.type_id == 8">
     <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white"> اسناد الارقام للمندوبين</h1>
 
     <div class="overflow-x-auto">
