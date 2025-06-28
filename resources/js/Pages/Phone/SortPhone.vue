@@ -5,10 +5,17 @@ import { Head } from "@inertiajs/inertia-vue3";
 import { onMounted } from 'vue'
 import { DataTable } from 'simple-datatables'
 import ModalAsinPhone from "@/Components/ModalAsinPhone.vue";
+import ModalUsers from "@/Components/ModalUsers.vue";
+import axios from 'axios'
 import { ref } from 'vue'
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 let show = ref(false)
 let ids = 0;
 let names = '';
+let showModalUsers = ref(false)
+
 const showModalAssign = (id, name) => {
    ids= id
     names = name
@@ -44,13 +51,30 @@ onMounted(() => {
     })
   }
 })
+
+const addUser = (form) => {
+  axios.post('/api/add-user', form) 
+  .then(response => {
+    showModalUsers.value = false
+    toast.success("تم اضافة المندوب بنجاح")
+    window.location.reload()
+  })
+  .catch(error => {
+     if(error.response.status == 422) {
+      toast.error("حدث خطأ ما او الايميل مستخدم من قبل يرجى كتابة ايميل جديد")
+      }
+
+  })  
+}
+
 </script>
 
 <template>
   <Head title="Dashboard" />
   <ModalAsinPhone :show="show" :userId="ids" :names="names" @close="show = false" @a="assignPhone"  >
     </ModalAsinPhone>
-
+    <ModalUsers :show="showModalUsers" @close="showModalUsers = false" @a="addUser"  >
+      </ModalUsers>
 
   <AuthenticatedLayout>
     <div class="p-6">
@@ -58,6 +82,7 @@ onMounted(() => {
 
     <div class="overflow-x-auto">
       <div class="overflow-x-auto rounded-lg">
+        <button @click="showModalUsers = true" class="px-6 py-2 mb-4 font-bold text-white bg-blue-500 rounded">اضافة مندوب</button>
       <table id="default-table" class="w-full text-sm text-gray-700">
         <thead class="bg-gray-100 text-xs uppercase">
           <tr>

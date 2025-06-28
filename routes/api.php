@@ -60,6 +60,7 @@ Route::post('/payment-webhook', [WebhookController::class, 'handleWebhook'])->na
 Route::get('/unassigned-numbers', [PhoneController::class, 'unassignedNumbers'])->name('unassigned-numbers');
 Route::post('/assign-numbers', [PhoneController::class, 'assignNumbers'])->name('assign-numbers');
 Route::post('/number-decision', [PhoneController::class, 'numberDecision'])->name('number-decision');
+Route::post('/add-user', [PhoneController::class, 'addUser'])->name('add-user');
 
 Route::group(['prefix' => 'v1'], function() {
 

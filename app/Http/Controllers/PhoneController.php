@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use App\Models\ExtractedPhone;
 use App\Enums\ContactStatus;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class PhoneController extends Controller
 {
@@ -176,7 +178,21 @@ public function numberDecision(Request $request)
 
     return response()->json(['success' => true, 'message' => 'تم تحديث البيانات بنجاح.']);
 }
-   
+public function addUser(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:8',
+    ]);
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'type_id' => 9,
+    ]);
+    return response()->json(['success' => true, 'message' => 'تم إضافة المستخدم بنجاح.']);
+}   
     
     
     

@@ -52,7 +52,7 @@ const submit = () => {
                             </Link>
                         </div>
 
-                        <form name="createForm" @submit.prevent="submit">
+                        <form >
                                 <div className="flex flex-col">
                                     <div className="mb-4">
 
