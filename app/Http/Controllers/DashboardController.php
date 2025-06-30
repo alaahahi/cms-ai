@@ -302,7 +302,9 @@ class DashboardController extends Controller
          ]);
          if ($response->ok() && !empty($response['ParsedResults'][0]['ParsedText'])) {
             return $response['ParsedResults'][0]['ParsedText'];
-        }
+        }else{
+            dd($response);
+        }   
 
         return '';
     }
@@ -318,8 +320,8 @@ class DashboardController extends Controller
         ])->attach(
             'image', $imageData, basename($imagePath)
         )->post('https://ocr43.p.rapidapi.com/v1/results');
-            dd($response);
-        if ($response->ok()) {
+        
+         if ($response->ok()) {
             $json = $response->json();
     
             try {
@@ -328,6 +330,8 @@ class DashboardController extends Controller
                 // في حال كانت البنية مختلفة أو مفقودة
                 return '';
             }
+        }else{
+           dd($response);
         }
     
         return '';
