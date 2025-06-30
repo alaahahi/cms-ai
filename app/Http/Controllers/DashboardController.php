@@ -244,7 +244,7 @@ class DashboardController extends Controller
                 }else{
                     $text = $this->extractTextWithApi4Ai($fullPath);
                 }
-
+                dd($text);
                 
                  // محاولة استخراج الأرقام
                 $phones = $this->extractPhonesFromText($text);
