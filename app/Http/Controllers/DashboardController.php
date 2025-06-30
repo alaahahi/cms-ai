@@ -244,8 +244,7 @@ class DashboardController extends Controller
                 }else{
                     $text = $this->extractTextWithApi4Ai($fullPath);
                 }
-                dd($text);
-                
+                 
                  // محاولة استخراج الأرقام
                 $phones = $this->extractPhonesFromText($text);
                  // المرحلة الثانية: استخدام Tesseract إذا لم توجد أرقام
@@ -319,7 +318,7 @@ class DashboardController extends Controller
         ])->attach(
             'image', $imageData, basename($imagePath)
         )->post('https://ocr43.p.rapidapi.com/v1/results');
-
+           dd($response->json());
         if ($response->ok()) {
             $json = $response->json();
 
