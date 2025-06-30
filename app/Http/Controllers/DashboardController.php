@@ -238,7 +238,12 @@ class DashboardController extends Controller
                 }
 
                 // المرحلة الأولى: باستخدام OCR.Space
-                $text = $this->extractTextWithOCRSpace($fullPath);
+                $apiKeySelect = env('OCR_SELECT');
+                if($apiKeySelect == 'OCR_SPACE_API_KEY'){
+                    $text = $this->extractTextWithOCRSpace($fullPath);
+                }else{
+                    $text = $this->extractTextWithApi4Ai($fullPath);
+                }
 
                 
                  // محاولة استخراج الأرقام
@@ -302,7 +307,30 @@ class DashboardController extends Controller
 
         return '';
     }
+    private function extractTextWithApi4Ai(string $imagePath): string
+    {
+        $apiKey = env('API4AI_RAPIDAPI_KEY'); // ضعه في .env
 
+        $imageData = file_get_contents($imagePath);
+
+        $response = Http::withHeaders([
+            'X-RapidAPI-Key' => $apiKey,
+            'X-RapidAPI-Host' => 'ocr43.p.rapidapi.com',
+        ])->attach(
+            'image', $imageData, basename($imagePath)
+        )->post('https://ocr43.p.rapidapi.com/v1/results');
+
+        if ($response->ok()) {
+            $json = $response->json();
+
+            // استخراج النص من أول نتيجة
+            if (!empty($json['results'][0]['entities'][0]['text'])) {
+                return $json['results'][0]['entities'][0]['text'];
+            }
+        }
+
+        return '';
+    }
     private function extractTextWithTesseract(string $imagePath): string
     {
         return (new TesseractOCR($imagePath))
