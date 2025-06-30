@@ -308,26 +308,28 @@ class DashboardController extends Controller
     }
     private function extractTextWithApi4Ai(string $imagePath): string
     {
-        $apiKey = env('API4AI_RAPIDAPI_KEY'); // ضعه في .env
-
+        $apiKey = env('API4AI_RAPIDAPI_KEY'); // تأكد من وضعه في .env
+    
         $imageData = file_get_contents($imagePath);
-
+    
         $response = Http::withHeaders([
             'X-RapidAPI-Key' => $apiKey,
             'X-RapidAPI-Host' => 'ocr43.p.rapidapi.com',
         ])->attach(
             'image', $imageData, basename($imagePath)
         )->post('https://ocr43.p.rapidapi.com/v1/results');
-           dd($response->json());
+    
         if ($response->ok()) {
             $json = $response->json();
-
-            // استخراج النص من أول نتيجة
-            if (!empty($json['results'][0]['entities'][0]['text'])) {
-                return $json['results'][0]['entities'][0]['text'];
+    
+            try {
+                return $json['results'][0]['entities'][0]['objects'][0]['entities'][0]['text'] ?? '';
+            } catch (\Throwable $e) {
+                // في حال كانت البنية مختلفة أو مفقودة
+                return '';
             }
         }
-
+    
         return '';
     }
     private function extractTextWithTesseract(string $imagePath): string
