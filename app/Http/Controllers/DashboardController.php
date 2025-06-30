@@ -318,7 +318,7 @@ class DashboardController extends Controller
         ])->attach(
             'image', $imageData, basename($imagePath)
         )->post('https://ocr43.p.rapidapi.com/v1/results');
-    
+            dd($response);
         if ($response->ok()) {
             $json = $response->json();
     
