@@ -50,7 +50,7 @@ class ResultsController extends Controller
     public function getIndex()
     {
         $user = Auth::user();
-        $data = Profile::where('user_id',$user->id)->paginate(10);
+        $data = Profile::where('user_id',$user->id);
         return Response::json($data, 200);
     }
     public function create()

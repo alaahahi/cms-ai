@@ -191,7 +191,7 @@ class UserController extends Controller
     }
     public function getIndex()
     {
-        $data = User::with('userType:id,name','wallet')->where('type_id',$this->userSeles)->paginate(10);
+        $data = User::with('userType:id,name','wallet')->where('type_id',$this->userSeles);
         return Response::json($data, 200);
     }
     public function create()
