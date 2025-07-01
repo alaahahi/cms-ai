@@ -219,6 +219,7 @@ class UserController extends Controller
                 'percentage' => $request->percentage
             ]);
             Wallet::create(['user_id' => $user->id]);
+            return Response::json(['status' => 200,'massage' => 'user created','data' => $user],200);
         return Inertia::render('Users/Index', ['url'=>$this->url]);
     }
 
