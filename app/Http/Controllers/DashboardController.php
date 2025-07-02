@@ -237,21 +237,19 @@ class DashboardController extends Controller
                     continue;
                 }
 
-                // المرحلة الأولى: باستخدام OCR.Space
-                $apiKeySelect = env('OCR_SELECT');
-                if($apiKeySelect == 'OCR_SPACE_API_KEY'){
-                    $text = $this->extractTextWithOCRSpace($fullPath);
-                }else{
-                    $text = $this->extractTextWithApi4Ai($fullPath);
-                }
-                 
-                 // محاولة استخراج الأرقام
+                // ✅ قص الصورة
+                $this->cropImageForPhoneExtraction($fullPath);
+
+                // ✅ OCR
+                // $apiKeySelect = env('OCR_SELECT');
+                // if ($apiKeySelect == 'OCR_SPACE_API_KEY') {
+                //     $text = $this->extractTextWithOCRSpace($fullPath);
+                // } else {
+                //     $text = $this->extractTextWithApi4Ai($fullPath);
+                // }
+                $text='';
+                // 🔍 استخراج الأرقام
                 $phones = $this->extractPhonesFromText($text);
-                 // المرحلة الثانية: استخدام Tesseract إذا لم توجد أرقام
-                    //if (count($phones) === 0) {
-                    //    $textFallback = $this->extractTextWithTesseract($fullPath);
-                    //    $phones = $this->extractPhonesFromText($textFallback);
-                    //}
 
                 $uniquePhones = [];
                 foreach ($phones as $phone) {
@@ -289,6 +287,25 @@ class DashboardController extends Controller
         return response()->json([
             'results' => $results
         ]);
+    }
+
+    private function cropImageForPhoneExtraction(string $imagePath): void
+    {
+        $img = Image::make($imagePath)->orientate();
+        $width = $img->width();
+        $height = $img->height();
+         // 🧩 قص النصف الأيسر
+        $img->crop(intval($width / 2), $height, 0, 0);
+
+        // 🔪 قص 15% من الأعلى والأسفل
+        $topCut = intval($img->height() * 0.25);
+        $bottomCut = intval($img->height() * 0.15);
+        $newHeight = $img->height() - $topCut - $bottomCut;
+
+        $img->crop($img->width(), $newHeight, 0, $topCut);
+
+        // 💾 حفظ فوق نفس الصورة
+        $img->save($imagePath);
     }
     private function extractTextWithOCRSpace(string $imagePath): string
     {
