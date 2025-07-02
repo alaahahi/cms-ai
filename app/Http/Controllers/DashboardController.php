@@ -316,6 +316,7 @@ class DashboardController extends Controller
             'apikey' => $apiKey,
             'base64Image' => 'data:image/jpeg;base64,' . $imageData,
             'language' => 'eng',
+            'detectOrientation' => 'true',
          ]);
          if ($response->ok() && !empty($response['ParsedResults'][0]['ParsedText'])) {
             return $response['ParsedResults'][0]['ParsedText'];
