@@ -312,7 +312,7 @@ class DashboardController extends Controller
         $apiKey = env('OCR_SPACE_API_KEY');
         $imageData = base64_encode(file_get_contents($imagePath));
 
-        $response = Http::asForm()->post('https://api.ocr.space/parse/image', [
+        $response = Http::timeout(30)->asForm()->post('https://api.ocr.space/parse/image', [
             'apikey' => $apiKey,
             'base64Image' => 'data:image/jpeg;base64,' . $imageData,
             'language' => 'eng',
