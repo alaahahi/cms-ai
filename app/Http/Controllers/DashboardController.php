@@ -298,7 +298,7 @@ class DashboardController extends Controller
         $img->crop(intval($width / 2), $height, 0, 0);
 
         // 🔪 قص 15% من الأعلى والأسفل
-        $topCut = intval($img->height() * 0.25);
+        $topCut = intval($img->height() * 0.1);
         $bottomCut = intval($img->height() * 0.15);
         $newHeight = $img->height() - $topCut - $bottomCut;
 
