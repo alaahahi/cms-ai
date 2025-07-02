@@ -240,15 +240,13 @@ class DashboardController extends Controller
                 // ✅ قص الصورة
                 $this->cropImageForPhoneExtraction($fullPath);
 
-                // ✅ OCR
-                // $apiKeySelect = env('OCR_SELECT');
-                // if ($apiKeySelect == 'OCR_SPACE_API_KEY') {
-                //     $text = $this->extractTextWithOCRSpace($fullPath);
-                // } else {
-                //     $text = $this->extractTextWithApi4Ai($fullPath);
-                // }
-                $text='';
-                // 🔍 استخراج الأرقام
+                 $apiKeySelect = env('OCR_SELECT');
+                if ($apiKeySelect == 'OCR_SPACE_API_KEY') {
+                    $text = $this->extractTextWithOCRSpace($fullPath);
+                } else {
+                    $text = $this->extractTextWithApi4Ai($fullPath);
+                }
+                 // 🔍 استخراج الأرقام
                 $phones = $this->extractPhonesFromText($text);
 
                 $uniquePhones = [];
