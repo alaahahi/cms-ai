@@ -262,9 +262,11 @@ class DashboardController extends Controller
                 }
 
                 $results[] = [
+                    'uniquePhones' => $uniquePhones,
                     'index' => $index,
                     'phones' => $phones,
                     'image_name' => $originalName,
+                    'text' => $text,
                 ];
 
             } catch (\Exception $e) {
