@@ -317,6 +317,10 @@ class DashboardController extends Controller
             'base64Image' => 'data:image/jpeg;base64,' . $imageData,
             'language' => 'eng',
             'detectOrientation' => 'true',
+            'scale' => 'true',
+            'OCREngine' => '2',
+            'OCRPageSize' => 'A4',
+            'OCRPageSegMode' => '1',
          ]);
          if ($response->ok() && !empty($response['ParsedResults'][0]['ParsedText'])) {
             return $response['ParsedResults'][0]['ParsedText'];
