@@ -318,8 +318,7 @@ class DashboardController extends Controller
             'language' => 'eng',
             'detectOrientation' => 'true',
             'scale' => 'true',
-            'OCREngine' => '2',
-            'OCRPageSegMode' => '1',
+            'OCREngine' => '2'
          ]);
          if ($response->ok() && !empty($response['ParsedResults'][0]['ParsedText'])) {
             return $response['ParsedResults'][0]['ParsedText'];
