@@ -6,6 +6,7 @@ import { ref } from "vue";
 import axios from 'axios'
 let text = ref('')
 const phones = ref([])
+const uniquePhones = ref([])
 const uploading = ref(false)
 const progress = ref(0)
 
@@ -26,6 +27,7 @@ function uploadImages(event) {
   .then(response => {
     // استخراج الأرقام من كل صورة
     phones.value = response.data.results.flatMap(r => r.phones)
+    uniquePhones.value = [...new Set(phones.value)]
   })
   .catch(error => {
     console.error('حدث خطأ', error)
@@ -119,21 +121,6 @@ const sendText = () => {
        
             
       </div>
-      <div class="mt-2 px-5 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
-         <ul class="w-64 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        <li
-          v-for="(phone, index) in phones"
-          :key="index"
-          class="w-full px-4 py-2 border-b border-gray-200 last:border-b-0 dark:border-gray-600"
-          :class="{
-            'rounded-t-lg': index === 0,
-            'rounded-b-lg': index === phones.length - 1
-          }"
-        >
-          {{ phone }}
-        </li>
-      </ul>
-      </div>
       <div v-if="uploading" class="px-5 py-2">
   
 
@@ -147,6 +134,38 @@ const sendText = () => {
           </div>
         </div>
       </div>
+      <div class="mt-2 px-5 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+          <ul class="w-64 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <li
+            v-for="(phone, index) in phones"
+            :key="index"
+            class="w-full px-4 py-2 border-b border-gray-200 last:border-b-0 dark:border-gray-600"
+            :class="{
+              'rounded-t-lg': index === 0,
+              'rounded-b-lg': index === phones.length - 1
+            }"
+          >
+            {{ phone }}
+          </li>
+        </ul>
+        
+        <ul class="w-64 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <li
+            v-for="(phone, index) in uniquePhones"
+            :key="index"
+            class="w-full px-4 py-2 border-b border-gray-200 last:border-b-0 dark:border-gray-600"
+            :class="{
+              'rounded-t-lg': index === 0,
+              'rounded-b-lg': index === uniquePhones.length - 1
+            }"
+          >
+            {{ phone }}
+          </li>
+        </ul>
+
+
+      </div>
+   
 
   </div>
 
