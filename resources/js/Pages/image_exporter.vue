@@ -134,7 +134,9 @@ const sendText = () => {
           </div>
         </div>
       </div>
-      <div class="mt-2 px-5 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+      <div class="flex justify-between mt-2">
+        <div class="col-6">
+          <div>{{ phones.length }}</div>
           <ul class="w-64 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
           <li
             v-for="(phone, index) in phones"
@@ -148,8 +150,10 @@ const sendText = () => {
             {{ phone }}
           </li>
         </ul>
-        
-        <ul class="w-64 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        </div>
+        <div class="col-6">
+          <div>{{ uniquePhones.length }}</div>
+          <ul class="w-64 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
           <li
             v-for="(phone, index) in uniquePhones"
             :key="index"
@@ -162,11 +166,9 @@ const sendText = () => {
             {{ phone }}
           </li>
         </ul>
-
-
+        </div>
       </div>
-   
-
+  
   </div>
 
   </AuthenticatedLayout>
