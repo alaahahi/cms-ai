@@ -27,7 +27,7 @@ function uploadImages(event) {
   .then(response => {
     // استخراج الأرقام من كل صورة
     phones.value = response.data.results.flatMap(r => r.phones)
-    uniquePhones.value = [...new Set(phones.value)]
+    uniquePhones.value = response.data.results.flatMap(r => r.uniquePhones)
   })
   .catch(error => {
     console.error('حدث خطأ', error)
