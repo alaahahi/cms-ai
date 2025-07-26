@@ -51,7 +51,7 @@ const handleImage = async (e) => {
       },
     })
 
-     alert('تم رفع الصورة بنجاح')
+     window.location.reload()
   } catch (error) {
     console.error('فشل رفع الصورة:', error)
     alert('حدث خطأ أثناء رفع الصورة')
