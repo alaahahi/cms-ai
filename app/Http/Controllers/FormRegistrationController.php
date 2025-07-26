@@ -755,7 +755,7 @@ class FormRegistrationController extends Controller
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,bmp|max:2048',
             'old_image' => 'nullable|string', // مثل: "uploads/old_image.png"
-            'profile_id' => 'required|exists:profiles,id', // السجل الذي نريد تحديثه
+            'profile_id' => 'required|exists:profile,id', // السجل الذي نريد تحديثه
         ]);
     
         // حذف الصورة القديمة إذا كانت موجودة
