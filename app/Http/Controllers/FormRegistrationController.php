@@ -764,7 +764,9 @@ class FormRegistrationController extends Controller
         }
     
         // رفع الصورة الجديدة
-        $path = $request->file('image')->store('uploads', 'public');
+        $image = $request->file('image');
+        $path =  $this->url .'/public/storage/'. $image->store('uploads', 'public');
+        $validated['image'] = $path;
     
         // تحديث حقل الصورة في السجل
         $profile = Profile::find($request->profile_id);
