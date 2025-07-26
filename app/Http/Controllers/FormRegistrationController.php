@@ -754,20 +754,27 @@ class FormRegistrationController extends Controller
         {
             $request->validate([
                 'image' => 'required|image|mimes:jpeg,png,jpg,bmp|max:2048',
-                'old_image' => 'nullable|string', // اسم الصورة القديمة إن وجدت
+                'old_image' => 'nullable|string', // مثل: "uploads/old_image.png"
+                'profile_id' => 'required|exists:profiles,id', // السجل الذي نريد تحديثه
             ]);
-
-            // حذف الصورة القديمة إن وُجدت
+        
+            // حذف الصورة القديمة إذا كانت موجودة
             if ($request->old_image && Storage::disk('public')->exists($request->old_image)) {
                 Storage::disk('public')->delete($request->old_image);
             }
-
+        
             // رفع الصورة الجديدة
             $path = $request->file('image')->store('uploads', 'public');
-
+        
+            // تحديث حقل الصورة في السجل
+            $profile = Profile::findOrFail($request->profile_id);
+            $profile->image = $path;
+            $profile->save();
+        
             return response()->json([
-                'message' => 'تم تحديث الصورة بنجاح',
+                'message' => 'تم تحديث الصورة وحذف القديمة بنجاح',
                 'image_path' => $path,
+                'profile' => $profile
             ]);
         }
     }

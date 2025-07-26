@@ -41,6 +41,7 @@ const handleImage = async (e) => {
   formData.append('image', file)
    if (props.data.image) {
     formData.append('old_image', props.data.image)
+    formData.append('profile_id', props.data.id)
   }
 
   try {
