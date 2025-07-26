@@ -1,13 +1,10 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
-import Dropdown from "@/Components/Dropdown.vue";
-import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
+ import InputLabel from "@/Components/InputLabel.vue";
+ import TextInput from "@/Components/TextInput.vue";
+ import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
-import { WebCamUI } from "vue-camera-lib";
+import axios from 'axios'
 
 const form = useForm({
   name: props.data.name,
@@ -29,76 +26,37 @@ const props = defineProps({
   url: String,
   sales:Array
 });
-let showWife = ref(false);
-let day = ref("اليوم");
-let month = ref("الشهر");
-let year = ref("السنة");
-let dayW = ref("اليوم");
-let monthW = ref("الشهر");
-let yearW = ref("السنة");
-let showHusband = ref(false);
-let certification = ref([
-  { key: "بدون", name: "بدون" },
-  { key: "ابتدائي", name: "ابتدائي" },
-  { key: "اعدادي", name: "اعدادي" },
-  { key: "دبلوم", name: "دبلوم" },
-  { key: "بكالوريوس", name: "بكالوريوس" },
-  { key: "ماجستير", name: "ماجستير" },
-  { key: "دكتوراه", name: "دكتوراه" },
-]);
-let relativesType = ref([
-  { key: "قريب", name: "قريب" },
-  { key: "بعيد", name: "بعيد" },
-]);
-let dayList = ref([
-  { key: "01", name: "01" },
-  { key: "02", name: "02" },
-  { key: "03", name: "03" },
-  { key: "04", name: "04" },
-  { key: "05", name: "05" },
-  { key: "06", name: "06" },
-  { key: "07", name: "07" },
-  { key: "08", name: "08" },
-  { key: "09", name: "09" },
-]);
+
+
 const submit = () => {
   form.post(route("formRegistrationstoreEdit", props.data.id));
 };
 
-const photoHusband = (data) => {
-  form.husband_image = data.image_data_url;
-  showHusband.value = false;
-};
-const photoWife = (data) => {
-  form.wife_image = data.image_data_url;
-  showWife.value = false;
-};
-const handleImage = (e) => {
-  const selectedImage = e.target.files[0]; // get first file
-  createBase64Image(selectedImage);
-};
-const createBase64Image = (fileObject) => {
-  const reader = new FileReader();
 
-  reader.onload = (e) => {
-    form.husband_image = e.target.result;
-    //this.uploadImage();
-  };
-  reader.readAsDataURL(fileObject);
-};
-const handleImageWife = (e) => {
-  const selectedImage = e.target.files[0]; // get first file
-  createBase64ImageWife(selectedImage);
-};
-const createBase64ImageWife = (fileObject) => {
-  const reader = new FileReader();
+const handleImage = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
 
-  reader.onload = (e) => {
-    form.wife_image = e.target.result;
-    //this.uploadImage();
-  };
-  reader.readAsDataURL(fileObject);
-};
+  const formData = new FormData()
+  formData.append('image', file)
+   if (props.data.image) {
+    formData.append('old_image', props.data.image)
+  }
+
+  try {
+    const response = await axios.post('/api/update-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+     alert('تم رفع الصورة بنجاح')
+  } catch (error) {
+    console.error('فشل رفع الصورة:', error)
+    alert('حدث خطأ أثناء رفع الصورة')
+  }
+}
+ 
 </script>
 
 <template>
@@ -106,11 +64,33 @@ const createBase64ImageWife = (fileObject) => {
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 dark:text-white  leading-tight">
-        محافظة كركوك - العقد الإلكتروني
+         العقد الإلكتروني
       </h2>
-      <WebCamUI @photoTaken="photoHusband" v-if="showHusband" />
-      <WebCamUI @photoTaken="photoWife" v-if="showWife" />
     </template>
+    <div class="flex flex-row">
+        <div class="grow">
+          <div class="py-6">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+              <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 bg-white  dark:bg-gray-900">
+
+              <div className="mb-4">
+                <InputLabel for="name" value="الصورة المرفق" />
+                <input
+                  @change="handleImage"
+                  type="file"
+                  accept="image/*"
+                  class="px-2 mt-3 py-1 font-bold text-white bg-rose-500 rounded"
+                />
+              </div>
+              </div>
+              </div>
+              </div>
+              </div>
+              </div>
+            </div>
+  
+
     <form name="createForm" @submit.prevent="submit">
       <div class="flex flex-row">
         <div class="grow">
@@ -120,15 +100,7 @@ const createBase64ImageWife = (fileObject) => {
                 <div class="p-6 bg-white  dark:bg-gray-900">
                   <h2 class="text-center text-xl py-2">معلومات البطاقة</h2>
                   <div className="flex flex-col">
-                    <div className="mb-4">
-                      <InputLabel for="name" value="الصورة الشخصية" />
-                      <input
-                        @change="handleImage"
-                        type="file"
-                        accept="image/*"
-                        class="px-2 mt-3 py-1 font-bold text-white bg-rose-500 rounded"
-                      />
-                    </div>
+             
                     <div className="mb-4">
                       <InputLabel for="card_number" value="رقم البطاقة" />
 
@@ -160,81 +132,6 @@ const createBase64ImageWife = (fileObject) => {
                         الأسم حقل مطلوب
                       </span>
                     </div>
-                    <!-- <div className="mb-4">
-                      <InputLabel for="birthdate" value="تاريخ الميلاد" />
-                      <div class="flex flex-row">
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="day"
-                            @change="
-                              form.birthdate = year + '/' + month + '/' + day
-                            "
-                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          >
-                            <option :value="day" selected disabled>
-                              {{ day }}
-                            </option>
-                            <option
-                              :value="d.key"
-                              v-for="d in dayList"
-                              :key="d.key"
-                            >
-                              {{ d.name }}
-                            </option>
-                            <option :value="n + 9" v-for="n in 22" :key="n">
-                              {{ n + 9 }}
-                            </option>
-                          </select>
-                        </div>
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="month"
-                            @change="
-                              form.birthdate = year + '/' + month + '/' + day
-                            "
-                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          >
-                            <option :value="month" selected disabled>
-                              {{ month }}
-                            </option>
-                            <option
-                              :value="d.key"
-                              v-for="d in dayList"
-                              :key="d.key"
-                            >
-                              {{ d.name }}
-                            </option>
-                            <option :value="n + 9" v-for="n in 3" :key="n + 9">
-                              {{ n + 9 }}
-                            </option>
-                          </select>
-                        </div>
-                        <div class="basis-1/3 px-2">
-                          <select
-                            v-model="year"
-                            @change="
-                              form.birthdate = year + '/' + month + '/' + day
-                            "
-                            class="m-1 pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          >
-                            <option :value="year" selected disabled>
-                              {{ year }}
-                            </option>
-                            <option :value="n + 1949" v-for="n in 60" :key="n">
-                              {{ n + 1949 }}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <span
-                        className="text-red-600"
-                        v-if="form.errors.birthdate || show_birthday"
-                      >
-                        حقل تاريخ الميلاد مطلوب
-                      </span>
-                    </div> -->
-
                     <div className="mb-4">
                       <InputLabel for="sales_id" value="المندوب" />
                       <select
@@ -320,8 +217,6 @@ const createBase64ImageWife = (fileObject) => {
                         </span>
                       </div>
                   </div>
-                  <img :src="'/public/'+form.image" />
-
                 </div>
               </div>
             </div>

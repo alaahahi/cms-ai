@@ -32,6 +32,8 @@ Route::get('/clear-config-cache', function () {
     //$content_controller->log_visit_cache_job([]);
     return "Configuration cache file removed";
 });
+Route::post('/update-image', [FormRegistrationController::class, 'updateImage'])->name('update-image');
+
 Route::post('/search-vins', [DashboardController::class, 'searchVINs'])->name('search-vins');
 
 Route::apiResource('upload', UploadController::class);
