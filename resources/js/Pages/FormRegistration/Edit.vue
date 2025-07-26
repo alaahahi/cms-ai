@@ -217,6 +217,7 @@ const handleImage = async (e) => {
                         </span>
                       </div>
                   </div>
+                  <img :src="'/public/'+form.image" />
                 </div>
               </div>
             </div>
