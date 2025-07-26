@@ -414,22 +414,63 @@ class FormRegistrationController extends Controller
     
     public function storeEdit(Request $request,$id)
     {
-        $user = Auth::user();
-        Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'phone_number' => 'required|string|max:255',
-                     ])->validate();
-                Profile::where('id',$id)->update([
-                    'card_number'=> $request->card_number,
-                    'name' => $request->name,
-                    'address' => $request->address,
-                    'phone_number' => $request->phone_number,
-                    'family_name'=> $request->family_name,
-                    'user_id' =>$request->saler_id,
-                    'created'=>$request->created,
-
-                     ]);
-                     $cards = Card::orderBy('id', 'DESC')->get();
+        try {
+            $request->validate([
+                'card_number' => 'required|string|max:255',
+                'name' => 'required|string|max:255',
+                'address' => 'nullable|string|max:500',
+                'phone_number' => 'required|string|max:20',
+                'image' => 'nullable|string', // base64
+                'card_id' => 'nullable|integer|exists:card,id',
+                'saler_id' => 'required|integer|exists:users,id',
+                'family_name' => 'nullable|string|max:255',
+                'user_add' => 'nullable|string|max:255',
+                'created' => 'nullable|date',
+            ]);
+    
+            $profile = Profile::findOrFail($id);
+    
+            // حذف الصورة القديمة إذا تم إرسال صورة جديدة
+            if ($request->image && $profile->image && file_exists(public_path($profile->image))) {
+                unlink(public_path($profile->image));
+            }
+    
+            // رفع الصورة الجديدة
+            if ($request->image) {
+                $base64Image = preg_replace('/^data:image\/\w+;base64,/', '', $request->image);
+                $imageData = base64_decode($base64Image);
+    
+                $imagePath = public_path('uploads');
+                if (!file_exists($imagePath)) {
+                    mkdir($imagePath, 0777, true);
+                }
+    
+                $imageName = time() . '.png';
+                file_put_contents("$imagePath/$imageName", $imageData);
+                $imageUrl = 'uploads/' . $imageName;
+            } else {
+                $imageUrl = $profile->image; // احتفاظ بالصورة القديمة
+            }
+    
+            $profile->update([
+                'card_number' => $request->card_number,
+                'name' => $request->name,
+                'address' => $request->address,
+                'image' => $imageUrl,
+                'phone_number' => '+964' . $request->phone_number,
+                'card_id' => $request->card_id ?? $profile->card_id,
+                'user_id' => $request->saler_id,
+                'family_name' => $request->family_name,
+                'user_add' => $request->user_add ?? $profile->user_add,
+                'created' => $request->created ?? $profile->created,
+            ]);
+    
+           // return response()->json($profile);
+    
+        } catch (\Throwable $th) {
+            //return response()->json(['error' => $th->getMessage()], 500);
+        }
+        $cards = Card::orderBy('id', 'DESC')->get();
 
         return Inertia::render('FormRegistration/Index', ['url'=>$this->url,'cards'=>$cards]);
     }
