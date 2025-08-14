@@ -182,8 +182,8 @@ class UserController extends Controller
      }
     public function index()
     {
-        $cards= Card::all();
-        return Inertia::render('Users/Index', ['url'=>$this->url,'cards'=>$cards]);
+        $users= User::where('type_id', $this->userSeles)->orderBy('id', 'DESC')->get();
+        return Inertia::render('Users/Index', ['users'=>$users]);
     }
     public function show ()
     {
@@ -291,7 +291,7 @@ class UserController extends Controller
                     $user = User::find($id)->update([
                         'name' => $request->name,
                         'email' => $request->email,
-                        'percentage' => $request->percentage
+                        'percentage' => $request->percentage ?? 0
                     ]);
                 } else {
                     $request->validate([
@@ -500,5 +500,40 @@ class UserController extends Controller
 
 
     }
-  
+    public function addUserCustom(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'percentage' => 'nullable|numeric|min:0|max:100000',
+            
+        ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'percentage' => $request->percentage ?? 10000,
+            'type_id' => 3,
+        ]);
+        return response()->json(['success' => true, 'message' => 'تم إضافة المستخدم بنجاح.']);
+    } 
+    public function editUserCustom(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            'name' => 'required|string|max:255',
+            'percentage' => 'nullable|numeric|min:1000|max:100000',
+        ]);
+
+        User::where('id', $request->id)->update([
+            'name' => $request->name,
+            'percentage' => $request->percentage ?? 10000,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تعديل بيانات المستخدم بنجاح.'
+        ]);
+    }
     }
