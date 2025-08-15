@@ -47,12 +47,14 @@ onMounted(() => {
 
     // إضافة listener على الزر "تنفيذ"
     el.addEventListener('click', (e) => {
-      const id = e.target.getAttribute('data-id')
-      const name = e.target.getAttribute('data-name')
-      const percentage = e.target.getAttribute('data-percentage')
-      const email = e.target.getAttribute('data-email')
+        if (e.target.matches('.btn-edit')) {
+            const id = e.target.getAttribute('data-id')
+            const name = e.target.getAttribute('data-name')
+            const percentage = e.target.getAttribute('data-percentage')
+            const email = e.target.getAttribute('data-email')
 
-      showModalAssign(id, name,percentage,email)
+            showModalAssign(id, name,percentage,email)
+        }
     })
   }
 })
@@ -117,8 +119,9 @@ const editUser = (form) => {
                     tabIndex="1"
                      :data-id="user.id"
                      :data-name="user.name"
+                      
                      :data-percentage="user.percentage"
-                     :className="'px-3 py-1 text-white mx-1 bg-rose-600 rounded user-' + user.id  "
+                     :className="'px-3 btn-edit py-1 text-white mx-1 bg-rose-600 rounded user-' + user.id  "
                      >تعديل</button>
             </td>
           </tr>
