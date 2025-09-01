@@ -516,6 +516,9 @@ class UserController extends Controller
             'percentage' => $request->percentage ?? 10000,
             'type_id' => 3,
         ]);
+        if($user){
+            Wallet::create(['user_id' => $user->id]);
+        }
         return response()->json(['success' => true, 'message' => 'تم إضافة المستخدم بنجاح.']);
     } 
     public function editUserCustom(Request $request)
