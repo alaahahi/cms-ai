@@ -21,6 +21,9 @@
     تسلسل
     </th>
     <th style=" font-size: 16px;font-weight: 700;padding-right: 20px">
+    الهاتف
+    </th>
+    <th style=" font-size: 16px;font-weight: 700;padding-right: 20px">
     المندوب
     </th>
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px">
@@ -29,9 +32,7 @@
     <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
      اسم الزبون
     </th>
-    <th  style=" font-size: 16px;font-weight: 700;padding-right: 45px"> 
-         عقد
-       </th>
+  
    
 </tr>
     <?php $i = 1 ?>
@@ -40,10 +41,13 @@
             <td style="padding-right:20px;font-size:13px">
             <span>{{$i}}</span>
             </td>
+        
             <td style="padding-right:20px;font-size:13px">
-            <span>{{$data->user?->name}}</span>
-            </td>
-
+                <span>{{$data->phone_number}}</span>
+                </td>
+                <td style="padding-right:20px;font-size:13px">
+                    <span>{{$data->user?->name}}</span>
+                    </td>
             <td style="padding-right:20px;font-size:13px">
             <span>{{$data->card_number}}</span>
             </td>
@@ -54,10 +58,7 @@
             </span>
             
             </td>
-            <td>
-                {{$data->cloud_image ?? ''}}
-            </td>
-           
+            
      
     <?php $i++ ?>
 
