@@ -317,6 +317,14 @@ class ImportController extends Controller
         // إذا كان GET = عرض البيانات
         $query = DataCv::query();
         
+        // استبعاد السجلات المنقولة تلقائياً (whatsapp_status = 3)
+        $query->where(function($q) {
+            $q->where(function($subQ) {
+                $subQ->where('whatsapp_status', '!=', 3)
+                     ->orWhereNull('whatsapp_status');
+            });
+        });
+        
         // البحث
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
@@ -336,9 +344,8 @@ class ImportController extends Controller
                 $query->where('whatsapp_status', 1);
             } elseif ($status === '2') {
                 $query->where('whatsapp_status', 0);
-            } elseif ($status === '3') {
-                $query->where('whatsapp_status', 3);
             }
+            // تم إزالة حالة 3 (منقول) من الفلترة لأنها مستبعدة تلقائياً
         }
         
         // الإحصائيات
@@ -353,6 +360,69 @@ class ImportController extends Controller
         $data = $query->orderBy('id', 'desc')->paginate(50);
         
         return view('data-cv-manage', compact('data', 'stats'));
+    }
+
+    /**
+     * حذف سجل واحد من data_cv
+     */
+    public function deleteDataCv(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:data_cv,id'
+        ]);
+        
+        try {
+            $dataCv = DataCv::find($request->id);
+            if (!$dataCv) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'السجل غير موجود'
+                ], 404);
+            }
+            
+            $dataCv->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'تم الحذف بنجاح'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Delete data_cv error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * حذف عدة سجلات من data_cv
+     */
+    public function deleteDataCvBatch(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:data_cv,id'
+        ]);
+        
+        try {
+            $ids = $request->ids;
+            $deleted = DataCv::whereIn('id', $ids)->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => "تم حذف {$deleted} سجل بنجاح",
+                'deleted' => $deleted
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Delete data_cv batch error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

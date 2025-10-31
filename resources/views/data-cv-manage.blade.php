@@ -209,7 +209,6 @@
                                 <option value="0" {{ request('whatsapp_status') == '0' ? 'selected' : '' }}>لم يتم التحقق</option>
                                 <option value="1" {{ request('whatsapp_status') == '1' ? 'selected' : '' }}>موجود على واتساب</option>
                                 <option value="2" {{ request('whatsapp_status') == '2' ? 'selected' : '' }}>غير موجود</option>
-                                <option value="3" {{ request('whatsapp_status') == '3' ? 'selected' : '' }}>منقول</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -224,6 +223,9 @@
                                 </button>
                                 <button type="button" class="btn btn-info" onclick="moveSelectedToExtracted()">
                                     <i class="fas fa-exchange-alt"></i> نقل المحدد
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="deleteSelected()" title="حذف السجلات المحددة (غير الموجودة على واتساب)">
+                                    <i class="fas fa-trash"></i> حذف المحدد
                                 </button>
                             </div>
                         </div>
@@ -338,12 +340,17 @@
                                     <td>
                                         @if(!isset($is_moved_page) || !$is_moved_page)
                                         <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-sm btn-primary" onclick="checkSingle({{ $item->id }})">
+                                            <button class="btn btn-sm btn-primary" onclick="checkSingle({{ $item->id }})" title="تحقق من الواتساب">
                                                 <i class="fab fa-whatsapp"></i>
                                             </button>
                                             @if($item->whatsapp_status === 1)
-                                            <button class="btn btn-sm btn-success" onclick="moveToExtracted({{ $item->id }})">
+                                            <button class="btn btn-sm btn-success" onclick="moveToExtracted({{ $item->id }})" title="نقل إلى extracted_phones">
                                                 <i class="fas fa-arrow-right"></i>
+                                            </button>
+                                            @endif
+                                            @if($item->whatsapp_status === 0)
+                                            <button class="btn btn-sm btn-danger" onclick="deleteSingle({{ $item->id }})" title="حذف (غير موجود على واتساب)">
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                             @endif
                                         </div>
@@ -392,8 +399,6 @@
         }
 
         async function checkSingle(id) {
-            if (!confirm('هل تريد التحقق من هذا الرقم على واتساب؟')) return;
-            
             try {
                 const response = await fetch(`${API_BASE}/api/check-whatsapp-data-cv`, {
                     method: 'POST',
@@ -406,8 +411,8 @@
                 
                 const data = await response.json();
                 if (data.success) {
-                    alert('✅ تم إرسال طلب التحقق');
-                    setTimeout(() => location.reload(), 2000);
+                    // تحديث صامت بدون تنبيه - فقط تحديث الصفحة بعد ثانية
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     alert('❌ خطأ: ' + data.message);
                 }
@@ -423,8 +428,6 @@
                 return;
             }
             
-            if (!confirm(`هل تريد التحقق من ${ids.length} رقم؟`)) return;
-            
             try {
                 const response = await fetch(`${API_BASE}/api/check-whatsapp-data-cv-batch`, {
                     method: 'POST',
@@ -437,8 +440,8 @@
                 
                 const data = await response.json();
                 if (data.success) {
-                    alert(`✅ تم إرسال ${data.processed} رقم للتحقق`);
-                    setTimeout(() => location.reload(), 2000);
+                    // تحديث صامت بدون تنبيه
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     alert('❌ خطأ: ' + data.message);
                 }
@@ -448,8 +451,6 @@
         }
 
         async function moveToExtracted(id) {
-            if (!confirm('هل تريد نقل هذا السجل إلى جدول extracted_phones؟')) return;
-            
             try {
                 const response = await fetch(`${API_BASE}/api/move-data-cv-to-extracted`, {
                     method: 'POST',
@@ -462,8 +463,8 @@
                 
                 const data = await response.json();
                 if (data.success) {
-                    alert('✅ تم النقل بنجاح');
-                    location.reload();
+                    // تحديث صامت
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     alert('❌ خطأ: ' + data.message);
                 }
@@ -479,8 +480,6 @@
                 return;
             }
             
-            if (!confirm(`هل تريد نقل ${ids.length} سجل إلى جدول extracted_phones؟\n(سيتم نقل الأرقام الموجودة على واتساب فقط)`)) return;
-            
             try {
                 const response = await fetch(`${API_BASE}/api/move-data-cv-to-extracted-batch`, {
                     method: 'POST',
@@ -493,7 +492,63 @@
                 
                 const data = await response.json();
                 if (data.success) {
-                    alert(`✅ تم نقل ${data.moved} سجل بنجاح`);
+                    // تحديث صامت
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert('❌ خطأ: ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ خطأ: ' + error.message);
+            }
+        }
+
+        async function deleteSingle(id) {
+            if (!confirm('هل تريد حذف هذا السجل؟\n(السجل سيكون غير موجود على واتساب)')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/delete-data-cv`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ تم الحذف بنجاح');
+                    location.reload();
+                } else {
+                    alert('❌ خطأ: ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ خطأ: ' + error.message);
+            }
+        }
+
+        async function deleteSelected() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                alert('الرجاء تحديد سجلات للحذف');
+                return;
+            }
+            
+            if (!confirm(`هل تريد حذف ${ids.length} سجل؟\n⚠️ سيتم الحذف نهائياً!`)) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/delete-data-cv-batch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ ids: ids })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert(`✅ تم حذف ${data.deleted} سجل بنجاح`);
                     location.reload();
                 } else {
                     alert('❌ خطأ: ' + data.message);

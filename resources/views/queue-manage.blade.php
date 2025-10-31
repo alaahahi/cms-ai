@@ -24,6 +24,32 @@
         .page-header h1 {
             color: white;
             font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .page-header .nav-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .page-header .nav-links a {
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .page-header .nav-links a:hover,
+        .page-header .nav-links a.active {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         .main-container {
@@ -68,6 +94,17 @@
             <div class="text-center">
                 <h1><i class="fas fa-tasks"></i> إدارة Queue Worker</h1>
                 <p class="text-white-50 mb-0">مراقبة وإدارة Jobs والتحقق من حالة Worker</p>
+                <div class="nav-links">
+                    <a href="{{ route('data-cv-manage') }}" class="{{ request()->routeIs('data-cv-manage') ? 'active' : '' }}">
+                        <i class="fas fa-list"></i> جميع البيانات
+                    </a>
+                    <a href="{{ route('data-cv-moved') }}" class="{{ request()->routeIs('data-cv-moved') ? 'active' : '' }}">
+                        <i class="fas fa-exchange-alt"></i> الأرقام المنقولة
+                    </a>
+                    <a href="{{ route('queue-manage') }}" class="{{ request()->routeIs('queue-manage') ? 'active' : '' }}">
+                        <i class="fas fa-tasks"></i> إدارة Queue
+                    </a>
+                </div>
             </div>
         </div>
     </div>

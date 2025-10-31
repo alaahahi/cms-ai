@@ -94,6 +94,8 @@ Route::post('/queue/clear', [QueueController::class, 'clearFailedJobs'])->name('
 Route::post('/queue/delete-pending', [QueueController::class, 'deletePendingJob'])->name('queue.delete-pending');
 Route::post('/move-data-cv-to-extracted', [App\Http\Controllers\ImportController::class, 'moveDataCvToExtracted'])->name('move-data-cv-to-extracted');
 Route::post('/move-data-cv-to-extracted-batch', [App\Http\Controllers\ImportController::class, 'moveDataCvToExtractedBatch'])->name('move-data-cv-to-extracted-batch');
+Route::post('/delete-data-cv', [App\Http\Controllers\ImportController::class, 'deleteDataCv'])->name('delete-data-cv');
+Route::post('/delete-data-cv-batch', [App\Http\Controllers\ImportController::class, 'deleteDataCvBatch'])->name('delete-data-cv-batch');
 Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {
