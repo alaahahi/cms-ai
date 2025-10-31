@@ -1,12 +1,20 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/inertia-vue3";
+import { Head, Link, router } from "@inertiajs/inertia-vue3";
 import { onMounted } from 'vue'
-import { DataTable } from 'simple-datatables'
- import ModalSure from "@/Components/ModalSure.vue";
-import { ref } from 'vue'
-const props = defineProps({  numbers: Array});
+import ModalSure from "@/Components/ModalSure.vue";
+import { ref, computed } from 'vue'
+import { TailwindPagination } from "laravel-vue-pagination";
+
+const props = defineProps({  
+    numbers: Object  // Laravel pagination object
+});
+
+// استخراج البيانات من pagination object
+const numbersList = computed(() => {
+    return props.numbers?.data || [];
+});
 
 let showSure = ref(false)
 let phoneSelected = ref();
@@ -34,33 +42,16 @@ const showModalSure = (phone, status) => {
 }
   
 
-onMounted(() => {
-  const el = document.querySelector("#default-table")
-  if (el) {
-    const dataTable = new DataTable(el, {
-      perPage: 25,
-      perPageSelect: [25, 50,100,200,500],
-      searchable: true,
-      fixedHeight: true,
-      pagination: true,
-      perPageDropdown: [ 25, 50,100,200,500],
-      labels: {
-        placeholder: "بحث...",
-        perPage: "عرض كل صفحة",
-        noRows: "لا توجد بيانات",
-        info: "عرض {start} إلى {end} من أصل {rows} سجل"
-      }
-    })
-
-    // إضافة listener على الزر "تنفيذ"
-    el.addEventListener('click', (e) => {
-      const raw = e.target.getAttribute('data-id')
-      const user = JSON.parse(raw)
-      const type = e.target.getAttribute('data-type') || 'OfferAccepted'
-      showModalSure(user, type)
-    })
-  }
-})
+// دالة للتنقل بين الصفحات
+const getResults = (page) => {
+    if (page && props.numbers?.links && props.numbers.links[page]?.url) {
+        const url = props.numbers.links[page].url;
+        if (url) {
+            // استخدام window.location للتنقل (أبسط وأكثر موثوقية)
+            window.location.href = url;
+        }
+    }
+}
 
 const surePhone = () => {
   console.log(ids)
@@ -95,30 +86,28 @@ const surePhone = () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, i) in numbers" :key="user.id" class="border-b hover:bg-gray-50 dark:hover:bg-gray-900">
-            <td class="px-4 py-2 text-center">{{ i + 1 }}</td>
+          <tr v-for="(user, i) in numbersList" :key="user.id" class="border-b hover:bg-gray-50 dark:hover:bg-gray-900">
+            <td class="px-4 py-2 text-center">{{ numbers ? (numbers.current_page - 1) * numbers.per_page + i + 1 : i + 1 }}</td>
             <td class="px-4 py-2 text-center">
-              <a :href="`https://wa.me/${user.phone}`" target="_blank">
+              <a :href="`https://wa.me/${user.phone}`" target="_blank" class="text-blue-600 hover:underline">
               {{ user.phone }}
               </a>
             </td>
             <td class="px-4 py-2 text-center">
-              <a :href="`tel:${user.phone}`" target="_blank">
+              <a :href="`tel:${user.phone}`" target="_blank" class="text-green-600 hover:underline">
               {{ user.phone }}
               </a>
             </td>
-            <td class="px-4 py-2 text-center">{{ user.image_name }}</td>
-            <td class="px-4 py-2 text-center">{{ user.created_at.split('T')[0] }}</td>
-            <td class="px-4 py-2 text-center">{{ user.name }}</td>
-            <td class="px-4 py-2 text-center">{{ user.note }}</td>
+            <td class="px-4 py-2 text-center">{{ user.image_name || '-' }}</td>
+            <td class="px-4 py-2 text-center">{{ user.created_at ? (user.created_at.split('T') ? user.created_at.split('T')[0] : user.created_at) : '-' }}</td>
+            <td class="px-4 py-2 text-center">{{ user.name || '-' }}</td>
+            <td class="px-4 py-2 text-center">{{ user.note || '-' }}</td>
             <td class="px-4 py-2 text-center" style="min-width: 140px;"  v-html="getStatusHtml(user.status)"></td>
 
             <td class="px-4 py-2 text-center">
                <button
-                     class="px-3 py-1 text-white mx-1 bg-rose-600 rounded"
-                     :data-id="JSON.stringify(user)"
-                     data-type="OfferAccepted"
-                     @click="showModalSure(user.id, 'OfferAccepted')">
+                     class="px-3 py-1 text-white mx-1 bg-rose-600 rounded hover:bg-rose-700 transition"
+                     @click="showModalSure(user, 'OfferAccepted')">
                      تنفيذ
             </button>
             </td>
@@ -126,6 +115,21 @@ const surePhone = () => {
         </tbody>
       </table>
     </div>
+    
+    <!-- Pagination من السيرفر -->
+    <div v-if="numbers && numbers.last_page > 1" class="mt-6 flex justify-center" style="direction: ltr;">
+      <TailwindPagination 
+        :data="numbers" 
+        @pagination-change-page="getResults"
+        :limit="5"
+      />
+    </div>
+    
+    <!-- معلومات Pagination -->
+    <div v-if="numbers" class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+      عرض {{ numbers.from }} إلى {{ numbers.to }} من {{ numbers.total }} سجل
+    </div>
+    
     </div>
   </div>
   </AuthenticatedLayout>

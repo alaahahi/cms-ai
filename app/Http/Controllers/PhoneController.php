@@ -74,12 +74,18 @@ public function accept_offer(Request $request)
 public function reject_offer(Request $request)
 {
     $authUser = auth()->user();
+    $query = ExtractedPhone::query();
+    
     if ($authUser->type_id == 8) {
-        $numbers = ExtractedPhone::where('status',  ContactStatus::OfferRejected->value)->get();
+        $query->where('status', ContactStatus::OfferRejected->value);
     }
     elseif($authUser->type_id == 9) {
-        $numbers = ExtractedPhone::where('user_id', $authUser->id)->where('status',  ContactStatus::OfferRejected->value)->get();
+        $query->where('user_id', $authUser->id)
+              ->where('status', ContactStatus::OfferRejected->value);
     }
+
+    // Pagination من السيرفر
+    $numbers = $query->orderBy('id', 'desc')->paginate(50);
 
      return Inertia::render('Phone/ContactPhone', [
         'numbers' => $numbers
