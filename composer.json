@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.7",
         "meilisearch/meilisearch-php": "^0.25.0",
         "mpdf/mpdf": "^8.1",
+        "phpoffice/phpspreadsheet": "^5.2",
         "scottlaurent/accounting": "^0.3.3",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "thiagoalessio/tesseract_ocr": "^2.13",

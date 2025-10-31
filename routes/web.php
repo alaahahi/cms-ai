@@ -176,9 +176,57 @@ Route::group(['middleware' => ['auth','verified']], function () {
  Route::get('show/{id}', [FormRegistrationController::class, 'showfile'])->name('show');
  Route::get('card',[FormRegistrationController::class, 'saved'])->name('card');
  Route::get('hospitalPrint',[HospitalController::class, 'hospitalPrint'])->name('hospitalPrint');
- Route::get('car_check',[DashboardController::class, 'car_check'])->name('car_check');
- Route::get('image',[DashboardController::class, 'image'])->name('image');
- Route::post('/extract-phones', [DashboardController::class, 'extractPhonesFromImage'])->name('extract-phones');
+Route::get('car_check',[DashboardController::class, 'car_check'])->name('car_check');
+Route::get('image',[DashboardController::class, 'image'])->name('image');
+Route::post('/extract-phones', [DashboardController::class, 'extractPhonesFromImage'])->name('extract-phones');
+
+// صفحة التحقق من أرقام الواتساب
+Route::get('whatsapp-checker', function () {
+    return view('whatsapp-checker');
+})->name('whatsapp-checker');
+
+Route::get('whatsapp-system', function () {
+    return view('index-whatsapp');
+})->name('whatsapp-system');
+
+// صفحة استيراد الأرقام
+Route::get('import-numbers', function () {
+    return view('import-numbers');
+})->name('import-numbers');
+
+// صفحة استيراد وفلترة متقدمة
+Route::get('import-filter-check', function () {
+    return view('import-filter-check-v2');
+})->name('import-filter-check');
+
+// صفحة استيراد مباشر إلى data_cv
+Route::get('import-data-cv-direct', function () {
+    return view('import-data-cv-direct');
+})->name('import-data-cv-direct');
+
+// صفحة استيراد مقسم
+Route::get('import-data-cv-split', function () {
+    return view('import-data-cv-split');
+})->name('import-data-cv-split');
+
+// صفحة استيراد مباشر بسيط (POST عادي)
+Route::get('import-data-cv-simple', function () {
+    return view('import-data-cv-simple');
+})->name('import-data-cv-simple');
+
+Route::post('import-data-cv-simple', [App\Http\Controllers\ImportController::class, 'importToDataCvSimple'])->name('import-data-cv-simple.post');
+
+// صفحة إدارة data_cv (مدمجة - استيراد + عرض + إدارة)
+Route::match(['get', 'post'], 'data-cv-manage', [App\Http\Controllers\ImportController::class, 'manageDataCv'])->name('data-cv-manage');
+Route::get('data-cv-moved', [App\Http\Controllers\ImportController::class, 'showMovedData'])->name('data-cv-moved');
+
+// صفحة إدارة Queue Worker
+Route::get('queue-manage', [App\Http\Controllers\QueueController::class, 'index'])->name('queue-manage');
+
+// الصفحة الرئيسية - توجيه تلقائي
+Route::get('whatsapp', function () {
+    return view('index-whatsapp');
+})->name('whatsapp-index');
 
  
 require __DIR__.'/auth.php';

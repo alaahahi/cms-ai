@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 التحقق من أرقام الواتساب</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .main-card {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border: none;
+            padding: 20px;
+        }
+        .stat-card {
+            border-left: 4px solid;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            background: white;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-total { border-left-color: #007bff; }
+        .stat-on { border-left-color: #28a745; }
+        .stat-off { border-left-color: #dc3545; }
+        .stat-pending { border-left-color: #ffc107; }
+        .stat-checked { border-left-color: #17a2b8; }
+        .loading {
+            display: none;
+        }
+        .loading.show {
+            display: block;
+        }
+        .progress-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-section.active {
+            display: block;
+        }
+        .phone-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-1 { background: #d4edda; color: #155724; }
+        .status-0 { background: #f8d7da; color: #721c24; }
+        .status-null { background: #fff3cd; color: #856404; }
+        .btn-action {
+            margin: 5px;
+        }
+        .feature-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            background: #f8f9fa;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-card card mt-4">
+            <div class="card-header text-white">
+                <h3 class="mb-0"><i class="fab fa-whatsapp"></i> التحقق من أرقام الواتساب - لوحة التحكم</h3>
+            </div>
+            <div class="card-body">
+                <!-- الإحصائيات -->
+                <div class="mb-4">
+                    <h5><i class="fas fa-chart-bar"></i> الإحصائيات العامة</h5>
+                    <div class="row" id="statsContainer">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                </div>
+
+                <!-- فلاتر المتقدمة -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5><i class="fas fa-filter"></i> فلاتر البحث</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label"><strong><i class="fas fa-map-marker-alt"></i> فلترة حسب المنطقة:</strong></label>
+                                <input type="text" class="form-control" id="regionFilter" 
+                                       placeholder="مثال: بغداد، بابل، الموصل"
+                                       onkeyup="applyRegionFilter()">
+                                <small class="text-muted">ابحث عن المدينة أو المنطقة</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label"><strong><i class="fas fa-chart-pie"></i> حالة الواتساب:</strong></label>
+                                <select class="form-select" id="statusFilter" onchange="applyRegionFilter()">
+                                    <option value="">الكل</option>
+                                    <option value="1">موجود على واتساب</option>
+                                    <option value="0">غير موجود</option>
+                                    <option value="null">لم يتم التحقق</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label"><strong><i class="fas fa-user"></i> البحث في الاسم:</strong></label>
+                                <input type="text" class="form-control" id="nameFilter" 
+                                       placeholder="ابحث بالاسم"
+                                       onkeyup="applyRegionFilter()">
+                            </div>
+                        </div>
+                        <button class="btn btn-success mt-3" onclick="applyRegionFilter()">
+                            <i class="fas fa-search"></i> تطبيق الفلاتر
+                        </button>
+                        <button class="btn btn-secondary mt-3" onclick="clearFilters()">
+                            <i class="fas fa-redo"></i> إعادة تعيين
+                        </button>
+                    </div>
+                </div>
+
+                <!-- قسم الخيارات السريعة -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="feature-card" onclick="loadUncheckedPhones()">
+                            <h6><i class="fas fa-list"></i> عرض الأرقام غير المحققة منها</h6>
+                            <small class="text-muted">عرض آخر 100 رقم لم يتم التحقق منها</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card" onclick="exportFiltered()">
+                            <h6><i class="fas fa-download"></i> تصدير النتائج المفلترة</h6>
+                            <small class="text-muted">تصدير الأرقام المفلترة إلى CSV</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card" onclick="clearResults()">
+                            <h6><i class="fas fa-redo"></i> تحديث الإحصائيات</h6>
+                            <small class="text-muted">تحديث بيانات الإحصائيات</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- قائمة الأرقام غير المحققة -->
+                <div id="uncheckedPhonesSection" style="display: none;">
+                    <div class="card">
+                        <div class="card-header bg-warning">
+                            <h5><i class="fas fa-clock"></i> الأرقام غير المحققة منها</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="uncheckedPhonesList"></div>
+                            <button class="btn btn-success mt-3" onclick="checkSelectedPhones()">
+                                <i class="fas fa-check"></i> التحقق من المحدد
+                            </button>
+                            <button class="btn btn-danger mt-3" onclick="toggleUncheckedSection()">
+                                <i class="fas fa-times"></i> إغلاق
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- قسم التحقق اليدوي -->
+                <div class="card mt-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="fas fa-sliders-h"></i> التحقق اليدوي</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">أدخل معرفات الأرقام (مفصولة بفاصلة):</label>
+                            <input type="text" class="form-control" id="phoneIds" placeholder="مثال: 1,2,3,4,5">
+                            <small class="form-text text-muted">يمكنك نسخ معرفات من قائمة الأرقام غير المحققة</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-clock"></i> تأخير بالثواني (افتراضي: 5):</label>
+                                <input type="number" class="form-control" id="delaySeconds" value="5" min="1" max="30">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-layer-group"></i> حجم الدفعة (افتراضي: 10):</label>
+                                <input type="number" class="form-control" id="batchSize" value="10" min="1" max="100">
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-lg mt-3" onclick="checkNumbers()">
+                            <i class="fas fa-play"></i> بدء التحقق
+                        </button>
+                    </div>
+                </div>
+
+                <!-- قسم تتبع التقدم -->
+                <div class="progress-section" id="progressSection">
+                    <h5><i class="fas fa-tasks"></i> حالة العملية</h5>
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: 0%" 
+                             id="progressBar"></div>
+                    </div>
+                    <div id="progressDetails"></div>
+                    <div id="progressLog" style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <!-- سجل التقدم -->
+                    </div>
+                </div>
+
+                <!-- النتائج -->
+                <div id="results" class="mt-4"></div>
+
+                <!-- Loading -->
+                <div class="loading text-center mt-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">جارٍ التحميل...</span>
+                    </div>
+                    <p class="mt-2">جاري التحقق من الأرقام...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let selectedPhoneIds = [];
+        let progressInterval = null;
+        let currentFilter = { region: '', status: '', name: '' };
+        let allPhonesData = [];
+
+        // تحميل الإحصائيات
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/whatsapp-stats`);
+                const stats = await response.json();
+                
+                const checkedPercent = stats.total_numbers > 0 
+                    ? Math.round((stats.checked_numbers / stats.total_numbers) * 100) 
+                    : 0;
+                
+                document.getElementById('statsContainer').innerHTML = `
+                    <div class="col-md-2 col-6">
+                        <div class="card stat-card stat-total">
+                            <div class="card-body text-center">
+                                <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+                                <h6>إجمالي</h6>
+                                <h3 class="mb-0">${stats.total_numbers}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card stat-card stat-checked">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                                <h6>محققة</h6>
+                                <h3 class="mb-0">${stats.checked_numbers}</h3>
+                                <small>${checkedPercent}%</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card stat-card stat-on">
+                            <div class="card-body text-center">
+                                <i class="fab fa-whatsapp fa-2x text-success mb-2"></i>
+                                <h6>موجود</h6>
+                                <h3 class="mb-0">${stats.on_whatsapp}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card stat-card stat-off">
+                            <div class="card-body text-center">
+                                <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                                <h6>غير موجود</h6>
+                                <h3 class="mb-0">${stats.not_on_whatsapp}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card stat-card stat-pending">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                                <h6>قيد الانتظار</h6>
+                                <h3 class="mb-0">${stats.pending}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="card stat-card stat-total">
+                            <div class="card-body text-center">
+                                <i class="fas fa-percentage fa-2x text-primary mb-2"></i>
+                                <h6>نسبة</h6>
+                                <h3 class="mb-0">${checkedPercent}%</h3>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('خطأ في تحميل الإحصائيات:', error);
+            }
+        }
+
+        // تطبيق فلاتر المنطقة
+        async function applyRegionFilter() {
+            const region = document.getElementById('regionFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const name = document.getElementById('nameFilter').value;
+            
+            currentFilter.region = region;
+            currentFilter.status = status;
+            currentFilter.name = name;
+            
+            // إخفاء قسم الأرقام غير المحققة إذا كان مفتوحاً
+            document.getElementById('uncheckedPhonesSection').style.display = 'none';
+            
+            // هنا يمكنك إضافة منطق الفلترة من السيرفر
+            updateFilterStats();
+        }
+
+        function clearFilters() {
+            document.getElementById('regionFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('nameFilter').value = '';
+            currentFilter = { region: '', status: '', name: '' };
+            loadStats();
+        }
+
+        function updateFilterStats() {
+            // هنا يمكن إضافة منطق تحديث الإحصائيات حسب الفلاتر
+            loadStats();
+        }
+
+        function exportFiltered() {
+            if (allPhonesData.length === 0) {
+                alert('لا توجد بيانات للتصدير');
+                return;
+            }
+            
+            // تصدير البيانات المفلترة
+            let csv = 'Phone,Name,Address,WhatsApp Status\n';
+            allPhonesData.forEach(phone => {
+                const status = phone.whatsapp_status === 1 ? 'موجود' : 
+                              phone.whatsapp_status === 0 ? 'غير موجود' : 'لم يتم التحقق';
+                csv += `"${phone.phone}","${phone.name || ''}","${phone.note || ''}",${status}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'whatsapp-numbers-' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+        }
+
+        // تحميل الأرقام غير المحققة منها
+        async function loadUncheckedPhones() {
+            try {
+                const response = await fetch(`${API_BASE}/api/unchecked-phones`);
+                const data = await response.json();
+                
+                if (data.phones && data.phones.length > 0) {
+                    let html = `<p><strong>عدد الأرقام:</strong> ${data.count}</p><hr>`;
+                    html += '<div class="mb-2"><input type="checkbox" id="selectAll" onchange="selectAllPhones(this.checked)"> <label for="selectAll">تحديد الكل</label></div>';
+                    
+                    data.phones.forEach(phone => {
+                        html += `
+                            <div class="phone-item">
+                                <input type="checkbox" class="phone-checkbox" value="${phone.id}" onchange="updateSelectedPhones()">
+                                <span><strong>${phone.phone}</strong> - ID: ${phone.id}</span>
+                                ${phone.name ? `<span class="text-muted">(${phone.name})</span>` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('uncheckedPhonesList').innerHTML = html;
+                    document.getElementById('uncheckedPhonesSection').style.display = 'block';
+                } else {
+                    alert('لا توجد أرقام غير محققة منها');
+                }
+            } catch (error) {
+                console.error('خطأ:', error);
+                alert('حدث خطأ في تحميل الأرقام');
+            }
+        }
+
+        // التبديل بين إظهار/إخفاء قسم الأرقام غير المحققة
+        function toggleUncheckedSection() {
+            document.getElementById('uncheckedPhonesSection').style.display = 'none';
+            selectedPhoneIds = [];
+        }
+
+        // تحديد/إلغاء تحديد جميع الأرقام
+        function selectAllPhones(checked) {
+            const checkboxes = document.querySelectorAll('.phone-checkbox');
+            checkboxes.forEach(cb => cb.checked = checked);
+            updateSelectedPhones();
+        }
+
+        // تحديث قائمة الأرقام المحددة
+        function updateSelectedPhones() {
+            selectedPhoneIds = Array.from(document.querySelectorAll('.phone-checkbox:checked'))
+                .map(cb => parseInt(cb.value));
+        }
+
+        // التحقق من الأرقام المحددة
+        function checkSelectedPhones() {
+            if (selectedPhoneIds.length === 0) {
+                alert('الرجاء تحديد أرقام للتحقق منها');
+                return;
+            }
+            
+            document.getElementById('phoneIds').value = selectedPhoneIds.join(',');
+            toggleUncheckedSection();
+            checkNumbers();
+        }
+
+        // التحقق من الأرقام
+        async function checkNumbers() {
+            const phoneIdsInput = document.getElementById('phoneIds').value.trim();
+            const delaySeconds = document.getElementById('delaySeconds').value;
+            const batchSize = document.getElementById('batchSize').value;
+            
+            if (!phoneIdsInput) {
+                alert('الرجاء إدخال معرفات الأرقام');
+                return;
+            }
+
+            const phoneIds = phoneIdsInput.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+            
+            if (phoneIds.length === 0) {
+                alert('لم يتم العثور على معرفات صحيحة');
+                return;
+            }
+
+            document.querySelector('.loading').classList.add('show');
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('progressSection').classList.add('active');
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressDetails').innerHTML = `
+                <p><i class="fas fa-spinner fa-spin"></i> جاري إرسال طلبات التحقق...</p>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/check-whatsapp-numbers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone_ids: phoneIds,
+                        delay_seconds: parseInt(delaySeconds),
+                        batch_size: parseInt(batchSize)
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.querySelector('.loading').classList.remove('show');
+                document.getElementById('progressBar').style.width = '50%';
+                document.getElementById('progressDetails').innerHTML = `
+                    <p class="text-success"><i class="fas fa-check-circle"></i> تم إرسال ${data.processed_count} طلب إلى الـ Queue</p>
+                    <p><i class="fas fa-clock"></i> سيتم التحقق تدريجياً خلال ${delaySeconds * phoneIds.length} ثانية تقريباً</p>
+                `;
+                
+                document.getElementById('results').innerHTML = `
+                    <div class="alert alert-success">
+                        <h5><i class="fas fa-check-circle"></i> تم بنجاح!</h5>
+                        <p><strong>الرسالة:</strong> ${data.message}</p>
+                        <p><strong>عدد الأرقام المعالجة:</strong> ${data.processed_count}</p>
+                        <p><strong>إجمالي الأرقام:</strong> ${data.total_count}</p>
+                        <hr>
+                        <p class="mb-0"><i class="fas fa-info-circle"></i> <strong>نصيحة:</strong> قم بتحديث الصفحة بعد دقيقة لمشاهدة النتائج في الإحصائيات</p>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.getElementById('progressDetails').innerHTML = `
+                        <p class="text-success"><i class="fas fa-check-double"></i> اكتملت العملية!</p>
+                        <button class="btn btn-primary" onclick="loadStats()">تحديث الإحصائيات</button>
+                    `;
+                }, 2000);
+
+            } catch (error) {
+                document.querySelector('.loading').classList.remove('show');
+                document.getElementById('results').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-exclamation-circle"></i> حدث خطأ</h5>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            loadStats();
+        }
+
+        // تحميل الإحصائيات عند تحميل الصفحة
+        loadStats();
+        
+        // تحديث الإحصائيات كل 10 ثوانٍ
+        setInterval(loadStats, 10000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

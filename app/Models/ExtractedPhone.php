@@ -13,7 +13,9 @@ class ExtractedPhone extends Model
         'status',
         'user_id',
         'name',
-        'note'
+        'note',
+        'whatsapp_status',
+        'whatsapp_checked_at'
     ];
     public function user()
     {

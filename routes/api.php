@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\CardsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PhoneController;
+use App\Http\Controllers\QueueController;
 
 
 Route::get('/clear-config-cache', function () {
@@ -66,6 +67,33 @@ Route::post('/add-user', [PhoneController::class, 'addUser'])->name('add-user');
 Route::post('/add-user-custom', [UserController::class, 'addUserCustom'])->name('add-user-custom');
 Route::post('/edit-user-custom', [UserController::class, 'editUserCustom'])->name('edit-user-custom');
 Route::post('/send-text-phone', [PhoneController::class, 'sendTextPhone'])->name('send-text-phone');
+Route::post('/check-whatsapp-numbers', [PhoneController::class, 'checkWhatsAppNumbers'])->name('check-whatsapp-numbers');
+Route::post('/check-single-whatsapp', [PhoneController::class, 'checkSingleWhatsAppNumber'])->name('check-single-whatsapp');
+Route::get('/whatsapp-stats', [PhoneController::class, 'getWhatsAppStats'])->name('whatsapp-stats');
+Route::post('/phones-status', [PhoneController::class, 'getPhonesStatus'])->name('phones-status');
+Route::get('/unchecked-phones', [PhoneController::class, 'getUncheckedPhones'])->name('unchecked-phones');
+Route::post('/import-phones', [PhoneController::class, 'importPhones'])->name('import-phones');
+Route::post('/upload-process-csv', [App\Http\Controllers\ImportController::class, 'uploadAndProcess'])->name('upload-process-csv');
+Route::post('/filter-import-data', [App\Http\Controllers\ImportController::class, 'filterData'])->name('filter-import-data');
+Route::post('/import-check-phones', [App\Http\Controllers\ImportController::class, 'importAndCheck'])->name('import-check-phones');
+Route::post('/get-file-columns', [App\Http\Controllers\ImportController::class, 'getColumns'])->name('get-file-columns');
+Route::post('/start-import-progress', [App\Http\Controllers\ImportController::class, 'startImportWithProgress'])->name('start-import-progress');
+Route::get('/import-progress', [App\Http\Controllers\ImportController::class, 'getImportProgress'])->name('import-progress');
+Route::post('/import-to-data-cv', [App\Http\Controllers\ImportController::class, 'importToDataCv'])->name('import-to-data-cv');
+Route::post('/split-file', [App\Http\Controllers\ImportController::class, 'splitFile'])->name('split-file');
+Route::post('/import-split-part', [App\Http\Controllers\ImportController::class, 'importSplitPart'])->name('import-split-part');
+Route::post('/check-whatsapp-data-cv', [App\Http\Controllers\ImportController::class, 'checkWhatsAppDataCv'])->name('check-whatsapp-data-cv');
+Route::post('/check-whatsapp-data-cv-batch', [App\Http\Controllers\ImportController::class, 'checkWhatsAppDataCvBatch'])->name('check-whatsapp-data-cv-batch');
+
+// Queue Management API
+Route::get('/queue/stats', [QueueController::class, 'getStats'])->name('queue.stats');
+Route::get('/queue/pending', [QueueController::class, 'getPendingJobs'])->name('queue.pending');
+Route::get('/queue/failed', [QueueController::class, 'getFailedJobs'])->name('queue.failed');
+Route::post('/queue/retry', [QueueController::class, 'retryFailedJobs'])->name('queue.retry');
+Route::post('/queue/clear', [QueueController::class, 'clearFailedJobs'])->name('queue.clear');
+Route::post('/queue/delete-pending', [QueueController::class, 'deletePendingJob'])->name('queue.delete-pending');
+Route::post('/move-data-cv-to-extracted', [App\Http\Controllers\ImportController::class, 'moveDataCvToExtracted'])->name('move-data-cv-to-extracted');
+Route::post('/move-data-cv-to-extracted-batch', [App\Http\Controllers\ImportController::class, 'moveDataCvToExtractedBatch'])->name('move-data-cv-to-extracted-batch');
 Route::group(['prefix' => 'v1'], function() {
 
 Route::middleware('auth:api')->group(function () {

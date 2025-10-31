@@ -18,6 +18,8 @@ use App\Models\ExtractedPhone;
 use App\Enums\ContactStatus;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Jobs\CheckWhatsAppNumber;
+use Illuminate\Support\Facades\Cache;
 
 class PhoneController extends Controller
 {
@@ -243,6 +245,181 @@ public function sendTextPhone(Request $request)
     return response()->json([
         'success' => true,
         'phones' => $phones
+    ]);
+}
+
+// التحقق من عدد من الأرقام دفعة واحدة
+public function checkWhatsAppNumbers(Request $request)
+{
+    $request->validate([
+        'phone_ids' => 'required|array',
+        'phone_ids.*' => 'required|integer|exists:extracted_phones,id',
+        'batch_size' => 'nullable|integer|min:1|max:100',
+        'delay_seconds' => 'nullable|integer|min:1|max:30'
+    ]);
+
+    $phoneIds = $request->phone_ids;
+    $batchSize = $request->batch_size ?? 10; // عدد الأرقام في كل دفعة
+    $delaySeconds = $request->delay_seconds ?? 5; // التأخير بالثواني بين كل رقم
+    
+    $processedCount = 0;
+    
+    // معالجة الأرقام على دفعات لتجنب الضغط على API
+    foreach ($phoneIds as $index => $phoneId) {
+        $phone = ExtractedPhone::find($phoneId);
+        
+        if ($phone && !$phone->whatsapp_status) {
+            // تأخير بين كل طلب لتجنب الحظر
+            $delay = $index * $delaySeconds;
+            
+            // إرسال Job مع تأخير محدد
+            CheckWhatsAppNumber::dispatch($phone->phone, $phoneId)
+                ->delay(now()->addSeconds($delay));
+            
+            $processedCount++;
+        }
+    }
+    
+    return response()->json([
+        'success' => true,
+        'message' => "تم بدء عملية التحقق من $processedCount رقم. سيتم التحقق تدريجياً لتجنب الحظر.",
+        'processed_count' => $processedCount,
+        'total_count' => count($phoneIds)
+    ]);
+}
+
+// التحقق من رقم واحد فقط
+public function checkSingleWhatsAppNumber(Request $request)
+{
+    $request->validate([
+        'phone_id' => 'required|integer|exists:extracted_phones,id'
+    ]);
+    
+    $phone = ExtractedPhone::find($request->phone_id);
+    
+    if (!$phone) {
+        return response()->json([
+            'success' => false,
+            'message' => 'الرقم غير موجود'
+        ], 404);
+    }
+    
+    // إرسال Job للتحقق
+    CheckWhatsAppNumber::dispatch($phone->phone, $phone->id);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'تم بدء عملية التحقق من الرقم'
+    ]);
+}
+
+// جلب إحصائيات التحقق
+public function getWhatsAppStats()
+{
+    $total = ExtractedPhone::count();
+    $checked = ExtractedPhone::whereNotNull('whatsapp_status')->count();
+    $onWhatsApp = ExtractedPhone::where('whatsapp_status', 1)->count();
+    $notOnWhatsApp = ExtractedPhone::where('whatsapp_status', 0)->count();
+    $pending = ExtractedPhone::whereNull('whatsapp_status')->count();
+    
+    return response()->json([
+        'total_numbers' => $total,
+        'checked_numbers' => $checked,
+        'on_whatsapp' => $onWhatsApp,
+        'not_on_whatsapp' => $notOnWhatsApp,
+        'pending' => $pending
+    ]);
+}
+
+// الحصول على حالة أرقام محددة
+public function getPhonesStatus(Request $request)
+{
+    $request->validate([
+        'phone_ids' => 'required|array',
+        'phone_ids.*' => 'required|integer|exists:extracted_phones,id'
+    ]);
+    
+    $phones = ExtractedPhone::whereIn('id', $request->phone_ids)
+        ->select('id', 'phone', 'whatsapp_status', 'whatsapp_checked_at')
+        ->get();
+    
+    return response()->json([
+        'success' => true,
+        'phones' => $phones
+    ]);
+}
+
+// جلب الأرقام الغير محققة منها
+public function getUncheckedPhones()
+{
+    $phones = ExtractedPhone::whereNull('whatsapp_status')
+        ->select('id', 'phone', 'user_id', 'name')
+        ->orderBy('created_at', 'desc')
+        ->limit(100)
+        ->get();
+    
+    return response()->json([
+        'success' => true,
+        'phones' => $phones,
+        'count' => $phones->count()
+    ]);
+}
+
+// استيراد أرقام من قائمة
+public function importPhones(Request $request)
+{
+    $request->validate([
+        'phones' => 'required|array',
+        'phones.*' => 'required|string|max:20',
+        'delay_seconds' => 'nullable|integer|min:1|max:30'
+    ]);
+    
+    $phones = $request->phones;
+    $delaySeconds = $request->delay_seconds ?? 10; // تغيير القيمة الافتراضية من 3 إلى 10 ثواني
+    
+    $addedCount = 0;
+    $existingCount = 0;
+    $toCheckCount = 0;
+    
+    foreach ($phones as $phone) {
+        // تنظيف الرقم
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+        
+        // إضافة 0 في البداية إذا لزم الأمر
+        if (strlen($cleanPhone) === 9 && substr($cleanPhone, 0, 1) !== '0') {
+            $cleanPhone = '0' . $cleanPhone;
+        }
+        
+        // التحقق من صحة الرقم
+        if (strlen($cleanPhone) >= 9 && strlen($cleanPhone) <= 12) {
+            // التحقق من عدم وجود الرقم
+            if (!ExtractedPhone::where('phone', $cleanPhone)->exists()) {
+                $phoneRecord = ExtractedPhone::create([
+                    'phone' => $cleanPhone,
+                    'image_name' => 'imported_via_web',
+                    'status' => 0,
+                    'whatsapp_status' => null,
+                ]);
+                
+                $addedCount++;
+                
+                // بدء عملية التحقق
+                CheckWhatsAppNumber::dispatch($phoneRecord->phone, $phoneRecord->id)
+                    ->delay(now()->addSeconds($addedCount * $delaySeconds));
+                
+                $toCheckCount++;
+            } else {
+                $existingCount++;
+            }
+        }
+    }
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'تم الاستيراد بنجاح',
+        'count' => $addedCount,
+        'existing' => $existingCount,
+        'to_check' => $toCheckCount
     ]);
 }
 }

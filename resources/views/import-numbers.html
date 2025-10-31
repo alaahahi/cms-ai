@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استيراد أرقام من ملف Zain</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .card {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e7ecff;
+        }
+        .btn-import {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+        }
+        .btn-import:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-file-upload"></i> استيراد أرقام من ملف Zain</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <h5 class="mb-4">📋 الطريقة الموصى بها:</h5>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> خطوات الاستيراد:</h6>
+                            <ol>
+                                <li>افتح ملف Zain.accdb باستخدام Microsoft Access أو Excel</li>
+                                <li>قم بتصدير الجدول إلى ملف CSV</li>
+                                <li>ارفع الملف CSV هنا</li>
+                                <li>اختر العمود الذي يحتوي على الأرقام</li>
+                                <li>انقر "استيراد والتحقق من الواتساب"</li>
+                            </ol>
+                        </div>
+                        
+                        <div id="uploadArea" class="upload-area" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h5>اسحب الملف هنا</h5>
+                            <p class="text-muted">أو انقر لاختيار الملف</p>
+                            <input type="file" id="fileInput" accept=".csv,.txt" class="d-none" onchange="handleFileSelect(event)">
+                            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                اختر ملف
+                            </button>
+                        </div>
+                        
+                        <div id="filePreview" class="mt-4" style="display: none;">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h6><i class="fas fa-file-check"></i> معاينة الملف</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>اسم الملف:</strong> <span id="fileName"></span></p>
+                                    <p><strong>الحجم:</strong> <span id="fileSize"></span></p>
+                                    <p><strong>عدد الأسطر:</strong> <span id="lineCount"></span></p>
+                                    
+                                    <div class="mb-3 mt-3">
+                                        <label class="form-label"><strong>اختر العمود الذي يحتوي على الأرقام:</strong></label>
+                                        <select class="form-select" id="phoneColumn">
+                                            <option value="">-- اختر العمود --</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label"><strong>المدة بين كل رقم بالثواني:</strong></label>
+                                        <input type="number" class="form-control" id="delaySeconds" value="3" min="1" max="30">
+                                    </div>
+                                    
+                                    <button class="btn btn-import text-white btn-lg w-100" onclick="importAndCheck()">
+                                        <i class="fas fa-check-circle"></i> استيراد والتحقق من الواتساب
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="results" class="mt-4"></div>
+                        <div id="progressSection" style="display: none;">
+                            <div class="card">
+                                <div class="card-header bg-warning">
+                                    <h6><i class="fas fa-spinner fa-spin"></i> جاري المعالجة...</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="progress mb-3">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" 
+                                             style="width: 0%" 
+                                             id="progressBar"></div>
+                                    </div>
+                                    <div id="progressDetails"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let fileData = null;
+        let csvData = null;
+        let parsedData = [];
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        }
+
+        function handleFile(file) {
+            fileData = file;
+            
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(2) + ' KB';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                csvData = e.target.result;
+                parseCSV(csvData);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            document.getElementById('lineCount').textContent = lines.length;
+            
+            if (lines.length > 0) {
+                // تحليل السطر الأول كرؤوس
+                const headers = lines[0].split(',').map(h => h.trim());
+                
+                // ملء قائمة الاختيار
+                const select = document.getElementById('phoneColumn');
+                select.innerHTML = '<option value="">-- اختر العمود --</option>';
+                headers.forEach((header, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = header;
+                    select.appendChild(option);
+                });
+                
+                // حفظ البيانات
+                parsedData = lines.map(line => line.split(',').map(cell => cell.trim()));
+                
+                document.getElementById('filePreview').style.display = 'block';
+            }
+        }
+
+        function importAndCheck() {
+            const columnIndex = document.getElementById('phoneColumn').value;
+            const delaySeconds = document.getElementById('delaySeconds').value;
+            
+            if (!columnIndex) {
+                alert('الرجاء اختيار عمود الأرقام');
+                return;
+            }
+            
+            // استخراج الأرقام
+            const phones = [];
+            for (let i = 1; i < parsedData.length; i++) {
+                const phone = parsedData[i][columnIndex];
+                if (phone) {
+                    // تنظيف الرقم
+                    let cleanPhone = phone.replace(/[^0-9]/g, '');
+                    
+                    // إضافة 0 في البداية إذا لزم الأمر
+                    if (cleanPhone.length === 9 && !cleanPhone.startsWith('0')) {
+                        cleanPhone = '0' + cleanPhone;
+                    }
+                    
+                    if (cleanPhone.length >= 9 && cleanPhone.length <= 12 && !phones.includes(cleanPhone)) {
+                        phones.push(cleanPhone);
+                    }
+                }
+            }
+            
+            if (phones.length === 0) {
+                alert('لم يتم العثور على أرقام صالحة في العمود المحدد');
+                return;
+            }
+            
+            // إظهار قسم التقدم
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('progressBar').style.width = '10%';
+            document.getElementById('progressDetails').innerHTML = '<p>جاري إرسال الأرقام...</p>';
+            
+            // إرسال الأرقام إلى API
+            fetch(`${API_BASE}/api/import-phones`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phones: phones,
+                    delay_seconds: parseInt(delaySeconds)
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressDetails').innerHTML = `
+                    <p class="text-success"><i class="fas fa-check-circle"></i> تم بنجاح!</p>
+                    <p>عدد الأرقام المستوردة: ${data.count}</p>
+                    <p>عدد الأرقام التي سيتم التحقق منها: ${data.to_check}</p>
+                    <a href="/whatsapp-checker" class="btn btn-primary mt-3">
+                        <i class="fas fa-eye"></i> متابعة النتائج
+                    </a>
+                `;
+                
+                document.getElementById('results').innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ تم الاستيراد بنجاح!</h5>
+                        <p>تم نقل ${data.count} رقم إلى قاعدة البيانات</p>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5>❌ حدث خطأ</h5>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
