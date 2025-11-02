@@ -55,6 +55,10 @@ onMounted(() => {
 
             showModalAssign(id, name,percentage,email)
         }
+        if (e.target.matches('.btn-delete')) {
+            const id = e.target.getAttribute('data-id')
+            deleteUser(id)
+        }
     })
   }
 })
@@ -87,6 +91,19 @@ const editUser = (form) => {
       }
 
   })  
+}
+
+const deleteUser = (id) => {
+  if(confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
+    axios.delete(`/api/delete-user-custom/${id}`)
+    .then(response => {
+      toast.success("تم حذف المندوب بنجاح")
+      window.location.reload()
+    })
+    .catch(error => {
+      toast.error("حدث خطأ أثناء حذف المستخدم")
+    })
+  }
 }
 </script>
 
@@ -123,6 +140,11 @@ const editUser = (form) => {
                      :data-percentage="user.percentage"
                      :className="'px-3 btn-edit py-1 text-white mx-1 bg-rose-600 rounded user-' + user.id  "
                      >تعديل</button>
+              <button
+                    tabIndex="2"
+                     :data-id="user.id"
+                     :className="'px-3 btn-delete py-1 text-white mx-1 bg-red-600 rounded user-' + user.id  "
+                     >حذف</button>
             </td>
           </tr>
         </tbody>

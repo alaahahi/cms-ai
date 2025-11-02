@@ -539,4 +539,26 @@ class UserController extends Controller
             'message' => 'تم تعديل بيانات المستخدم بنجاح.'
         ]);
     }
+    public function deleteUserCustom($id)
+    {
+        $user = User::find($id);
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'المستخدم غير موجود.'
+            ], 404);
+        }
+
+        // Delete associated wallet if exists
+        Wallet::where('user_id', $id)->delete();
+        
+        // Delete the user
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف المستخدم بنجاح.'
+        ]);
+    }
     }

@@ -66,6 +66,7 @@ Route::post('/number-decision', [PhoneController::class, 'numberDecision'])->nam
 Route::post('/add-user', [PhoneController::class, 'addUser'])->name('add-user');
 Route::post('/add-user-custom', [UserController::class, 'addUserCustom'])->name('add-user-custom');
 Route::post('/edit-user-custom', [UserController::class, 'editUserCustom'])->name('edit-user-custom');
+Route::delete('/delete-user-custom/{id}', [UserController::class, 'deleteUserCustom'])->name('delete-user-custom');
 Route::post('/send-text-phone', [PhoneController::class, 'sendTextPhone'])->name('send-text-phone');
 Route::post('/check-whatsapp-numbers', [PhoneController::class, 'checkWhatsAppNumbers'])->name('check-whatsapp-numbers');
 Route::post('/check-single-whatsapp', [PhoneController::class, 'checkSingleWhatsAppNumber'])->name('check-single-whatsapp');

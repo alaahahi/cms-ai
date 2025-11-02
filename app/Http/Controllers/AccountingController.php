@@ -72,10 +72,10 @@ class AccountingController extends Controller
     $transactions_id = $_GET['transactions_id'] ?? 0;
     $user = User::with('wallet')->where('id',$user_id)->first();
     if($from && $to ){
-        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->where('card_id', $card_id)->orderBy('id','desc')->whereBetween('created', [$from, $to]);
+        $transactions = Transactions ::where('wallet_id', $user?->wallet?->id)->where('card_id', $card_id)->orderBy('id','desc')->whereBetween('created', [$from, $to]);
 
     }else{
-        $transactions = Transactions ::where('wallet_id', $user->wallet->id)->where('card_id', $card_id)->orderBy('id','desc');
+        $transactions = Transactions ::where('wallet_id', $user?->wallet?->id)->where('card_id', $card_id)->orderBy('id','desc');
     }
     $allTransactions = $transactions->get();
     
@@ -160,7 +160,7 @@ class AccountingController extends Controller
         $originalTransaction = Transactions::find($transaction_id);
         $wallet_id=$originalTransaction->wallet_id;
         $wallet=Wallet::find($wallet_id);
-        $walletHospital=Wallet::where('user_id',$this->hospital->id)->first();
+        $walletHospital=Wallet::where('user_id',$this->hospital?->id)->first();
 
         $wallet->decrement('balance', $originalTransaction->amount);
         if (!$originalTransaction) {
@@ -173,7 +173,9 @@ class AccountingController extends Controller
             $wallet=Wallet::find($wallet_id);
             $wallet->decrement('balance', $all->amount);
             $wallet->decrement('card', $all->card);
-            $walletHospital->decrement('card', $all->card);
+            if($walletHospital) {
+                $walletHospital->decrement('card', $all->card);
+            }
 
             $all->delete();
           }
@@ -196,7 +198,7 @@ class AccountingController extends Controller
     }
     public function salesCard(Request $request)
     {
-        $account_id= $this->mainAccount->id??0;
+        $account_id= $this->mainAccount?->id ?? 0;
         $amount= $request->amount??0;
         $card_id = $request->card_id??0;
         $card= $request->card??0;
@@ -210,18 +212,23 @@ class AccountingController extends Controller
         $wallet->increment('card',$card);
         $wallet->increment('card_total',$card);
 
-        $walletHospital = Wallet::where('user_id', $this->hospital->id)->first();
-        $walletDoctours = Wallet::where('user_id', $this->doctours->id)->first();
+        $walletHospital = Wallet::where('user_id', $this->hospital?->id)->first();
+        $walletDoctours = Wallet::where('user_id', $this->doctours?->id)->first();
 
-        $walletHospital->increment('card',$card);
-        $walletHospital->increment('card_total',$card);
+        if($walletHospital) {
+            $walletHospital->increment('card',$card);
+            $walletHospital->increment('card_total',$card);
+        }
 
-        $walletDoctours->increment('card',$card);
-        $walletDoctours->increment('card_total',$card);
+        if($walletDoctours) {
+            $walletDoctours->increment('card',$card);
+            $walletDoctours->increment('card_total',$card);
+        }
 
         
         $desc=" مبيعات المندوب"." ".$request->user['name'].' '.'عدد البطاقات '.$card.'نسبة المبيعات للبطاقة '.$request->user['percentage'];
-        $transaction = $this->increaseWallet($box, $desc,$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$user_id, $date,0,0,$card_id);
+        $mainAccountId = $this->mainAccount?->id ?? 0;
+        $transaction = $this->increaseWallet($box, $desc,$mainAccountId,$mainAccountId,'App\Models\User',$user_id, $date,0,0,$card_id);
         $this->increaseWallet($amount, $desc,$user_id,$user_id,'App\Models\User',$user_id, $date,$transaction->id,$card,$card_id);
         return Response::json($request, 200);
     }
@@ -242,7 +249,8 @@ class AccountingController extends Controller
             $transactions->update(['is_pay' => 1]);
             $profile_count = Profile::where('user_id', $user?->id)->where('results',1)->update(['results' => 2]);
             $this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$user->id,$user->id,'App\Models\User',$authUser->id,$this->currentDatef,0,0,$card_id);
-            $Transactions =$this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$this->mainAccount->id,$this->mainAccount->id,'App\Models\User',$authUser->id,$this->currentDatef,0,0,$card_id);
+            $mainAccountId = $this->mainAccount?->id ?? 0;
+            $Transactions =$this->decreaseWallet($amount,' تسليم مبلغ '.$amount.' دينار عراقي ',$mainAccountId,$mainAccountId,'App\Models\User',$authUser->id,$this->currentDatef,0,0,$card_id);
 
             // If everything is successful, commit the transaction
             DB::commit();
@@ -267,12 +275,24 @@ class AccountingController extends Controller
         $profile_id = $_GET['id'] ?? 0;
 
         $profile = Profile::find($profile_id);
+        if (!$profile) {
+            return Response::json(['error' => 'Profile not found'], 404);
+        }
 
         $wallet = Wallet::where('user_id', $profile->user_id)->first();
+        if (!$wallet) {
+            return Response::json(['error' => 'Wallet not found'], 404);
+        }
 
         $card = Card::find($profile->card_id);
+        if (!$card) {
+            return Response::json(['error' => 'Card not found'], 404);
+        }
 
         $user = User::find($profile->user_id);
+        if (!$user) {
+            return Response::json(['error' => 'User not found'], 404);
+        }
 
         $old_card = $wallet->card; 
 
@@ -304,8 +324,10 @@ class AccountingController extends Controller
     }
     public function increaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0,$card_id=1) 
     {
+        $Transactions = null;
+        $wallet = null;
         $user=  User::with('wallet')->find($user_id);
-        if($id = $user->wallet->id){
+        if($user && $user->wallet && ($id = $user->wallet->id)){
         $transactionDetils = ['type' => 'in','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card,'card_id'=>$card_id];
         $Transactions =Transactions::create($transactionDetils);
         $wallet = Wallet::find($id);
@@ -320,8 +342,10 @@ class AccountingController extends Controller
 
     public function decreaseWallet(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0,$card=0,$card_id=1) 
     {
+        $Transactions = null;
+        $wallet = null;
         $user=  User::with('wallet')->find($user_id);
-        if($id = $user->wallet->id){
+        if($user && $user->wallet && ($id = $user->wallet->id)){
         $wallet = Wallet::find($id);
             $wallet->decrement('balance', $amount);
             $transactionDetils = ['type' => 'out','wallet_id'=>$id,'description'=>$desc,'amount'=>$amount*-1,'is_pay'=>1,'morphed_id'=>$morphed_id,'morphed_type'=>$morphed_type,'user_added'=>$user_added,'created'=>$created,'parent_id'=>$parent_id,'card'=>$card,'card_id'=>$card_id];
@@ -337,8 +361,10 @@ class AccountingController extends Controller
     }
     public function debt(int $amount,$desc,$user_id,$morphed_id=0,$morphed_type='',$user_added=0,$created,$parent_id=0) 
     {
+        $Transactions = null;
+        $wallet = null;
         $user=  User::with('wallet')->find($user_id);
-        if($id = $user->wallet->id){
+        if($user && $user->wallet && ($id = $user->wallet->id)){
         $wallet = Wallet::find($id);
         if($wallet->balance <= 0){
             return 'No balance';
