@@ -52,6 +52,7 @@ Route::get('/checkCard',[FormRegistrationController::class, 'checkCard']);
 Route::get('ackUserMassages/{sender}/{receiver}/{date}',[UserController::class, 'ackUserMassages']);
 
 Route::post('formRegistration',[FormRegistrationController::class, 'store'])->name('formRegistration');
+Route::get('whatsapp-progress',[FormRegistrationController::class, 'getWhatsAppProgress'])->name('whatsapp-progress');
 
 
 Route::post('salesCard',[AccountingController::class, 'salesCard'])->name('salesCard');

@@ -39,15 +39,26 @@ const profileAdded = ref(0);
 const errors = ref(0);
 
 const isLoading = ref(false);
+const whatsappBatchId = ref(null);
+const whatsappProgress = ref(null);
+const progressInterval = ref(null);
 
 const submit = () => {
   isLoading.value = true;
-  sendWhatsAppMessageArray([form.value.phone_number])
+  // Remove direct WhatsApp sending - now handled by Job
+  // sendWhatsAppMessageArray([form.value.phone_number])
 
   axios.post('/api/formRegistration', form.value)
   .then(response => {
 
-    profileAdded.value = response.data;
+    profileAdded.value = response.data.profile;
+    whatsappBatchId.value = response.data.batch_id;
+    
+    // Start tracking WhatsApp progress
+    if (whatsappBatchId.value) {
+      startProgressTracking(whatsappBatchId.value);
+    }
+    
     form.value={
       created: ref(getTodayDate()), // Set the initial value to today's date
     };
@@ -66,6 +77,45 @@ const submit = () => {
 
     
   })
+};
+
+const startProgressTracking = (batchId) => {
+  const checkProgress = () => {
+    axios.get(`/api/whatsapp-progress?batch_id=${batchId}`)
+      .then(response => {
+        whatsappProgress.value = response.data;
+        
+        // Stop tracking if completed
+        if (response.data.status === 'completed' || response.data.status === 'failed') {
+          if (progressInterval.value) {
+            clearInterval(progressInterval.value);
+            progressInterval.value = null;
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error checking progress:', error);
+        // Stop tracking on error
+        if (progressInterval.value) {
+          clearInterval(progressInterval.value);
+          progressInterval.value = null;
+        }
+      });
+  };
+  
+  // Check immediately
+  checkProgress();
+  
+  // Check every 2 seconds
+  progressInterval.value = setInterval(checkProgress, 2000);
+  
+  // Stop after 5 minutes max
+  setTimeout(() => {
+    if (progressInterval.value) {
+      clearInterval(progressInterval.value);
+      progressInterval.value = null;
+    }
+  }, 300000);
 };
 
 const photoHusband = (data) => {
@@ -120,63 +170,7 @@ const checkCard = (v,id) => {
     userCard.value=0;
   })
 };
-const sendWhatsAppMessageArray = (phoneNumbers) => {
-    const baseUrl = 'https://api.textmebot.com/send.php';
-    const apiKey = props.apiKey;
-
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-    let promise = Promise.resolve(); // البداية بوعد محلول
-
-    phoneNumbers.forEach((phone, index) => {
-        promise = promise.then(() => {
-            if (phone.startsWith('0')) {
-                phone = phone.slice(1); // إزالة الصفر من البداية
-            }
-
-            const textMessage =
-                'اهلاً وسهلاً بك..' + '\n\n' +
-                'نشكر انضمامك لأسرة الهدف المباشر، ' +
-                'ونود إعلامك بأنه تم تنشيط بطاقتك الصحية وباستطاعتك الاستفادة من كافة خدمات البطاقة. نتمنى لك تجربة سعيدة وصحة جيدة.' + '\n\n' +
-                'للتذكير: يرجى حجز موعد مسبق دائماً.' + '\n\n' +
-                'للحجز والاستعلام، تواصل معنا على الرقم:' + '\n' +
-                '📲: ' + props.phone + '\n\n' +
-                'من فريق الهدف المباشر، كل المحبة ودعواتنا بتمام الصحة والعافية.';
-
-            const url = `${baseUrl}?recipient=+964${phone}&apikey=${apiKey}&text=${encodeURIComponent(textMessage)}&json=yes`;
-
-            return fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        toast.success(`تم الإرسال إلى ${phone} بنجاح`, {
-                            timeout: 2000,
-                            position: "bottom-right",
-                            rtl: true,
-                        });
-                    } else {
-                        throw new Error("فشل الإرسال");
-                    }
-                })
-                .catch(error => {
-                    if (error.message === 'NetworkError') {
-                        toast.success(`تم الإرسال إلى ${phone} (بوجود مشكلة بالشبكة)`, {
-                            timeout: 2000,
-                            position: "bottom-right",
-                            rtl: true,
-                        });
-                    } else {
-                        toast.error(`فشل الإرسال إلى ${phone}`, {
-                            timeout: 2000,
-                            position: "bottom-right",
-                            rtl: true,
-                        });
-                    }
-                })
-                .then(() => delay(5000)); // تأخير 5 ثواني بين كل رسالة
-        });
-    });
-};
+// Removed sendWhatsAppMessageArray - now handled by Job queue
 
 </script>
 
@@ -201,6 +195,34 @@ const sendWhatsAppMessageArray = (phoneNumbers) => {
           {{ profileAdded.card_number }}
           بأسم الزبون
           {{ profileAdded.name }}
+        </div>
+      </div>
+      
+      <!-- WhatsApp Progress Indicator -->
+      <div v-if="whatsappProgress" class="p-4 mb-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-blue-800">حالة إرسال رسالة الواتساب</h3>
+          <span class="text-xs text-blue-600">{{ whatsappProgress.status === 'completed' ? 'مكتمل' : whatsappProgress.status === 'queued' ? 'في الانتظار' : 'قيد المعالجة' }}</span>
+        </div>
+        
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+          <div 
+            class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+            :style="{ width: whatsappProgress.total > 0 ? (whatsappProgress.completed / whatsappProgress.total * 100) + '%' : '0%' }"
+          ></div>
+        </div>
+        
+        <div class="text-xs text-blue-700">
+          <span v-if="whatsappProgress.status === 'queued'">جاري إعداد الرسالة...</span>
+          <span v-else-if="whatsappProgress.status === 'processing'">
+            جاري الإرسال... ({{ whatsappProgress.completed }} / {{ whatsappProgress.total }})
+          </span>
+          <span v-else-if="whatsappProgress.status === 'completed'">
+            ✅ تم إرسال الرسالة بنجاح
+          </span>
+          <span v-else-if="whatsappProgress.status === 'failed'">
+            ❌ فشل إرسال الرسالة
+          </span>
         </div>
       </div>
     </div>

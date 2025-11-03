@@ -13,5 +13,6 @@ class Message extends Model
         'phone_number',
         'message',
         'status',
+        'batch_id',
     ];
 }

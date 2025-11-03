@@ -38,7 +38,7 @@ class QueueController extends Controller
      */
     protected function getQueueStats()
     {
-        // Jobs في الانتظار
+        // Jobs في الانتظار (كلها)
         $pendingJobs = DB::table('jobs')->count();
         
         // Jobs الفاشلة
@@ -50,24 +50,39 @@ class QueueController extends Controller
             ->orderBy('reserved_at', 'desc')
             ->first();
         
-        // Jobs الجاهزة (لم يتم حجزها بعد)
+        // Jobs الجاهزة (لم يتم حجزها بعد وليس لديها delay)
+        $now = time();
         $availableJobs = DB::table('jobs')
             ->whereNull('reserved_at')
+            ->where(function($query) use ($now) {
+                $query->whereNull('available_at')
+                      ->orWhere('available_at', '<=', $now);
+            })
+            ->count();
+        
+        // Jobs مع delay (مؤجلة)
+        $delayedJobs = DB::table('jobs')
+            ->whereNull('reserved_at')
+            ->whereNotNull('available_at')
+            ->where('available_at', '>', $now)
             ->count();
         
         // Jobs قيد المعالجة (محجوزة)
+        // Job محجوز إذا كان reserved_at موجود وليس منتهي الصلاحية (أقل من 90 ثانية)
         $processingJobs = DB::table('jobs')
             ->whereNotNull('reserved_at')
-            ->whereNull('reserved_at')
+            ->where('reserved_at', '>', $now - 90) // 90 seconds = retry_after
             ->count();
         
         return [
             'pending' => $pendingJobs,
             'failed' => $failedJobs,
             'available' => $availableJobs,
+            'delayed' => $delayedJobs,
             'processing' => $processingJobs,
             'last_processed_at' => $lastProcessed ? date('Y-m-d H:i:s', $lastProcessed->reserved_at) : null,
             'is_worker_running' => $this->checkWorkerStatus(),
+            'queue_connection' => config('queue.default'),
         ];
     }
 
@@ -187,18 +202,42 @@ class QueueController extends Controller
             ->get()
             ->map(function($job) {
                 $payload = json_decode($job->payload, true);
+                
+                // Extract available_at (delay time)
+                $availableAt = $job->available_at ?? null;
+                $availableAtFormatted = $availableAt ? date('Y-m-d H:i:s', $availableAt) : null;
+                $isDelayed = $availableAt && $availableAt > time();
+                $delaySeconds = $isDelayed ? ($availableAt - time()) : 0;
+                
+                // Extract job class name
+                $jobClass = $payload['displayName'] ?? ($payload['job'] ?? 'Unknown');
+                $jobClass = str_replace('Illuminate\\Queue\\CallQueuedHandler@call', '', $jobClass);
+                
+                // Try to extract job name from data
+                if (isset($payload['data']['commandName'])) {
+                    $jobClass = $payload['data']['commandName'];
+                }
+                
                 return [
                     'id' => $job->id,
-                    'queue' => $job->queue,
-                    'payload' => $payload['displayName'] ?? 'Unknown',
+                    'queue' => $job->queue ?? 'default',
+                    'payload' => $jobClass,
                     'created_at' => date('Y-m-d H:i:s', $job->created_at),
+                    'available_at' => $availableAtFormatted,
                     'reserved_at' => $job->reserved_at ? date('Y-m-d H:i:s', $job->reserved_at) : null,
+                    'is_delayed' => $isDelayed,
+                    'delay_seconds' => $delaySeconds,
+                    'status' => $job->reserved_at ? 'processing' : ($isDelayed ? 'delayed' : 'ready'),
                 ];
             });
         
         return response()->json([
             'success' => true,
-            'jobs' => $pendingJobs
+            'jobs' => $pendingJobs,
+            'queue_connection' => config('queue.default'),
+            'message' => config('queue.default') === 'sync' 
+                ? 'تحذير: Queue Connection هو sync. غير إلى database في ملف .env لرؤية Jobs' 
+                : null
         ]);
     }
 

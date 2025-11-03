@@ -29,6 +29,9 @@ use PDF;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\SendFormRegistrationWhatsAppJob;
+use Illuminate\Support\Str;
 
 
 
@@ -404,12 +407,126 @@ class FormRegistrationController extends Controller
                 'created' => $request->created,
                 'no' => $no
             ]);
+            // ✅ إرسال رسالة واتساب عبر Job
+            $batchId = $this->sendWhatsAppMessageViaJob($request->phone_number, $profile->id);
+            
             // ✅ إعادة البيانات كـ JSON
-            return response()->json($profile);
+            return response()->json([
+                'profile' => $profile,
+                'batch_id' => $batchId,
+                'message' => 'تم حفظ الملف بنجاح وتم طلب إرسال رسالة الواتساب'
+            ]);
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], 500);
         }
     
+    }
+
+    /**
+     * Send WhatsApp message via Job with delay
+     */
+    protected function sendWhatsAppMessageViaJob($phoneNumber, $profileId = null)
+    {
+        try {
+            $config = SystemConfig::first();
+            if (!$config || !$config->api_key) {
+                Log::warning('WhatsApp API key not configured');
+                return;
+            }
+
+            $baseUrl = 'https://api.textmebot.com/send.php';
+            $apiKey = $config->api_key;
+            $phone = $config->phone ?? '';
+            
+            // Format phone number
+            $formattedPhone = $phoneNumber;
+            if (str_starts_with($formattedPhone, '0')) {
+                $formattedPhone = substr($formattedPhone, 1);
+            }
+            
+            // Create batch ID
+            $batchId = Str::uuid()->toString();
+            
+            // Prepare message
+            $textMessage = 
+                'اهلاً وسهلاً بك..' . '\n\n' .
+                'نشكر انضمامك لأسرة الهدف المباشر، ' .
+                'ونود إعلامك بأنه تم تنشيط بطاقتك الصحية وباستطاعتك الاستفادة من كافة خدمات البطاقة. نتمنى لك تجربة سعيدة وصحة جيدة.' . '\n\n' .
+                'للتذكير: يرجى حجز موعد مسبق دائماً.' . '\n\n' .
+                'للحجز والاستعلام، تواصل معنا على الرقم:' . '\n' .
+                '📲: ' . $phone . '\n\n' .
+                'من فريق الهدف المباشر، كل المحبة ودعواتنا بتمام الصحة والعافية.';
+
+            // Initialize progress in cache
+            $progressKey = "whatsapp_batch_progress_{$batchId}";
+            Cache::put($progressKey, [
+                'batch_id' => $batchId,
+                'total' => 1,
+                'completed' => 0,
+                'sent' => 0,
+                'failed' => 0,
+                'status' => 'queued',
+                'last_update' => now()->toDateTimeString(),
+            ], 3600);
+
+            // Check queue connection
+            $queueConnection = config('queue.default');
+            
+            if ($queueConnection === 'sync') {
+                Log::warning('Queue connection is set to sync. Jobs will execute immediately and not appear in queue-manage. Change QUEUE_CONNECTION=database in .env file to use queue system.');
+            }
+            
+            // Dispatch job with delay (10 seconds delay to avoid rate limiting)
+            // Force to use database queue
+            $job = SendFormRegistrationWhatsAppJob::dispatch(
+                $formattedPhone,
+                $textMessage,
+                $apiKey,
+                $baseUrl,
+                $batchId,
+                1, // total messages
+                0  // message index (0-based)
+            )
+            ->onQueue('default') // Ensure it goes to database queue
+            ->delay(now()->addSeconds(10));
+
+            Log::info('WhatsApp job dispatched', [
+                'batch_id' => $batchId,
+                'phone' => $formattedPhone,
+                'queue_connection' => $queueConnection,
+                'delay_seconds' => 10
+            ]);
+
+            return $batchId;
+        } catch (\Exception $e) {
+            Log::error('Error dispatching WhatsApp job: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get WhatsApp sending progress
+     */
+    public function getWhatsAppProgress(Request $request)
+    {
+        $batchId = $request->get('batch_id');
+        
+        if (!$batchId) {
+            return response()->json([
+                'error' => 'batch_id is required'
+            ], 400);
+        }
+
+        $progressKey = "whatsapp_batch_progress_{$batchId}";
+        $progress = Cache::get($progressKey);
+
+        if (!$progress) {
+            return response()->json([
+                'error' => 'Batch not found or expired'
+            ], 404);
+        }
+
+        return response()->json($progress);
     }
     
     public function storeEdit(Request $request,$id)
