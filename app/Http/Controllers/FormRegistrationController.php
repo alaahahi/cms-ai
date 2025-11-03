@@ -389,9 +389,41 @@ class FormRegistrationController extends Controller
                 mkdir($imagePath, 0777, true);
             }
         
-            $imageName = time() . '.png';
-            file_put_contents("$imagePath/$imageName", $imageData);
-            $imageUrl = 'uploads/' . $imageName;
+            // ضغط الصورة وتصغير حجمها
+            try {
+                $img = Image::make($imageData);
+                
+                // تصغير الأبعاد - الحد الأقصى للعرض 600 بكسل مع الحفاظ على النسبة
+                // هذا يقلل الحجم بشكل كبير
+                $img->resize(600, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize(); // لا تكبر الصورة إذا كانت أصغر
+                });
+                
+                // تحويل إلى JPG وتقليل الجودة للحصول على حجم أصغر
+                // جودة 60% تعطي حجم أصغر بكثير (عادة 100-300 KB)
+                $imageName = time() . '.jpg';
+                $img->encode('jpg', 60); // ضغط الجودة إلى 60%
+                $img->save("$imagePath/$imageName");
+                
+                // التحقق من الحجم النهائي
+                $fileSize = filesize("$imagePath/$imageName");
+                $fileSizeKB = round($fileSize / 1024, 2);
+                
+                Log::info('Image compressed successfully', [
+                    'original_size' => strlen($imageData) / 1024 . ' KB',
+                    'compressed_size' => $fileSizeKB . ' KB',
+                    'file' => $imageName
+                ]);
+                
+                $imageUrl = 'uploads/' . $imageName;
+            } catch (\Exception $e) {
+                // إذا فشل الضغط، احفظ الصورة الأصلية
+                Log::warning('Failed to compress image: ' . $e->getMessage());
+                $imageName = time() . '.png';
+                file_put_contents("$imagePath/$imageName", $imageData);
+                $imageUrl = 'uploads/' . $imageName;
+            }
         
             $profile = Profile::create([
                 'card_number' => $request->card_number,
