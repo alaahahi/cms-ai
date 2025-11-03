@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use App\Models\SystemConfig;
 use App\Models\Info;
 use App\Models\User;
 use App\Models\Profile;
 use App\Models\Wallet;
+use App\Models\Message;
+use App\Models\Appointment;
+use App\Models\Card;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -77,6 +81,127 @@ class DashboardController extends Controller
             ];
         }
         
+        // === إحصائيات البطاقات الجديدة ===
+        
+        // إحصائيات البطاقات بحسب النوع (Card)
+        $cardsStats = DB::table('profile')
+            ->join('card', 'profile.card_id', '=', 'card.id')
+            ->select(
+                'card.id',
+                'card.name_ar',
+                'card.name_en',
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('card.id', 'card.name_ar', 'card.name_en')
+            ->orderBy('count', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name_ar' => $item->name_ar,
+                    'name_en' => $item->name_en,
+                    'count' => $item->count,
+                ];
+            });
+        
+        // إحصائيات البطاقات بحسب الحالة (results)
+        $statusStats = [
+            'pending_delivery' => Profile::where('results', 0)->count(), // إنتظار تسليم الصندوق
+            'delivered' => Profile::where('results', 1)->count(), // تم التسليم
+            'completed' => Profile::where('results', 2)->count(), // مكتمل
+            'pending' => Profile::where('results', 3)->count(), // معلق
+            'total' => Profile::count(),
+        ];
+        
+        // إحصائيات البطاقات بحسب المندوب (User)
+        $salesStats = DB::table('profile')
+            ->join('users', 'profile.user_id', '=', 'users.id')
+            ->select(
+                'users.id',
+                'users.name',
+                DB::raw('COUNT(*) as count')
+            )
+            ->where('users.type_id', '!=', 8) // استثناء الأدمن
+            ->groupBy('users.id', 'users.name')
+            ->orderBy('count', 'desc')
+            ->limit(10) // أفضل 10 مندوبين
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'count' => $item->count,
+                ];
+            });
+        
+        // إحصائيات البطاقات بحسب المصدر (source)
+        $sourceStats = DB::table('profile')
+            ->select(
+                'source',
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('source')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'source' => $item->source ?? 'unknown',
+                    'count' => $item->count,
+                ];
+            });
+        
+        // إحصائيات البطاقات بحسب الشهر (آخر 6 أشهر)
+        $monthlyStats = DB::table('profile')
+            ->select(
+                DB::raw('DATE_FORMAT(created, "%Y-%m") as month'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->where('created', '>=', now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'month' => $item->month,
+                    'count' => $item->count,
+                ];
+            });
+        
+        // === إحصائيات WhatsApp ===
+        $whatsappStats = [
+            'total' => Message::count(),
+            'sent' => Message::where('status', 'sent')->count(),
+            'failed' => Message::where('status', 'failed')->count(),
+            'pending' => Message::where('status', 'pending')->orWhereNull('status')->count(),
+            'batches' => Message::whereNotNull('batch_id')->distinct('batch_id')->count('batch_id'),
+            'today' => Message::whereDate('created_at', today())->count(),
+            'this_week' => Message::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            'this_month' => Message::whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count(),
+        ];
+        
+        // === إحصائيات المواعيد ===
+        $appointmentStats = [
+            'total' => Appointment::count(),
+            'confirmed' => Appointment::where('is_come', 2)->count(),
+            'cancelled' => Appointment::where('is_come', 0)->count(),
+            'pending' => Appointment::where('is_come', 1)->orWhereNull('is_come')->count(),
+            'today' => Appointment::whereDate('start', today())->count(),
+            'this_week' => Appointment::whereBetween('start', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            'this_month' => Appointment::whereMonth('start', now()->month)
+                ->whereYear('start', now()->year)
+                ->count(),
+        ];
+        
+        // === إحصائيات إضافية ===
+        $additionalStats = [
+            'total_users' => User::count(),
+            'total_cards' => Card::count(),
+            'active_cards' => Card::active()->count(),
+            'total_wallets' => Wallet::count(),
+            'total_balance' => Wallet::sum('balance'),
+        ];
+        
          return Inertia::render('Dashboard', [
             'url' => $this->url,
             'user' => $user,
@@ -87,6 +212,15 @@ class DashboardController extends Controller
             'cardRegister' => $profileUser,
             'balance' => $wallet->balance ?? '',
             'numbersStats' => $numberStats,
+            // إحصائيات جديدة
+            'cardsStats' => $cardsStats,
+            'statusStats' => $statusStats,
+            'salesStats' => $salesStats,
+            'sourceStats' => $sourceStats,
+            'monthlyStats' => $monthlyStats,
+            'whatsappStats' => $whatsappStats,
+            'appointmentStats' => $appointmentStats,
+            'additionalStats' => $additionalStats,
         ]);
 
     }

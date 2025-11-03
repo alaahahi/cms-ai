@@ -657,20 +657,35 @@ class FormRegistrationController extends Controller
         $data = Profile::with('user')->where('name', 'LIKE','%'.$term.'%')->where('results',3)->orwhere('card_number', 'LIKE','%'.$term.'%')->where('results',3)->where('results',3)->paginate(10);
         return response()->json($data); 
     }
-    public function checkCard()
+    public function checkCard(Request $request)
     {
         try {
-            $card_id = $_GET['card_id'] ?? 0;
-            $card_number = $_GET['card_number'] ?? 0;
-            $profiles=Profile::with('user')->with('appointment.user')->where('card_id',$card_id)->where('card_number',$card_number)->first();
-            if($profiles)
-            return response()->json($profiles);
-            else
-            return response()->json(['error' => 'not found card'], 421);
+            $searchTerm = $request->get('search') ?? $request->get('card_id') ?? '';
+            
+            if (empty($searchTerm)) {
+                return response()->json(['error' => 'Search term is required'], 400);
+            }
+            
+            // البحث في جميع أنواع البطاقات
+            // البحث عن طريق رقم البطاقة أو اسم المشترك
+            $profiles = Profile::with('user')
+                ->with('appointment.user')
+                ->with('card') // إضافة معلومات نوع البطاقة
+                ->where(function($query) use ($searchTerm) {
+                    // البحث في رقم البطاقة أو الاسم
+                    $query->where('card_number', 'LIKE', '%' . $searchTerm . '%')
+                          ->orWhere('name', 'LIKE', '%' . $searchTerm . '%');
+                })
+                ->first();
+            
+            if($profiles) {
+                return response()->json($profiles);
+            } else {
+                return response()->json(['error' => 'not found card'], 404);
+            }
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 421);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
     }
 
 

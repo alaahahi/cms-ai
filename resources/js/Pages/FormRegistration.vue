@@ -6,7 +6,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { WebCamUI } from "vue-camera-lib";
 import axios from 'axios';
 
@@ -36,17 +36,90 @@ const userCard = ref(0);
 const showHusband = ref(false);
 
 const profileAdded = ref(0);
-const errors = ref(0);
+const errors = ref({});
+const validationErrors = ref({});
 
 const isLoading = ref(false);
 const whatsappBatchId = ref(null);
 const whatsappProgress = ref(null);
 const progressInterval = ref(null);
 
+// Validation functions
+const validatePhoneNumber = (phone) => {
+  if (!phone) {
+    return 'رقم الهاتف مطلوب';
+  }
+  
+  // Remove spaces and special characters for validation
+  const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+  
+  // Check if it's all digits
+  if (!/^\d+$/.test(cleanPhone)) {
+    return 'رقم الهاتف يجب أن يحتوي على أرقام فقط';
+  }
+  
+  // Check length (Iraqi phone numbers: 10 digits usually, or 11 with country code)
+  if (cleanPhone.length < 10 || cleanPhone.length > 12) {
+    return 'رقم الهاتف غير صحيح. يجب أن يكون بين 10 و 12 رقم';
+  }
+  
+  // Check if it starts with 0 or country code
+  if (!cleanPhone.startsWith('0') && !cleanPhone.startsWith('964')) {
+    return 'رقم الهاتف يجب أن يبدأ بـ 0 أو 964';
+  }
+  
+  return null;
+};
+
+const validateForm = () => {
+  validationErrors.value = {};
+  let isValid = true;
+
+  if (!form.value.card_id) {
+    validationErrors.value.card_id = 'يجب اختيار نوع البطاقة';
+    isValid = false;
+  }
+
+  if (!form.value.card_number) {
+    validationErrors.value.card_number = 'رقم البطاقة مطلوب';
+    isValid = false;
+  }
+
+  if (!form.value.name || form.value.name.trim() === '') {
+    validationErrors.value.name = 'الاسم مطلوب';
+    isValid = false;
+  }
+
+  if (!form.value.saler_id) {
+    validationErrors.value.saler_id = 'يجب اختيار المندوب';
+    isValid = false;
+  }
+
+  const phoneError = validatePhoneNumber(form.value.phone_number);
+  if (phoneError) {
+    validationErrors.value.phone_number = phoneError;
+    isValid = false;
+  }
+
+  if (!form.value.image) {
+    validationErrors.value.image = 'الصورة الشخصية مطلوبة';
+    isValid = false;
+  }
+
+  return isValid;
+};
+
 const submit = () => {
+  // Clear previous errors
+  validationErrors.value = {};
+  errors.value = {};
+  
+  // Validate form
+  if (!validateForm()) {
+    return;
+  }
+
   isLoading.value = true;
-  // Remove direct WhatsApp sending - now handled by Job
-  // sendWhatsAppMessageArray([form.value.phone_number])
 
   axios.post('/api/formRegistration', form.value)
   .then(response => {
@@ -59,23 +132,35 @@ const submit = () => {
       startProgressTracking(whatsappBatchId.value);
     }
     
-    form.value={
-      created: ref(getTodayDate()), // Set the initial value to today's date
+    // Reset form
+    form.value = {
+      created: getTodayDate(),
+      card_id: null,
+      card_number: null,
+      name: null,
+      saler_id: null,
+      address: null,
+      family_name: null,
+      phone_number: null,
+      image: null,
     };
+    
+    // Reset image preview
+    imagePreview.value = null;
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     isLoading.value = false;
-
-
   })
   .catch(error => {
     profileAdded.value = false;
-    if (error.response && error.response.data && error.response.data) {
+    if (error.response && error.response.data) {
       errors.value = error.response.data;
     } else {
       errors.value = { general: ['حدث خطأ غير متوقع'] };
     }
     isLoading.value = false;
-
-    
   })
 };
 
@@ -128,13 +213,29 @@ const photoWife = (data) => {
 };
 const handleImage = (e) => {
   const selectedImage = e.target.files[0]; // get first file
-  createBase64Image(selectedImage);
+  if (selectedImage) {
+    // Validate image size (max 5MB)
+    if (selectedImage.size > 5 * 1024 * 1024) {
+      validationErrors.value.image = 'حجم الصورة كبير جداً. الحد الأقصى 5 ميجابايت';
+      return;
+    }
+    
+    // Validate image type
+    if (!selectedImage.type.startsWith('image/')) {
+      validationErrors.value.image = 'الملف المحدد ليس صورة';
+      return;
+    }
+    
+    createBase64Image(selectedImage);
+  }
 };
 const createBase64Image = (fileObject) => {
   const reader = new FileReader();
 
   reader.onload = (e) => {
    form.value.image = e.target.result;
+   imagePreview.value = e.target.result;
+   validationErrors.value.image = null;
   };
   reader.readAsDataURL(fileObject);
 };
@@ -171,6 +272,8 @@ const checkCard = (v,id) => {
   })
 };
 // Removed sendWhatsAppMessageArray - now handled by Job queue
+
+const imagePreview = ref(null);
 
 </script>
 
@@ -226,18 +329,28 @@ const checkCard = (v,id) => {
         </div>
       </div>
     </div>
-    <div v-if="errors && !profileAdded">
+    <div v-if="Object.keys(errors).length > 0 && !profileAdded">
       <div
         id="alert-2"
-        class="p-4 mb-4 bg-red-300 rounded-lg dark:bg-red-300 text-center"
+        class="p-4 mb-4 bg-red-50 border-r-4 border-red-400 rounded-lg"
         role="alert"
       >
-        <div
-          v-for="(messages, field) in errors"
-          :key="field"
-          class="ml-3 text-sm font-medium text-red-700 dark:text-red-800"
-        >
-        {{ errors }}
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="mr-3">
+            <h3 class="text-sm font-medium text-red-800 mb-2">حدثت أخطاء أثناء الإرسال:</h3>
+            <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+              <li v-for="(messages, field) in errors" :key="field">
+                <span v-if="typeof messages === 'string'">{{ messages }}</span>
+                <span v-else-if="Array.isArray(messages)">{{ messages[0] }}</span>
+                <span v-else>{{ JSON.stringify(messages) }}</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -263,28 +376,45 @@ const checkCard = (v,id) => {
                           {{ type.name }}
                         </option>
                       </select>
-                      <div v-if="errors?.saler_id">
-                        البطاقة حقل مطلوب
-                      </div>
+                      <InputError v-if="validationErrors?.card_id" :message="validationErrors.card_id" />
+                      <InputError v-if="errors?.card_id" :message="errors.card_id" />
                     </div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" v-if="form.card_id">
-                <div class="p-6 bg-white  dark:bg-gray-900">
-                  <h2 class="text-center text-xl py-2">معلومات البطاقة</h2>
-                  <div className="flex flex-col">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-4" v-if="form.card_id">
+                <div class="p-6 bg-white dark:bg-gray-900">
+                  <h2 class="text-center text-xl py-3 mb-4 font-bold text-gray-800 border-b pb-2">معلومات البطاقة</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="mb-4">
-                      <InputLabel for="name" value="الصورة الشخصية" />
-                      <img :src="form.image" />
-                      <input
-                        @change="handleImage"
-                        type="file"
-                        accept="image/*"
-                        class="px-2 mt-3 py-1 font-bold text-white bg-rose-500 rounded"
-                      />
-           
+                      <InputLabel for="image" value="الصورة الشخصية" class="mb-2" />
+                      <div class="flex flex-col items-center">
+                        <div v-if="imagePreview" class="mb-3 border-2 border-gray-300 rounded-lg p-2 bg-gray-50">
+                          <img 
+                            :src="imagePreview" 
+                            alt="معاينة الصورة"
+                            class="max-w-full max-h-64 rounded-lg shadow-md object-contain"
+                          />
+                        </div>
+                        <label 
+                          class="cursor-pointer inline-flex items-center px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                        >
+                          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          اختر صورة
+                          <input
+                            @change="handleImage"
+                            type="file"
+                            accept="image/*"
+                            class="hidden"
+                          />
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">الحد الأقصى: 5 ميجابايت</p>
+                      </div>
+                      <InputError v-if="validationErrors?.image" :message="validationErrors.image" />
+                      <InputError v-if="errors?.image" :message="errors.image" />
                     </div>
                     <div className="mb-4">
-                      <InputLabel for="card_number" value="رقم البطاقة" />
+                      <InputLabel for="card_number" value="رقم البطاقة *" />
 
                       <TextInput
                         id="card_number"
@@ -293,52 +423,50 @@ const checkCard = (v,id) => {
                         autofocus
                         @input="handleInput(form.card_number,form.card_id)"
                         v-model="form.card_number"
+                        :class="{ 'border-red-500': validationErrors?.card_number || errors?.card_number }"
                       />
-
-                   
-                      <span
+                      
+                      <div 
                         v-if="userCard"
+                        class="mt-2 p-3 bg-yellow-50 border-r-4 border-yellow-400 rounded"
                       >
-                      البطاقة تم تسجيلها قبل بأسم 
-                      <span  className="text-red-600">
-                        {{userCard.name}}
-                      </span>
-                        للمندوب
-                      <span  className="text-red-600">
-                        {{userCard.user?.name}}
-                      </span>
-                      أفراد العائلة
-                      <span  className="text-red-600">
-                        {{userCard.family_name}}
-                      </span>
-                      </span>
-                      <div v-if="errors?.card_number">
-                        البطاقةالبطاقة حقل مطلوب
+                        <p class="text-sm text-yellow-800">
+                          <span class="font-bold">تحذير:</span> البطاقة تم تسجيلها مسبقاً بأسم 
+                          <span class="font-bold text-red-600">{{userCard.name}}</span>
+                          للمندوب
+                          <span class="font-bold text-red-600">{{userCard.user?.name}}</span>
+                          <span v-if="userCard.family_name">، أفراد العائلة: <span class="font-bold text-red-600">{{userCard.family_name}}</span></span>
+                        </p>
                       </div>
+                      
+                      <InputError v-if="validationErrors?.card_number" :message="validationErrors.card_number" />
+                      <InputError v-if="errors?.card_number" :message="Array.isArray(errors.card_number) ? errors.card_number[0] : errors.card_number" />
                     </div>
+                    
                     <div className="mb-4">
-                      <InputLabel for="name" value="الأسم" />
+                      <InputLabel for="name" value="الأسم *" />
 
                       <TextInput
                         id="name"
                         type="text"
                         class="mt-1 block w-full"
                         v-model="form.name"
+                        :class="{ 'border-red-500': validationErrors?.name || errors?.name }"
+                        placeholder="أدخل الاسم الكامل"
                       />
-                      <div v-if="errors?.name">
-                        البطاقةالبطاقة حقل مطلوب
-                      </div>
-         
+                      <InputError v-if="validationErrors?.name" :message="validationErrors.name" />
+                      <InputError v-if="errors?.name" :message="Array.isArray(errors.name) ? errors.name[0] : errors.name" />
                     </div>
 
                     <div className="mb-4">
-                      <InputLabel for="sales_id" value="المندوب" />
+                      <InputLabel for="sales_id" value="المندوب *" />
                       <select
                         v-model="form.saler_id"
                         id="userType"
-                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-1"
+                        :class="{ 'border-red-500': validationErrors?.saler_id || errors?.saler_id }"
                       >
-                        <option selected disabled>المندوب</option>
+                        <option :value="null" selected disabled>اختر المندوب</option>
                         <option
                           v-for="(type ,index) in sales"
                           :key="index"
@@ -347,10 +475,34 @@ const checkCard = (v,id) => {
                           {{ type.name }}
                         </option>
                       </select>
-                      <div v-if="errors?.saler_id">
-                        المندوب حقل مطلوب
-                      </div>
+                      <InputError v-if="validationErrors?.saler_id" :message="validationErrors.saler_id" />
+                      <InputError v-if="errors?.saler_id" :message="Array.isArray(errors.saler_id) ? errors.saler_id[0] : errors.saler_id" />
                     </div>
+                    
+                    <div className="mb-4">
+                      <InputLabel for="phone_number" value="رقم الهاتف *" />
+                      <div class="relative">
+                        <TextInput
+                          id="phone_number"
+                          type="tel"
+                          class="mt-1 block w-full pr-10"
+                          v-model="form.phone_number"
+                          :class="{ 'border-red-500': validationErrors?.phone_number || errors?.phone_number }"
+                          placeholder="07XX XXX XXXX أو 9647XX XXX XXXX"
+                          @input="() => { if (validationErrors.phone_number) { const error = validatePhoneNumber(form.phone_number); validationErrors.phone_number = error || null; } }"
+                          @blur="() => { const error = validatePhoneNumber(form.phone_number); if (error) validationErrors.phone_number = error; }"
+                        />
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">يجب أن يبدأ بـ 0 أو 964 ويحتوي على 10-12 رقم</p>
+                      <InputError v-if="validationErrors?.phone_number" :message="validationErrors.phone_number" />
+                      <InputError v-if="errors?.phone_number && !validationErrors?.phone_number" :message="Array.isArray(errors.phone_number) ? errors.phone_number[0] : errors.phone_number" />
+                    </div>
+                    
                     <div className="mb-4">
                       <InputLabel for="address" value="العنوان" />
 
@@ -359,9 +511,9 @@ const checkCard = (v,id) => {
                         type="text"
                         class="mt-1 block w-full"
                         v-model="form.address"
+                        placeholder="أدخل العنوان"
                       />
-
-           
+                      <InputError v-if="errors?.address" :message="Array.isArray(errors.address) ? errors.address[0] : errors.address" />
                     </div>
 
                     <div className="mb-4">
@@ -372,12 +524,13 @@ const checkCard = (v,id) => {
                         type="text"
                         class="mt-1 block w-full"
                         v-model="form.family_name"
+                        placeholder="أدخل أسماء أفراد العائلة"
                       />
-
+                      <InputError v-if="errors?.family_name" :message="Array.isArray(errors.family_name) ? errors.family_name[0] : errors.family_name" />
                     </div>
                     
                     <div className="mb-4">
-                      <InputLabel for="created" value="تاريخ البيع" />
+                      <InputLabel for="created" value="تاريخ البيع *" />
 
                       <TextInput
                         id="created"
@@ -385,22 +538,8 @@ const checkCard = (v,id) => {
                         class="mt-1 block w-full"
                         v-model="form.created"
                       />
-
+                      <InputError v-if="errors?.created" :message="Array.isArray(errors.created) ? errors.created[0] : errors.created" />
                     </div>
-
-                    <div className="mb-4">
-                        <InputLabel for="phone_number" value="رقم الهاتف" />
-                        <TextInput
-                          id="phone_number"
-                          type="text"
-                          class="mt-1 block w-full"
-                          v-model="form.phone_number"
-                        />
-                        <div v-if="errors?.phone_number">
-                        رقم الهاتف حقل مطلوب
-                        </div>
-       
-                      </div>
                   </div>
                 </div>
               </div>
@@ -409,22 +548,38 @@ const checkCard = (v,id) => {
         </div>
       </div>
 
-      <div className="flex items-center justify-center my-6 ">
+      <div className="flex items-center justify-center gap-4 my-6 pb-12">
         <Link
-          className="px-6 mx-2 py-2 mb-12 text-white bg-gray-500 rounded-md focus:outline-none rounded"
+          className="px-6 py-3 text-white bg-gray-500 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-200 shadow-md hover:shadow-lg font-semibold"
           :href="route('formRegistration')"
         >
-          العودة
+          <span class="flex items-center">
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            العودة
+          </span>
         </Link>
 
         <button
           @click.prevent="submit"
           @keyup.enter="submit" 
           :disabled="isLoading"
-          class="px-6 mb-12 mx-2 py-2 font-bold text-white bg-rose-500 rounded"
+          class="px-8 py-3 font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 shadow-md hover:shadow-lg flex items-center"
         >
-          <span v-if="!isLoading">حفظ</span>
-          <span v-else>جاري الحفظ...</span>
+          <span v-if="!isLoading" class="flex items-center">
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            حفظ البطاقة
+          </span>
+          <span v-else class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            جاري الحفظ...
+          </span>
         </button>
       </div>
     </form>
