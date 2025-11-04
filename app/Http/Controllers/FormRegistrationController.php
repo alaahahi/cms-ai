@@ -371,8 +371,20 @@ class FormRegistrationController extends Controller
                 'card_number' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
                 'address' => 'nullable|string|max:500',
-                'phone_number' => 'required|string|max:20',
-                'image' => 'string', // base64 image
+                'phone_number' => [
+                    'nullable',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        if ($value && trim($value) !== '') {
+                            // Remove spaces and special characters for validation
+                            $cleanPhone = preg_replace('/[\s\-\(\)\+]/', '', $value);
+                            if (!preg_match('/^[0-9]{10}$/', $cleanPhone)) {
+                                $fail('رقم الهاتف يجب أن يكون 10 أرقام بالضبط.');
+                            }
+                        }
+                    },
+                ],
+                'image' => 'nullable|string', // base64 image - optional
                 'card_id' => 'nullable|integer|exists:card,id',
                 'saler_id' => 'required|integer|exists:users,id',
                 'family_name' => 'nullable|string|max:255',
@@ -380,57 +392,69 @@ class FormRegistrationController extends Controller
                 'created' => 'nullable|date',
             ]);
         
-            $base64Image = $request->image;
-            $base64Image = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
-            $imageData = base64_decode($base64Image);
-        
-            $imagePath = public_path('uploads');
-            if (!file_exists($imagePath)) {
-                mkdir($imagePath, 0777, true);
+            // معالجة الصورة - إذا كانت موجودة
+            $imageUrl = null;
+            if ($request->image && trim($request->image) !== '') {
+                $base64Image = $request->image;
+                $base64Image = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
+                $imageData = base64_decode($base64Image);
+            
+                if ($imageData) {
+                    $imagePath = public_path('uploads');
+                    if (!file_exists($imagePath)) {
+                        mkdir($imagePath, 0777, true);
+                    }
+            
+                    // ضغط الصورة وتصغير حجمها
+                    try {
+                        $img = Image::make($imageData);
+                        
+                        // تصغير الأبعاد - الحد الأقصى للعرض 600 بكسل مع الحفاظ على النسبة
+                        // هذا يقلل الحجم بشكل كبير
+                        $img->resize(600, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize(); // لا تكبر الصورة إذا كانت أصغر
+                        });
+                        
+                        // تحويل إلى JPG وتقليل الجودة للحصول على حجم أصغر
+                        // جودة 60% تعطي حجم أصغر بكثير (عادة 100-300 KB)
+                        $imageName = time() . '.jpg';
+                        $img->encode('jpg', 60); // ضغط الجودة إلى 60%
+                        $img->save("$imagePath/$imageName");
+                        
+                        // التحقق من الحجم النهائي
+                        $fileSize = filesize("$imagePath/$imageName");
+                        $fileSizeKB = round($fileSize / 1024, 2);
+                        
+                        Log::info('Image compressed successfully', [
+                            'original_size' => strlen($imageData) / 1024 . ' KB',
+                            'compressed_size' => $fileSizeKB . ' KB',
+                            'file' => $imageName
+                        ]);
+                        
+                        $imageUrl = 'uploads/' . $imageName;
+                    } catch (\Exception $e) {
+                        // إذا فشل الضغط، احفظ الصورة الأصلية
+                        Log::warning('Failed to compress image: ' . $e->getMessage());
+                        $imageName = time() . '.png';
+                        file_put_contents("$imagePath/$imageName", $imageData);
+                        $imageUrl = 'uploads/' . $imageName;
+                    }
+                }
             }
         
-            // ضغط الصورة وتصغير حجمها
-            try {
-                $img = Image::make($imageData);
-                
-                // تصغير الأبعاد - الحد الأقصى للعرض 600 بكسل مع الحفاظ على النسبة
-                // هذا يقلل الحجم بشكل كبير
-                $img->resize(600, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize(); // لا تكبر الصورة إذا كانت أصغر
-                });
-                
-                // تحويل إلى JPG وتقليل الجودة للحصول على حجم أصغر
-                // جودة 60% تعطي حجم أصغر بكثير (عادة 100-300 KB)
-                $imageName = time() . '.jpg';
-                $img->encode('jpg', 60); // ضغط الجودة إلى 60%
-                $img->save("$imagePath/$imageName");
-                
-                // التحقق من الحجم النهائي
-                $fileSize = filesize("$imagePath/$imageName");
-                $fileSizeKB = round($fileSize / 1024, 2);
-                
-                Log::info('Image compressed successfully', [
-                    'original_size' => strlen($imageData) / 1024 . ' KB',
-                    'compressed_size' => $fileSizeKB . ' KB',
-                    'file' => $imageName
-                ]);
-                
-                $imageUrl = 'uploads/' . $imageName;
-            } catch (\Exception $e) {
-                // إذا فشل الضغط، احفظ الصورة الأصلية
-                Log::warning('Failed to compress image: ' . $e->getMessage());
-                $imageName = time() . '.png';
-                file_put_contents("$imagePath/$imageName", $imageData);
-                $imageUrl = 'uploads/' . $imageName;
+            // معالجة رقم الهاتف - إذا كان فارغاً أو null، نتركه فارغاً
+            $phoneNumber = null;
+            if ($request->phone_number && trim($request->phone_number) !== '') {
+                $phoneNumber = '+964' . $request->phone_number;
             }
-        
+            
             $profile = Profile::create([
                 'card_number' => $request->card_number,
                 'name' => $request->name,
                 'address' => $request->address,
                 'image' => $imageUrl,
-                'phone_number' => '+964' . $request->phone_number,
+                'phone_number' => $phoneNumber,
                 'card_id' => $request->card_id ?? 1,
                 'user_id' => $request->saler_id,
                 'family_name' => $request->family_name,
@@ -439,8 +463,11 @@ class FormRegistrationController extends Controller
                 'created' => $request->created,
                 'no' => $no
             ]);
-            // ✅ إرسال رسالة واتساب عبر Job
-            $batchId = $this->sendWhatsAppMessageViaJob($request->phone_number, $profile->id);
+            // ✅ إرسال رسالة واتساب عبر Job فقط إذا كان هناك رقم هاتف
+            $batchId = null;
+            if ($request->phone_number && trim($request->phone_number) !== '') {
+                $batchId = $this->sendWhatsAppMessageViaJob($request->phone_number, $profile->id);
+            }
             
             // ✅ إعادة البيانات كـ JSON
             return response()->json([

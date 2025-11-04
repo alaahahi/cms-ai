@@ -6,12 +6,52 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { WebCamUI } from "vue-camera-lib";
 import axios from 'axios';
 
+// استعادة آخر نوع بطاقة تم اختياره من localStorage
+const getLastSelectedCardId = () => {
+  try {
+    const savedData = localStorage.getItem('lastSelectedCardId');
+    if (!savedData) return null;
+    
+    const data = JSON.parse(savedData);
+    const savedDate = new Date(data.date);
+    const now = new Date();
+    
+    // حساب الفرق بالأشهر
+    const monthsDiff = (now.getFullYear() - savedDate.getFullYear()) * 12 + 
+                       (now.getMonth() - savedDate.getMonth());
+    
+    // إذا تجاوز الشهر، حذف القيمة المحفوظة
+    if (monthsDiff >= 1) {
+      localStorage.removeItem('lastSelectedCardId');
+      return null;
+    }
+    
+    return data.cardId ? parseInt(data.cardId) : null;
+  } catch (error) {
+    // في حالة خطأ في قراءة البيانات، حذف القيمة
+    localStorage.removeItem('lastSelectedCardId');
+    return null;
+  }
+};
+
+// حفظ نوع البطاقة المحدد في localStorage مع التاريخ
+const saveLastSelectedCardId = (cardId) => {
+  if (cardId) {
+    const data = {
+      cardId: cardId.toString(),
+      date: new Date().toISOString()
+    };
+    localStorage.setItem('lastSelectedCardId', JSON.stringify(data));
+  }
+};
+
 const form = ref({
   created: ref(getTodayDate()), // Set the initial value to today's date
+  card_id: getLastSelectedCardId(), // استعادة آخر نوع بطاقة تم اختياره
 });
 
 function getTodayDate() {
@@ -46,8 +86,9 @@ const progressInterval = ref(null);
 
 // Validation functions
 const validatePhoneNumber = (phone) => {
-  if (!phone) {
-    return 'رقم الهاتف مطلوب';
+  // Allow empty phone number
+  if (!phone || phone.trim() === '') {
+    return null; // Valid - empty is allowed
   }
   
   // Remove spaces and special characters for validation
@@ -58,14 +99,9 @@ const validatePhoneNumber = (phone) => {
     return 'رقم الهاتف يجب أن يحتوي على أرقام فقط';
   }
   
-  // Check length (Iraqi phone numbers: 10 digits usually, or 11 with country code)
-  if (cleanPhone.length < 10 || cleanPhone.length > 12) {
-    return 'رقم الهاتف غير صحيح. يجب أن يكون بين 10 و 12 رقم';
-  }
-  
-  // Check if it starts with 0 or country code
-  if (!cleanPhone.startsWith('0') && !cleanPhone.startsWith('964')) {
-    return 'رقم الهاتف يجب أن يبدأ بـ 0 أو 964';
+  // Must be exactly 10 digits
+  if (cleanPhone.length !== 10) {
+    return 'رقم الهاتف يجب أن يكون 10 أرقام بالضبط';
   }
   
   return null;
@@ -95,16 +131,16 @@ const validateForm = () => {
     isValid = false;
   }
 
-  const phoneError = validatePhoneNumber(form.value.phone_number);
-  if (phoneError) {
-    validationErrors.value.phone_number = phoneError;
-    isValid = false;
+  // Validate phone only if it's not empty
+  if (form.value.phone_number && form.value.phone_number.trim() !== '') {
+    const phoneError = validatePhoneNumber(form.value.phone_number);
+    if (phoneError) {
+      validationErrors.value.phone_number = phoneError;
+      isValid = false;
+    }
   }
 
-  if (!form.value.image) {
-    validationErrors.value.image = 'الصورة الشخصية مطلوبة';
-    isValid = false;
-  }
+  // الصورة غير مطلوبة - لا حاجة للتحقق منها
 
   return isValid;
 };
@@ -132,10 +168,13 @@ const submit = () => {
       startProgressTracking(whatsappBatchId.value);
     }
     
-    // Reset form
+    // حفظ نوع البطاقة الحالي قبل إعادة تعيين النموذج
+    const currentCardId = form.value.card_id;
+    
+    // Reset form but keep card_id
     form.value = {
       created: getTodayDate(),
-      card_id: null,
+      card_id: currentCardId, // الاحتفاظ بنوع البطاقة المحدد
       card_number: null,
       name: null,
       saler_id: null,
@@ -365,9 +404,10 @@ const imagePreview = ref(null);
                       <select
                         v-model="form.card_id"
                         id="userType"
+                        @change="saveLastSelectedCardId(form.card_id)"
                         class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       >
-                        <option selected disabled>البطاقة</option>
+                        <option :value="null" disabled>اختر نوع البطاقة</option>
                         <option
                           v-for="(type ,index) in cards"
                           :key="index"
@@ -383,36 +423,41 @@ const imagePreview = ref(null);
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-4" v-if="form.card_id">
                 <div class="p-6 bg-white dark:bg-gray-900">
                   <h2 class="text-center text-xl py-3 mb-4 font-bold text-gray-800 border-b pb-2">معلومات البطاقة</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="mb-4">
-                      <InputLabel for="image" value="الصورة الشخصية" class="mb-2" />
-                      <div class="flex flex-col items-center">
-                        <div v-if="imagePreview" class="mb-3 border-2 border-gray-300 rounded-lg p-2 bg-gray-50">
+                  
+                  <!-- الصورة في صف منفصل أولاً -->
+                  <div className="mb-6 w-full">
+                      <InputLabel for="image" value="الصورة الشخصية (اختياري)" class="mb-3 text-lg font-semibold" />
+                      <div class="flex flex-col items-start w-full">
+                        <div v-if="imagePreview" class="mb-4 w-full border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
                           <img 
                             :src="imagePreview" 
                             alt="معاينة الصورة"
-                            class="max-w-full max-h-64 rounded-lg shadow-md object-contain"
+                            class="max-w-full rounded-lg shadow-md object-contain mx-auto"
+                            style="max-height: 80rem;"
                           />
                         </div>
                         <label 
-                          class="cursor-pointer inline-flex items-center px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                          class="cursor-pointer inline-flex items-center px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg text-base"
                         >
-                          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
-                          اختر صورة
+                          <span class="font-bold">اختر صورة للتحميل</span>
                           <input
                             @change="handleImage"
                             type="file"
                             accept="image/*"
                             class="hidden"
+                            id="image-upload-input"
                           />
                         </label>
-                        <p class="text-xs text-gray-500 mt-1">الحد الأقصى: 5 ميجابايت</p>
+                        <p class="text-sm text-gray-600 mt-2 font-medium">الحد الأقصى لحجم الصورة: 5 ميجابايت - الصيغ المدعومة: JPG, PNG, GIF</p>
                       </div>
                       <InputError v-if="validationErrors?.image" :message="validationErrors.image" />
                       <InputError v-if="errors?.image" :message="errors.image" />
                     </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="mb-4">
                       <InputLabel for="card_number" value="رقم البطاقة *" />
 
@@ -480,7 +525,7 @@ const imagePreview = ref(null);
                     </div>
                     
                     <div className="mb-4">
-                      <InputLabel for="phone_number" value="رقم الهاتف *" />
+                      <InputLabel for="phone_number" value="رقم الهاتف (اختياري)" />
                       <div class="relative">
                         <TextInput
                           id="phone_number"
@@ -488,17 +533,14 @@ const imagePreview = ref(null);
                           class="mt-1 block w-full pr-10"
                           v-model="form.phone_number"
                           :class="{ 'border-red-500': validationErrors?.phone_number || errors?.phone_number }"
-                          placeholder="07XX XXX XXXX أو 9647XX XXX XXXX"
+                          placeholder="07XXXXXXXX (10 أرقام) أو اتركه فارغاً"
+                          maxlength="10"
                           @input="() => { if (validationErrors.phone_number) { const error = validatePhoneNumber(form.phone_number); validationErrors.phone_number = error || null; } }"
                           @blur="() => { const error = validatePhoneNumber(form.phone_number); if (error) validationErrors.phone_number = error; }"
                         />
-                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none">
-                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                        </div>
+                       
                       </div>
-                      <p class="text-xs text-gray-500 mt-1">يجب أن يبدأ بـ 0 أو 964 ويحتوي على 10-12 رقم</p>
+                      <p class="text-xs text-gray-500 mt-1">يمكن ترك الحقل فارغاً أو إدخال 10 أرقام بالضبط (مثال: 07501234567)</p>
                       <InputError v-if="validationErrors?.phone_number" :message="validationErrors.phone_number" />
                       <InputError v-if="errors?.phone_number && !validationErrors?.phone_number" :message="Array.isArray(errors.phone_number) ? errors.phone_number[0] : errors.phone_number" />
                     </div>
