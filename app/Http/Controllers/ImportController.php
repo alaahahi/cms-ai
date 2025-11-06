@@ -357,7 +357,7 @@ class ImportController extends Controller
         ];
         
         // Pagination
-        $data = $query->orderBy('id', 'desc')->paginate(50);
+        $data = $query->orderBy('id', 'desc')->paginate(500);
         
         return view('data-cv-manage', compact('data', 'stats'));
     }
@@ -451,7 +451,7 @@ class ImportController extends Controller
         ];
         
         // Pagination
-        $data = $query->orderBy('id', 'desc')->paginate(50);
+        $data = $query->orderBy('id', 'desc')->paginate(500);
         
         return view('data-cv-manage', [
             'data' => $data,
