@@ -687,23 +687,40 @@ class FormRegistrationController extends Controller
     public function checkCard(Request $request)
     {
         try {
-            $searchTerm = $request->get('search') ?? $request->get('card_id') ?? '';
+            $cardNumber = $request->get('card_number');
+            $cardId = $request->get('card_id');
+            $searchTerm = $request->get('search');
             
-            if (empty($searchTerm)) {
+            // بناء الاستعلام
+            $query = Profile::with('user')
+                ->with('appointment.user')
+                ->with('card'); // إضافة معلومات نوع البطاقة
+            
+            // إذا كان هناك card_number و card_id، ابحث بهما معاً
+            if ($cardNumber !== null && $cardId !== null) {
+                $query->where('card_number', $cardNumber)
+                      ->where('card_id', $cardId);
+            }
+            // إذا كان هناك card_number فقط
+            elseif ($cardNumber !== null) {
+                $query->where('card_number', $cardNumber);
+            }
+            // إذا كان هناك search term (للتوافق مع الصفحات الأخرى)
+            elseif ($searchTerm !== null) {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('card_number', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('name', 'LIKE', '%' . $searchTerm . '%');
+                });
+            }
+            // إذا كان هناك card_id فقط (للتوافق مع الصفحات الأخرى)
+            elseif ($cardId !== null) {
+                $query->where('card_id', $cardId);
+            }
+            else {
                 return response()->json(['error' => 'Search term is required'], 400);
             }
             
-            // البحث في جميع أنواع البطاقات
-            // البحث عن طريق رقم البطاقة أو اسم المشترك
-            $profiles = Profile::with('user')
-                ->with('appointment.user')
-                ->with('card') // إضافة معلومات نوع البطاقة
-                ->where(function($query) use ($searchTerm) {
-                    // البحث في رقم البطاقة أو الاسم
-                    $query->where('card_number', 'LIKE', '%' . $searchTerm . '%')
-                          ->orWhere('name', 'LIKE', '%' . $searchTerm . '%');
-                })
-                ->first();
+            $profiles = $query->first();
             
             if($profiles) {
                 return response()->json($profiles);
