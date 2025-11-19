@@ -457,7 +457,23 @@ const imagePreview = ref(null);
                       <InputError v-if="errors?.image" :message="errors.image" />
                     </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+
+                    
+                    <div className="mb-4">
+                      <InputLabel for="name" value="الأسم *" />
+
+                      <TextInput
+                        id="name"
+                        type="text"
+                        class="mt-1 block w-full"
+                        v-model="form.name"
+                        :class="{ 'border-red-500': validationErrors?.name || errors?.name }"
+                        placeholder="أدخل الاسم الكامل"
+                      />
+                      <InputError v-if="validationErrors?.name" :message="validationErrors.name" />
+                      <InputError v-if="errors?.name" :message="Array.isArray(errors.name) ? errors.name[0] : errors.name" />
+                    </div>
                     <div className="mb-4">
                       <InputLabel for="card_number" value="رقم البطاقة *" />
 
@@ -480,49 +496,13 @@ const imagePreview = ref(null);
                           <span class="font-bold text-red-600">{{userCard.name}}</span>
                           للمندوب
                           <span class="font-bold text-red-600">{{userCard.user?.name}}</span>
-                          <span v-if="userCard.family_name">، أفراد العائلة: <span class="font-bold text-red-600">{{userCard.family_name}}</span></span>
                         </p>
                       </div>
                       
                       <InputError v-if="validationErrors?.card_number" :message="validationErrors.card_number" />
                       <InputError v-if="errors?.card_number" :message="Array.isArray(errors.card_number) ? errors.card_number[0] : errors.card_number" />
                     </div>
-                    
-                    <div className="mb-4">
-                      <InputLabel for="name" value="الأسم *" />
 
-                      <TextInput
-                        id="name"
-                        type="text"
-                        class="mt-1 block w-full"
-                        v-model="form.name"
-                        :class="{ 'border-red-500': validationErrors?.name || errors?.name }"
-                        placeholder="أدخل الاسم الكامل"
-                      />
-                      <InputError v-if="validationErrors?.name" :message="validationErrors.name" />
-                      <InputError v-if="errors?.name" :message="Array.isArray(errors.name) ? errors.name[0] : errors.name" />
-                    </div>
-
-                    <div className="mb-4">
-                      <InputLabel for="sales_id" value="المندوب *" />
-                      <select
-                        v-model="form.saler_id"
-                        id="userType"
-                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-1"
-                        :class="{ 'border-red-500': validationErrors?.saler_id || errors?.saler_id }"
-                      >
-                        <option :value="null" selected disabled>اختر المندوب</option>
-                        <option
-                          v-for="(type ,index) in sales"
-                          :key="index"
-                          :value="type.id"
-                        >
-                          {{ type.name }}
-                        </option>
-                      </select>
-                      <InputError v-if="validationErrors?.saler_id" :message="validationErrors.saler_id" />
-                      <InputError v-if="errors?.saler_id" :message="Array.isArray(errors.saler_id) ? errors.saler_id[0] : errors.saler_id" />
-                    </div>
                     
                     <div className="mb-4">
                       <InputLabel for="phone_number" value="رقم الهاتف (اختياري)" />
@@ -544,7 +524,26 @@ const imagePreview = ref(null);
                       <InputError v-if="validationErrors?.phone_number" :message="validationErrors.phone_number" />
                       <InputError v-if="errors?.phone_number && !validationErrors?.phone_number" :message="Array.isArray(errors.phone_number) ? errors.phone_number[0] : errors.phone_number" />
                     </div>
-                    
+                    <div className="mb-4">
+                      <InputLabel for="sales_id" value="المندوب *" />
+                      <select
+                        v-model="form.saler_id"
+                        id="userType"
+                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-1"
+                        :class="{ 'border-red-500': validationErrors?.saler_id || errors?.saler_id }"
+                      >
+                        <option :value="null" selected disabled>اختر المندوب</option>
+                        <option
+                          v-for="(type ,index) in sales"
+                          :key="index"
+                          :value="type.id"
+                        >
+                          {{ type.name }}
+                        </option>
+                      </select>
+                      <InputError v-if="validationErrors?.saler_id" :message="validationErrors.saler_id" />
+                      <InputError v-if="errors?.saler_id" :message="Array.isArray(errors.saler_id) ? errors.saler_id[0] : errors.saler_id" />
+                    </div>
                     <div className="mb-4">
                       <InputLabel for="address" value="العنوان" />
 
