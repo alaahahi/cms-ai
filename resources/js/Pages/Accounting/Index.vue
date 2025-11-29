@@ -217,17 +217,17 @@ function delTransactions(id){
     </div>
     <div class="py-12">
       <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div className="mb-4">
-                      <InputLabel for="sales_id" value="البطاقة" />
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-800">
+          <div class="p-6">
+                <div className="mb-6">
+                      <InputLabel for="sales_id" value="اختر نوع البطاقة" class="mb-2 font-semibold text-gray-700 dark:text-gray-300" />
                       <select
                          @change="getResults()"
-
                         v-model="card_id"
                         id="userType"
-                        class="pr-8 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        class="pr-8 bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-all hover:border-blue-400"
                       >
-                        <option selected disabled>البطاقة</option>
+                        <option value="" selected disabled>-- اختر البطاقة --</option>
                         <option
                           v-for="(type ,index) in cards"
                           :key="index"
@@ -236,79 +236,97 @@ function delTransactions(id){
                           {{ type.name }}
                         </option>
                       </select>
-                      <div v-if="errors?.saler_id">
+                      <div v-if="errors?.saler_id" class="mt-2 text-sm text-red-600 dark:text-red-400">
                         البطاقة حقل مطلوب
                       </div>
                     </div>
-                </div>
-
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" v-if="card_id">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="py-12" v-if="card_id">
+      <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-800">
           
-          <div class="p-6 bg-white  dark:bg-gray-900">
-            <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 lg:gap-3">
-              <div class="pt-5  print:hidden">
-              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2 || $page.props.auth.user.type_id==5" className="px-4 py-2 text-white bg-rose-500 rounded-md focus:outline-none"
-                                            @click="openAddSales()">
-                                            مبيعات جديدة
-              </button>
+          <div class="p-6 bg-white dark:bg-gray-900">
+            <!-- صف الأزرار الرئيسية -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-4 mb-6">
+              <!-- زر مبيعات جديدة -->
+              <div class="print:hidden">
+                <InputLabel for="new_sales" value="إضافة مبيعات" class="mb-2 font-semibold text-gray-700 dark:text-gray-300" />
+                <button  
+                  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2 || $page.props.auth.user.type_id==5" 
+                  className="w-full px-6 py-3 text-white bg-rose-500 hover:bg-rose-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg font-medium"
+                  @click="openAddSales()">
+                  <span class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    مبيعات جديدة
+                  </span>
+                </button>
               </div>
-              <!-- <div class="pt-5  print:hidden">
-              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2|| $page.props.auth.user.type_id==5" className="px-4 py-2 text-white bg-yellow-500 rounded-md focus:outline-none"
-                                            @click="opendebtSales()">
-                                            سلفة مندوبين 
-              </button>
+              
+              <!-- تاريخ من -->
+              <div>
+                <InputLabel for="from" value="من تاريخ" class="mb-2 font-semibold text-gray-700 dark:text-gray-300" />
+                <TextInput
+                  id="from"
+                  type="date"
+                  class="mt-1 block w-full"
+                  v-model="from"
+                />
               </div>
-              <div class="pt-5  print:hidden">
-              <button  v-if="$page.props.auth.user.type_id==1 || $page.props.auth.user.type_id==2|| $page.props.auth.user.type_id==5" className="px-4 py-2 text-white bg-blue-500 rounded-md focus:outline-none"
-                                            @click="openAddExpenses()">
-                                             اضافة مصاريف
-              </button>
-              </div> -->
-              <div class=" px-4">
-                          <div >
-                              <InputLabel for="from" value="من تاريخ" />
-                              <TextInput
-                                id="from"
-                                type="date"
-                                class="mt-1 block w-full"
-                                v-model="from"
-                                
-                              />
-                            </div>
+              
+              <!-- تاريخ إلى -->
+              <div>
+                <InputLabel for="to" value="حتى تاريخ" class="mb-2 font-semibold text-gray-700 dark:text-gray-300" />
+                <TextInput
+                  id="to"
+                  type="date"
+                  class="mt-1 block w-full"
+                  v-model="to"
+                />
               </div>
-              <div class=" px-4">
-                            <div >
-                              <InputLabel for="to" value="حتى تاريخ" />
-                              <TextInput
-                                id="to"
-                                type="date"
-                                class="mt-1 block w-full"
-                                v-model="to"
-                              />
-                            </div>
+              
+              <!-- زر فلترة -->
+              <div className="print:hidden">
+                <InputLabel for="filter" value="فلترة" class="mb-2 font-semibold text-gray-700 dark:text-gray-300" />
+                <button
+                  @click.prevent="getResults()"
+                  :disabled="isLoading"
+                  class="w-full px-6 py-3 mt-1 font-bold text-white bg-gray-500 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                  <span v-if="!isLoading" class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                    </svg>
+                    فلترة
+                  </span>
+                  <span v-else class="flex items-center justify-center gap-2">
+                    <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    جاري التحميل...
+                  </span>
+                </button>
               </div>
-              <div className=" mr-5 print:hidden">
-                            <InputLabel for="pay" value="فلترة" />
-                            <button
-                            @click.prevent="getResults()"
-                            class="px-6 mb-12 py-2 mt-1 font-bold text-white bg-gray-500 rounded" style="width: 100%">
-                            <span v-if="!isLoading">فلترة</span>
-                            <span v-else>جاري الحفظ...</span>
-                          </button>
+              
+              <!-- زر طباعة -->
+              <div className="print:hidden">
+                <InputLabel for="print" value="طباعة" class="mb-2 font-semibold text-gray-700 dark:text-gray-300" />
+                <a
+                  class="w-full px-6 py-3 mt-1 font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-2"
+                  :href="`/getIndexAccounting?user_id=${laravelData?.user?.id}&from=${from}&to=${to}&print=1`"
+                  target="_blank"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                  </svg>
+                  طباعة
+                </a>
               </div>
-              <div className=" mr-5 print:hidden" >
-                            <InputLabel for="pay" value="طباعة" />
-                            <a
-                            class="px-6 mb-12 py-2 mt-1 font-bold text-white bg-orange-500 rounded" style="display: block;text-align: center;"
-                            :href="`/getIndexAccounting?user_id=${laravelData?.user?.id}&from=${from}&to=${to}&print=1`"
-                            target="_blank"
-                            >
-                            
-                            <span v-if="!isLoading">طباعة</span>
-                            <span v-else>جاري الحفظ...</span>
-                          </a>
-              </div>
-             </div>
+            </div>
           
             <!-- <div class="flex flex-row">
               <div class="basis-1/2 ">
@@ -319,46 +337,70 @@ function delTransactions(id){
               </div>
             </div> -->
 
-            <div class="overflow-x-auto shadow-md">
+            <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200 dark:border-gray-700">
               <table class="w-full my-5">
                 <thead
-                  class="700 bg-rose-500 text-white text-center rounded-l-lg"
+                  class="bg-rose-500 text-white text-center"
                 >
-                  <tr class="bg-rose-500 rounded-l-lg mb-2 sm:mb-0">
-                    <th className="px-4 py-2">رقم الوصل</th>
-                    <th className="px-4 py-2">التاريخ</th>
-                    <th className="px-4 py-2">الوصف</th>
-                    <th className="px-4 py-2">المبلغ</th>
-                    <th className="px-4 py-2">تنفيذ</th>
+                  <tr class="bg-rose-500">
+                    <th className="px-6 py-4 font-semibold text-sm">رقم الوصل</th>
+                    <th className="px-6 py-4 font-semibold text-sm">التاريخ</th>
+                    <th className="px-6 py-4 font-semibold text-sm">الوصف</th>
+                    <th className="px-6 py-4 font-semibold text-sm">المبلغ</th>
+                    <th className="px-6 py-4 font-semibold text-sm print:hidden">تنفيذ</th>
 
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white dark:bg-gray-800">
                   <tr
                     v-for="user in laravelData.transactions"
                     :key="user.id"
-                    class="hover:bg-gray-100 text-center"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700 text-center border-b border-gray-200 dark:border-gray-700 transition-colors"
                   >
-                  <td className="border px-4 py-2">{{ user.id }}</td>
-                  <td className="border px-4 py-2">{{ user?.created }}</td>
-                  <th className="border px-4 py-2">{{ user.description }}</th>
-                  <td className="border px-4 py-2">{{ user.amount }}</td>
-                  <td className="border px-4 py-2">
-                    <button class="px-6 py-2 text-white bg-pink-500 rounded-md focus:outline-none" @click="delTransactions(user.id)" >
-                            حذف
+                  <td className="px-6 py-4 text-gray-900 dark:text-gray-100 font-medium">{{ user.id }}</td>
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{{ user?.created }}</td>
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{{ user.description }}</td>
+                  <td className="px-6 py-4 text-gray-900 dark:text-gray-100 font-semibold">{{ new Intl.NumberFormat('en-US').format(user.amount) }} د.ع</td>
+                  <td className="px-6 py-4 print:hidden">
+                    <button class="px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all text-sm font-medium" @click="delTransactions(user.id)" >
+                            <span class="flex items-center gap-1">
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                              </svg>
+                              حذف
+                            </span>
                     </button>
                   </td>
+                  </tr>
+                  <tr v-if="!laravelData.transactions || laravelData.transactions.length === 0" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                      لا توجد معاملات لعرضها
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <!-- <div class="mt-3 text-center" style="direction: ltr;">
-              <TailwindPagination
-                :data="laravelData"
-                @pagination-change-page="getResults"
-                :limit ="2"
-              />
-            </div> -->
+            <!-- ملخص المبالغ -->
+            <div v-if="laravelData.transactions && laravelData.transactions.length > 0" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <div class="text-sm text-blue-600 dark:text-blue-400 font-medium mb-1">إجمالي المعاملات</div>
+                <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  {{ laravelData.transactions?.length || 0 }}
+                </div>
+              </div>
+              <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <div class="text-sm text-green-600 dark:text-green-400 font-medium mb-1">إجمالي المبالغ</div>
+                <div class="text-2xl font-bold text-green-900 dark:text-green-100">
+                  {{ new Intl.NumberFormat('ar-IQ').format(laravelData.transactions?.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0) || 0) }} د.ع
+                </div>
+              </div>
+              <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                <div class="text-sm text-purple-600 dark:text-purple-400 font-medium mb-1">متوسط المبلغ</div>
+                <div class="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                  {{ laravelData.transactions?.length > 0 ? new Intl.NumberFormat('ar-IQ').format(Math.round((laravelData.transactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0) || 0) / laravelData.transactions.length)) : 0 }} د.ع
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

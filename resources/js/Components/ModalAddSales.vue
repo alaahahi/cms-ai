@@ -44,9 +44,119 @@ const restform =()=>{
 
 };
 }
+
+// دالة لتعيين النسبة الثابتة لبطاقة العالمي
+const setUniversalPercentage = () => {
+  if (isUniversalCard()) {
+    // إذا لم يكن هناك مستخدم محدد، انتظر حتى يتم اختياره
+    if (!form.value.user || !form.value.user.id) {
+      return;
+    }
+    // تعيين النسبة الثابتة إلى 15000
+    form.value.user.percentage = 15000;
+    // إعادة الحساب فوراً
+    calculateAmount();
+  }
+};
+
+// مراقبة فتح النافذة
+watch(() => props.show, (newVal) => {
+  if (newVal) {
+    // إعادة تعيين النموذج عند فتح النافذة
+    if (isUniversalCard()) {
+      // تأخير بسيط لضمان تحديث form.value.user
+      setTimeout(() => {
+        if (form.value.user) {
+          form.value.user.percentage = 15000;
+          calculateAmount();
+        }
+      }, 200);
+    }
+  } else {
+    // إعادة تعيين النموذج عند إغلاق النافذة
+    restform();
+  }
+});
+
+// مراقبة تغيير المندوب
+watch(() => form.value.user, (newUser) => {
+  if (newUser && newUser.id) {
+    // إذا كانت بطاقة العالمي، تجاهل نسبة المندوب الأصلية وحدد 15000
+    if (isUniversalCard()) {
+      form.value.user.percentage = 15000;
+    }
+    calculateAmount();
+  }
+}, { deep: true, immediate: false });
+
+// مراقبة تغيير card_id
+watch(() => props.card_id, (newCardId) => {
+  if (props.show) {
+    if (isUniversalCard()) {
+      if (form.value.user) {
+        form.value.user.percentage = 15000;
+        calculateAmount();
+      }
+    } else {
+      // إذا لم تكن بطاقة العالمي، استخدم نسبة المندوب الأصلية
+      calculateAmount();
+    }
+  }
+}, { immediate: true });
+// دالة للتحقق من بطاقة العالمي
+const isUniversalCard = () => {
+  if (!props.card_id || !props.cards || props.cards.length === 0) return false;
+  
+  // تحويل card_id إلى رقم للمقارنة
+  const cardIdNum = Number(props.card_id);
+  const selectedCard = props.cards.find(card => Number(card.id) === cardIdNum);
+  
+  if (!selectedCard) return false;
+  
+  const cardName = selectedCard.name || selectedCard.name_ar || selectedCard.name_en || '';
+  const isUniversal = cardName.includes('العالمي') || 
+                      cardName.toLowerCase().includes('alamy') || 
+                      cardName.toLowerCase().includes('universal');
+  
+  return isUniversal;
+};
+
+// معالجة إدخال النسبة - منع تغييرها لبطاقة العالمي
+const handlePercentageInput = () => {
+  if (isUniversalCard()) {
+    form.value.user.percentage = 15000;
+  }
+  calculateAmount();
+};
+
+// معالجة تغيير النسبة
+const handlePercentageChange = () => {
+  if (isUniversalCard()) {
+    form.value.user.percentage = 15000;
+  }
+  calculateAmount();
+};
+
 const calculateAmount = () => {
-  const userPercentage = form.value.user.percentage ?? 0;
   const totalCards = form.value.card ?? 0;
+
+  // بطاقة العالمي - نسبة ثابتة 15000 لكل بطاقة (يجب التحقق منها أولاً قبل أي منطق آخر)
+  if (isUniversalCard()) {
+    const fixedPercentage = 15000;
+    // تأكد من تعيين النسبة إلى 15000 دائماً
+    if (form.value.user) {
+      form.value.user.percentage = fixedPercentage;
+    }
+    // حساب المبلغ: عدد البطاقات × 15000
+    form.value.amount = totalCards * fixedPercentage;
+    // حساب الدخل للصندوق (يمكن تعديله حسب سعر بطاقة العالمي)
+    const cardPrice = props.cards.find(c => c.id == props.card_id)?.price || 0;
+    form.value.box = (cardPrice * totalCards) - form.value.amount;
+    return; // إيقاف التنفيذ هنا - لا نريد تطبيق أي منطق آخر
+  }
+
+  // منطق البطاقات الأخرى (فقط إذا لم تكن بطاقة العالمي)
+  const userPercentage = form.value.user.percentage ?? 0;
 
   form.value.amount = totalCards * userPercentage;
 
@@ -142,10 +252,15 @@ const calculateAmount = () => {
                         <input
                           id="card"
                           type="number"
-                          @input="calculateAmount"
-
-                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                          @input="handlePercentageInput"
+                          @change="handlePercentageChange"
+                          :disabled="isUniversalCard()"
+                          :placeholder="isUniversalCard() ? '15000 (ثابت لبطاقة العالمي)' : ''"
+                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                           v-model="form.user.percentage"   />
+                        <small v-if="isUniversalCard()" class="text-blue-600 text-xs mt-1 block">
+                          نسبة ثابتة: 15000 دينار لكل بطاقة
+                        </small>
                         </div>
                         <div className="mb-4 mx-5">
                         <label for="card" >عدد البطاقة التي تم بيعها </label>
@@ -153,7 +268,8 @@ const calculateAmount = () => {
                           id="card"
                           type="number"
                           @input="calculateAmount"
- 
+                          @change="calculateAmount"
+                          min="0"
                           class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
                           v-model="form.card" />
                         </div>
@@ -162,7 +278,8 @@ const calculateAmount = () => {
                         <input
                           id="card"
                           type="number"
-                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                          readonly
+                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm bg-gray-50 font-semibold"
                           v-model="form.amount" />
                         </div>
                         </div>
@@ -172,8 +289,8 @@ const calculateAmount = () => {
                         <input
                           id="card"
                           type="number"
-
-                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                          readonly
+                          class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm bg-gray-50 font-semibold"
                           v-model="form.box"   />
                         </div>
                         </div>
