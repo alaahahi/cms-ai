@@ -2,8 +2,15 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\Card;
+use App\Models\Profile;
+use App\Models\User;
+use App\Policies\AccountingPolicy;
+use App\Policies\CardPolicy;
+use App\Policies\ProfilePolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -13,7 +20,9 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        Card::class => CardPolicy::class,
+        Profile::class => ProfilePolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     /**
@@ -25,6 +34,30 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('accounting.view', [AccountingPolicy::class, 'viewAny']);
+        Gate::define('accounting.manage', [AccountingPolicy::class, 'manage']);
+        Gate::define('accounting.pay', [AccountingPolicy::class, 'pay']);
+
+        // Super admin bypass — use relation cache-friendly exists check
+        Gate::before(function (User $user, string $ability) {
+            static $adminBypass = [];
+
+            $key = (string) $user->getKey();
+            if ($key === '') {
+                return null;
+            }
+
+            if (! array_key_exists($key, $adminBypass)) {
+                try {
+                    $adminBypass[$key] = $user->roles()
+                        ->whereIn('name', ['super_admin', 'admin'])
+                        ->exists();
+                } catch (\Throwable $e) {
+                    $adminBypass[$key] = false;
+                }
+            }
+
+            return $adminBypass[$key] ? true : null;
+        });
     }
 }

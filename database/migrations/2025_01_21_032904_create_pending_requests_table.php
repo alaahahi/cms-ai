@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->unsignedBigInteger('card_id')->nullable()->index();
             $table->string('card_number')->nullable();
             $table->text('family_members_names')->nullable();
             $table->string('image')->nullable();

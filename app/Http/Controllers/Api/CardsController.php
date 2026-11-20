@@ -28,10 +28,9 @@ class CardsController extends Controller
 
     public function __construct(WhatsAppController $whatsAppController)
     {
-        $this->whatsAppController = $whatsAppController; 
+        $this->whatsAppController = $whatsAppController;
         $this->url = env('FRONTEND_URL');
-        $this->userMobile=  UserType::where('name', 'mobile')->first()->id;
-
+        $this->userMobile = optional(UserType::where('name', 'mobile')->first())->id;
     }
 
     public function activeCards()

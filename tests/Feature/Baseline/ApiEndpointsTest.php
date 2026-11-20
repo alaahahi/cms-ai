@@ -6,8 +6,9 @@ use Tests\BaselineTestCase;
 use App\Models\User;
 use App\Models\Card;
 use App\Models\CardService;
+use App\Models\Category;
 use App\Models\Profile;
-use Laravel\Sanctum\Sanctum;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * Baseline tests for existing API endpoints
@@ -33,8 +34,17 @@ class ApiEndpointsTest extends BaselineTestCase
     public function test_api_returns_active_card_services()
     {
         $card = Card::factory()->active()->create();
-        CardService::factory()->count(5)->create([
+        $parent = Category::factory()->create([
             'card_id' => $card->id,
+            'parent_id' => null,
+        ]);
+        $child = Category::factory()->create([
+            'card_id' => $card->id,
+            'parent_id' => $parent->id,
+        ]);
+        CardService::factory()->count(2)->create([
+            'card_id' => $card->id,
+            'category_id' => $child->id,
         ]);
 
         $response = $this->getJson('/api/v1/card-services/active?card_id=' . $card->id);
@@ -48,15 +58,18 @@ class ApiEndpointsTest extends BaselineTestCase
 
     public function test_authenticated_user_can_access_profile_cards()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'phone_number' => '07901112233',
+        ]);
         Profile::factory()->count(2)->create([
             'user_id' => $user->id,
             'phone_number' => $user->phone_number,
         ]);
 
-        Sanctum::actingAs($user);
+        $token = JWTAuth::fromUser($user);
 
-        $response = $this->getJson('/api/v1/cards/me');
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/v1/cards/me');
 
         $response->assertStatus(200)
             ->assertJsonStructure([

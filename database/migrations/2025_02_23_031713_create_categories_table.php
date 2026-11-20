@@ -6,26 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
+        if (Schema::hasTable('categories')) {
+            return;
+        }
+
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name_en'); // اسم التصنيف بالإنجليزية
-            $table->string('name_ar'); // اسم التصنيف بالعربية
+            $table->unsignedBigInteger('card_id')->nullable();
+            $table->string('name_en')->nullable();
+            $table->string('name_ar')->nullable();
+            $table->string('icon')->nullable();
+            $table->string('color')->nullable();
+            $table->decimal('discount', 8, 2)->default(0);
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('categories');

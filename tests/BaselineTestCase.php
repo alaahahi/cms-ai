@@ -13,7 +13,8 @@ abstract class BaselineTestCase extends BaseTestCase
     {
         parent::setUp();
         
-        // Seed necessary data
+        // Seed necessary data for parallel auth (legacy types + Spatie roles)
         $this->artisan('db:seed', ['--class' => 'UserTypeSeeder']);
+        $this->artisan('db:seed', ['--class' => 'RolePermissionSeeder']);
     }
 }

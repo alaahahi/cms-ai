@@ -12,6 +12,17 @@ use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\CardsController;
+use App\Http\Controllers\Api\V1\CardController as V1CardController;
+use App\Http\Controllers\Api\V1\CardServiceController as V1CardServiceController;
+use App\Http\Controllers\Api\V1\ProfileController as V1ProfileController;
+use App\Http\Controllers\Api\V1\SubscriptionController as V1SubscriptionController;
+use App\Http\Controllers\Api\V1\ProviderController as V1ProviderController;
+use App\Http\Controllers\Api\V1\VisitController as V1VisitController;
+use App\Http\Controllers\Api\V1\SalesController as V1SalesController;
+use App\Http\Controllers\Api\V1\TicketController as V1TicketController;
+use App\Http\Controllers\Api\V1\InvoiceController as V1InvoiceController;
+use App\Http\Controllers\Api\V1\AnalyticsController as V1AnalyticsController;
+use App\Http\Controllers\Api\V1\DigitalCardController as V1DigitalCardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\QueueController;
@@ -98,43 +109,93 @@ Route::post('/move-data-cv-to-extracted', [App\Http\Controllers\ImportController
 Route::post('/move-data-cv-to-extracted-batch', [App\Http\Controllers\ImportController::class, 'moveDataCvToExtractedBatch'])->name('move-data-cv-to-extracted-batch');
 Route::post('/delete-data-cv', [App\Http\Controllers\ImportController::class, 'deleteDataCv'])->name('delete-data-cv');
 Route::post('/delete-data-cv-batch', [App\Http\Controllers\ImportController::class, 'deleteDataCvBatch'])->name('delete-data-cv-batch');
-Route::group(['prefix' => 'v1'], function() {
+Route::group(['prefix' => 'v1', 'middleware' => 'throttle:api-v1'], function () {
 
-Route::middleware('auth:api')->group(function () {
-    Route::get('/cards/me', [CardsController::class, 'activeCardsMe']);
-    Route::get('/profile/me', [UserController::class, 'profile']);
-    Route::delete('/profile/delete', [UserController::class, 'delProfile']);
-    Route::post('/profile/update', [UserController::class, 'profileUpdate']);
-    Route::post('/appointment/store', [HospitalController::class, 'storeAppointment']);
-    Route::get('/appointment/me', [HospitalController::class, 'appointment']);
-    Route::post('/appointment/update/{id}', [HospitalController::class, 'updateAppointment']);
-    Route::post('/appointment/delete/{id}', [HospitalController::class, 'deleteAppointment']);
+    // Foundation V1 controllers (Resources + unified response) — parallel-safe shape
+    Route::middleware('auth:api')->group(function () {
+        Route::get('/cards/me', [V1CardController::class, 'me']);
+        Route::get('/profile/me', [V1ProfileController::class, 'me']);
 
-    Route::post('/appointment/canBookAppointment', [CardsController::class, 'canBookAppointment']);
-    Route::post('/storeWheelResult', [CardsController::class, 'storeWheelResult']);
-    Route::get('/my-wins', [CardsController::class, 'getMyWins']);
+        // Subscription module (Phase 2) — dual-writes Profile + Subscription
+        Route::get('/subscriptions', [V1SubscriptionController::class, 'index']);
+        Route::post('/subscriptions', [V1SubscriptionController::class, 'store']);
+        Route::get('/subscriptions/{id}', [V1SubscriptionController::class, 'show'])->whereNumber('id');
 
-});
+        // Provider / Visit module (Phase 2.2)
+        Route::get('/visits', [V1VisitController::class, 'index']);
+        Route::get('/visits/{id}', [V1VisitController::class, 'show'])->whereNumber('id');
+        Route::post('/visits/lab', [V1VisitController::class, 'storeLab']);
+        Route::post('/visits/doctor', [V1VisitController::class, 'storeDoctor']);
+        Route::post('/coverage/verify', [V1ProviderController::class, 'verifyCoverage']);
 
-Route::get('/cards/active', [CardsController::class, 'activeCards']);
-Route::get('/card-services/active', [CardsController::class, 'activeCardServices']);
-Route::get('/card-services/search', [CardsController::class, 'searchCardServices']);
-Route::get('card-services/{card_id}', [CardsController::class, 'getServicesByCard']);
+        // Sales module (Phase 2.3)
+        Route::get('/sales-reps', [V1SalesController::class, 'reps']);
+        Route::get('/sales-reps/{id}', [V1SalesController::class, 'showRep'])->whereNumber('id');
+        Route::get('/sales', [V1SalesController::class, 'index']);
+        Route::post('/sales', [V1SalesController::class, 'store']);
+        Route::get('/commissions', [V1SalesController::class, 'commissions']);
+        Route::post('/commissions/{id}/pay', [V1SalesController::class, 'payCommission'])->whereNumber('id');
+        Route::get('/targets', [V1SalesController::class, 'targets']);
+        Route::post('/targets', [V1SalesController::class, 'storeTarget']);
 
-Route::get('/get-popular-service', [CardsController::class, 'activeCardServicesPopular']);
-Route::post('/send-verification-code', [UserController::class, 'sendVerificationCode']);
-Route::post('/verify-code', [UserController::class, 'verifyCode']);
-Route::post('/verify-code-sms', [UserController::class, 'verifyCodeSms'])->name('verify-code-sms');
+        // Customer Service module (Phase 2.4)
+        Route::get('/ticket-categories', [V1TicketController::class, 'categories']);
+        Route::post('/tickets/sync', [V1TicketController::class, 'sync']);
+        Route::get('/tickets', [V1TicketController::class, 'index']);
+        Route::post('/tickets', [V1TicketController::class, 'store']);
+        Route::get('/tickets/{id}', [V1TicketController::class, 'show'])->whereNumber('id');
+        Route::post('/tickets/{id}/messages', [V1TicketController::class, 'addMessage'])->whereNumber('id');
+        Route::post('/tickets/{id}/transition', [V1TicketController::class, 'transition'])->whereNumber('id');
 
-Route::get('/settings', [AppSettingsController::class, 'index']);
+        // Accounting module (Phase 3)
+        Route::post('/invoices/sync', [V1InvoiceController::class, 'sync']);
+        Route::get('/invoices', [V1InvoiceController::class, 'index']);
+        Route::post('/invoices', [V1InvoiceController::class, 'store']);
+        Route::get('/invoices/{id}', [V1InvoiceController::class, 'show'])->whereNumber('id');
+        Route::post('/invoices/{id}/pay', [V1InvoiceController::class, 'pay'])->whereNumber('id');
+        Route::get('/provider-dues', [V1InvoiceController::class, 'providerDues']);
+        Route::post('/provider-dues', [V1InvoiceController::class, 'createProviderDue']);
+        Route::post('/provider-dues/{id}/pay', [V1InvoiceController::class, 'payProviderDue'])->whereNumber('id');
 
-// جلب إعداد معين باستخدام المفتاح
-Route::get('/settings/{key}', [AppSettingsController::class, 'show']);
+        // Analytics module (Phase 3)
+        Route::get('/analytics/dashboard', [V1AnalyticsController::class, 'dashboard']);
+        Route::post('/analytics/snapshot', [V1AnalyticsController::class, 'snapshot']);
 
-Route::post('/request-card', [CardsController::class, 'requestCard']);
-Route::post('deletePendingRequest', [CardsController::class, 'deletePendingRequest'])->name('deletePendingRequest');
-Route::get('/wheelItem ', [CardsController::class, 'wheelItem']);
+        // Legacy handlers kept until later migration completes
+        Route::delete('/profile/delete', [UserController::class, 'delProfile']);
+        Route::post('/profile/update', [UserController::class, 'profileUpdate']);
+        Route::post('/appointment/store', [HospitalController::class, 'storeAppointment']);
+        Route::get('/appointment/me', [HospitalController::class, 'appointment']);
+        Route::post('/appointment/update/{id}', [HospitalController::class, 'updateAppointment']);
+        Route::post('/appointment/delete/{id}', [HospitalController::class, 'deleteAppointment']);
+        Route::post('/appointment/canBookAppointment', [CardsController::class, 'canBookAppointment']);
+        Route::post('/storeWheelResult', [CardsController::class, 'storeWheelResult']);
+        Route::get('/my-wins', [CardsController::class, 'getMyWins']);
+    });
 
+    Route::get('/subscription-types', [V1SubscriptionController::class, 'types']);
+    Route::get('/subscriptions/by-number/{number}', [V1SubscriptionController::class, 'findByNumber']);
+    Route::get('/digital-card/{number}', [V1DigitalCardController::class, 'show']);
 
+    Route::get('/providers', [V1ProviderController::class, 'index']);
+    Route::get('/providers/{id}', [V1ProviderController::class, 'show'])->whereNumber('id');
+    Route::get('/provider-services', [V1ProviderController::class, 'services']);
+
+    Route::get('/cards/active', [V1CardController::class, 'active']);
+    Route::get('/card-services/active', [V1CardServiceController::class, 'active']);
+    Route::get('/card-services/search', [V1CardServiceController::class, 'search']);
+    Route::get('/card-services/{card_id}', [V1CardServiceController::class, 'byCard']);
+
+    Route::get('/get-popular-service', [CardsController::class, 'activeCardServicesPopular']);
+    Route::post('/send-verification-code', [UserController::class, 'sendVerificationCode']);
+    Route::post('/verify-code', [UserController::class, 'verifyCode']);
+    Route::post('/verify-code-sms', [UserController::class, 'verifyCodeSms'])->name('verify-code-sms');
+
+    Route::get('/settings', [AppSettingsController::class, 'index']);
+    Route::get('/settings/{key}', [AppSettingsController::class, 'show']);
+
+    Route::post('/request-card', [CardsController::class, 'requestCard']);
+    Route::post('deletePendingRequest', [CardsController::class, 'deletePendingRequest'])->name('deletePendingRequest');
+    Route::get('/wheelItem ', [CardsController::class, 'wheelItem']);
 });
 

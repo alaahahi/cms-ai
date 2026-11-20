@@ -1,22 +1,35 @@
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrdersTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
+        if (Schema::hasTable('orders')) {
+            return;
+        }
+
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->uuid('order_id');  // UUID for the order ID
-            $table->decimal('amount', 10, 2);  // Amount (adjust precision if necessary)
-            $table->string('currency', 3);  // Currency code, e.g., IQD
-            $table->string('status')->default('pending');  // Status of the payment
-            $table->string('state')->default('initial');  // State of the order
-            $table->timestamps();  // Created at and Updated at fields
+            $table->uuid('order_id')->nullable();
+            $table->decimal('amount', 12, 2)->nullable();
+            $table->string('currency', 10)->nullable();
+            $table->string('status')->default('pending');
+            $table->string('state')->default('initial');
+            $table->string('link')->nullable();
+            $table->string('token')->nullable();
+            $table->string('transactionId')->nullable();
+            $table->string('3DSecureId')->nullable();
+            $table->string('card_number')->nullable();
+            $table->string('salse')->nullable();
+            $table->string('name')->nullable();
+            $table->string('family_name')->nullable();
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -24,4 +37,4 @@ class CreateOrdersTable extends Migration
     {
         Schema::dropIfExists('orders');
     }
-}
+};

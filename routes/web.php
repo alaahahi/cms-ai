@@ -15,6 +15,14 @@ use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\Admin\AppSettingsController;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Api\CardsController;
+use App\Http\Controllers\Erp\DashboardController as ErpDashboardController;
+use App\Http\Controllers\Erp\SubscriptionController as ErpSubscriptionController;
+use App\Http\Controllers\Erp\ProviderController as ErpProviderController;
+use App\Http\Controllers\Erp\VisitController as ErpVisitController;
+use App\Http\Controllers\Erp\SalesController as ErpSalesController;
+use App\Http\Controllers\Erp\TicketController as ErpTicketController;
+use App\Http\Controllers\Erp\InvoiceController as ErpInvoiceController;
+use App\Http\Controllers\Erp\AnalyticsController as ErpAnalyticsController;
 
 
 
@@ -57,9 +65,46 @@ Route::group(['middleware' => ['auth','verified']], function () {
     Route::get('/settings', [AppSettingsController::class, 'index'])->name('settings');
     Route::post('/settings/update', [AppSettingsController::class, 'update'])->name('settings.update');
     
-    Route::get('/dashboard', function () {return Inertia::render('Dashboard');})->middleware(['auth', 'verified'])->name('dashboard');
+    // ERP Module UI (restructure plan flow)
+    Route::get('dashboard', [ErpDashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('dashboard',[DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
+    Route::prefix('erp')->name('erp.')->group(function () {
+        Route::get('/', [ErpDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('subscriptions', [ErpSubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::post('subscriptions', [ErpSubscriptionController::class, 'store'])->name('subscriptions.store');
+        Route::get('subscriptions/{id}', [ErpSubscriptionController::class, 'show'])->whereNumber('id')->name('subscriptions.show');
+
+        Route::get('providers', [ErpProviderController::class, 'index'])->name('providers.index');
+        Route::post('providers/verify-coverage', [ErpProviderController::class, 'verifyCoverage'])->name('providers.verify');
+
+        Route::get('visits', [ErpVisitController::class, 'index'])->name('visits.index');
+        Route::post('visits', [ErpVisitController::class, 'store'])->name('visits.store');
+
+        Route::get('sales', [ErpSalesController::class, 'index'])->name('sales.index');
+        Route::post('sales', [ErpSalesController::class, 'store'])->name('sales.store');
+        Route::post('sales/targets', [ErpSalesController::class, 'storeTarget'])->name('sales.targets.store');
+        Route::post('sales/commissions/{id}/pay', [ErpSalesController::class, 'payCommission'])->whereNumber('id')->name('sales.commissions.pay');
+
+        Route::get('tickets', [ErpTicketController::class, 'index'])->name('tickets.index');
+        Route::post('tickets', [ErpTicketController::class, 'store'])->name('tickets.store');
+        Route::post('tickets/sync', [ErpTicketController::class, 'sync'])->name('tickets.sync');
+        Route::post('tickets/{id}/messages', [ErpTicketController::class, 'addMessage'])->whereNumber('id')->name('tickets.messages');
+        Route::post('tickets/{id}/transition', [ErpTicketController::class, 'transition'])->whereNumber('id')->name('tickets.transition');
+
+        Route::get('invoices', [ErpInvoiceController::class, 'index'])->name('invoices.index');
+        Route::post('invoices', [ErpInvoiceController::class, 'store'])->name('invoices.store');
+        Route::post('invoices/sync', [ErpInvoiceController::class, 'sync'])->name('invoices.sync');
+        Route::post('invoices/{id}/pay', [ErpInvoiceController::class, 'pay'])->whereNumber('id')->name('invoices.pay');
+        Route::post('provider-dues', [ErpInvoiceController::class, 'createProviderDue'])->name('provider-dues.store');
+        Route::post('provider-dues/{id}/pay', [ErpInvoiceController::class, 'payProviderDue'])->whereNumber('id')->name('provider-dues.pay');
+
+        Route::get('analytics', [ErpAnalyticsController::class, 'index'])->name('analytics.index');
+        Route::post('analytics/snapshot', [ErpAnalyticsController::class, 'snapshot'])->name('analytics.snapshot');
+    });
+
+    // Legacy dashboard kept for parallel run
+    Route::get('dashboard-legacy', [DashboardController::class, 'index'])->name('dashboard.legacy');
     
     Route::get('getIndex',[UserController::class, 'getIndex'])->name("getIndex");
     Route::get('ban/{id}',[UserController::class, 'ban'])->name("ban");

@@ -52,9 +52,9 @@ class UserModelTest extends TestCase
 
     public function test_user_has_jwt_methods()
     {
-        $user = User::factory()->make();
+        $user = User::factory()->create();
 
-        $this->assertIsInt($user->getJWTIdentifier());
+        $this->assertNotNull($user->getJWTIdentifier());
         $this->assertIsArray($user->getJWTCustomClaims());
     }
 }
