@@ -24,23 +24,43 @@ use PDF;
 
 class HospitalController extends Controller
 {
-    public function __construct(){
-         $this->url = env('FRONTEND_URL');
-         $this->userAdmin =  UserType::where('name', 'admin')->first()->id;
-         $this->userDateEntry =  UserType::where('name', 'data_entry')->first()->id;
-         $this->userSeles =  UserType::where('name', 'seles')->first()->id;
-         $this->userDoctor =  UserType::where('name', 'doctor')->first()->id;
-         $this->userAccount=  UserType::where('name', 'account')->first()->id;
-         $this->userHospital =  UserType::where('name', 'hospital')->first()->id;
+    protected $url;
+    protected $userAdmin;
+    protected $userDateEntry;
+    protected $userSeles;
+    protected $userDoctor;
+    protected $userAccount;
+    protected $userHospital;
+    protected $rolesLoaded = false;
+
+    public function __construct()
+    {
+        $this->url = env('FRONTEND_URL');
     }
+
+    protected function loadRoles(): void
+    {
+        if ($this->rolesLoaded) {
+            return;
+        }
+
+        $this->userAdmin = UserType::where('name', 'admin')->first()?->id;
+        $this->userDateEntry = UserType::where('name', 'data_entry')->first()?->id;
+        $this->userSeles = UserType::where('name', 'seles')->first()?->id;
+        $this->userDoctor = UserType::where('name', 'doctor')->first()?->id;
+        $this->userAccount = UserType::where('name', 'account')->first()?->id;
+        $this->userHospital = UserType::where('name', 'hospital')->first()?->id;
+        $this->rolesLoaded = true;
+    }
+
     public function index(Request $request)
     {
         $hospital = $request->input('hospital');
-        // Load hospital-specific data and views
         return view('hospital.index', compact('hospital'));
     }
     public function hospital(Request $request)
     {
+        $this->loadRoles();
         $users = User::where('type_id',$this->userDoctor)->get();
         return Inertia::render('Hospital/Index', ['url'=>$this->url,'users'=>$users]);
     }
@@ -60,6 +80,7 @@ class HospitalController extends Controller
     }
     public function create()
     {
+        $this->loadRoles();
         $userDoctor = User::where('type_id',$this->userDoctor)->get();
         $cards = Card::orderBy('id', 'DESC')->get();
 
@@ -67,6 +88,7 @@ class HospitalController extends Controller
     }
     public function store(Request $request)
     {
+        $this->loadRoles();
         $user = Auth::user();
         if (!$user) {
             return response()->json([
@@ -113,6 +135,7 @@ class HospitalController extends Controller
     }
     public function edit(Request $request,$id)
     {
+        $this->loadRoles();
         $userDoctor = User::where('type_id',$this->userDoctor)->get();
         $appointment=Appointment::find($id);
         return Inertia::render('Hospital/Edit', ['url'=>$this->url,'userDoctor'=>$userDoctor,'appointment'=>$appointment]);
@@ -132,6 +155,7 @@ class HospitalController extends Controller
     }
     public function storeEdit(Request $request)
     {
+        $this->loadRoles();
         $userDoctor = User::where('type_id',$this->userDoctor)->get();
         $users = User::where('type_id',$this->userDoctor)->get();
 

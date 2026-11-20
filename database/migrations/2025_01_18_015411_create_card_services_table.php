@@ -6,37 +6,37 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
+        if (Schema::hasTable('card_services')) {
+            return;
+        }
+
         Schema::create('card_services', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('card_id'); 
-            $table->string('service_name'); 
-            $table->text('description')->nullable();
-            $table->decimal('price', 8, 2)->nullable(); 
+            $table->unsignedBigInteger('card_id')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->string('service_name_ar')->nullable();
+            $table->string('service_name_en')->nullable();
+            $table->text('description_ar')->nullable();
+            $table->text('description_en')->nullable();
+            $table->string('specialty_ar')->nullable();
+            $table->string('specialty_en')->nullable();
+            $table->decimal('price', 12, 2)->nullable();
+            $table->string('currency', 10)->nullable();
+            $table->string('working_days')->nullable();
+            $table->string('working_hours')->nullable();
+            $table->integer('appointments_per_day')->default(5);
+            $table->date('expir_date')->nullable();
+            $table->boolean('show_on_app')->default(true);
+            $table->boolean('is_popular')->default(false);
+            $table->integer('review_rate')->default(5);
+            $table->integer('ex_year')->default(0);
+            $table->string('image')->nullable();
             $table->timestamps();
-
-            // الأعمدة الجديدة
-            $table->json('working_days')->nullable(); // أيام الدوام مثل ["Saturday", "Sunday", "Monday"]
-            $table->json('working_hours')->nullable(); // ساعات الدوام مثل {"start": "09:00", "end": "17:00"}
-            $table->integer('appointments_per_day')->default(5); // الحد الأقصى للمواعيد في اليوم
-
-            // ربط المفتاح الخارجي
-            $table->foreign('card_id')->references('id')->on('card')->onDelete('cascade');
         });
     }
 
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('card_services');

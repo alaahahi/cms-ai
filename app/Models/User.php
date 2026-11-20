@@ -11,11 +11,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -53,7 +54,12 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getIsAdminAttribute(): bool
     {
-        return (int)$this->type_id === 4; // Ensure type_id is cast to integer if needed
+        if (method_exists($this, 'hasAnyRole') && $this->hasAnyRole(['super_admin', 'admin'])) {
+            return true;
+        }
+
+        // Legacy type_id check kept during parallel run
+        return (int) $this->type_id === 4;
     }
 
     /**
@@ -63,7 +69,30 @@ class User extends Authenticatable implements JWTSubject
     {
         parent::boot();
 
-        // You can add model event hooks here if needed.
+        // Parallel run: sync Spatie role from legacy type_id (queued after commit to avoid recursion)
+        static::created(function (User $user) {
+            if (! $user->type_id) {
+                return;
+            }
+
+            if (! \Illuminate\Support\Facades\Schema::hasTable('model_has_roles')) {
+                return;
+            }
+
+            $typeName = UserType::where('id', $user->type_id)->value('name');
+            if (! $typeName) {
+                return;
+            }
+
+            try {
+                $role = \Spatie\Permission\Models\Role::findByName($typeName, 'web');
+                if ($role && ! $user->roles()->where('roles.id', $role->id)->exists()) {
+                    $user->roles()->attach($role);
+                }
+            } catch (\Throwable $e) {
+                // Roles may not be seeded yet during early migrations/tests
+            }
+        });
     }
 
     /**

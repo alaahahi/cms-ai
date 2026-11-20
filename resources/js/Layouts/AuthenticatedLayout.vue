@@ -3,251 +3,253 @@ import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/inertia-vue3';
 import DarkModeToggle from '@/Components/DarkToggle.vue';
+import { Link } from '@inertiajs/inertia-vue3';
 
 const showingNavigationDropdown = ref(false);
+const openMobileGroup = ref(null);
+
+const can = (userType, ...types) => types.includes(Number(userType));
+
+const isRouteActive = (name) => {
+    try {
+        return route().current(name);
+    } catch (e) {
+        return false;
+    }
+};
+
+const groupHasActive = (items) => items.some((item) => isRouteActive(item.route));
+
+const buildGroups = (userType) => {
+    const t = Number(userType);
+    const groups = [
+        {
+            key: 'erp',
+            label: 'نظام ERP',
+            items: [
+                { label: 'لوحة التدفق', route: 'dashboard', show: can(t, 1, 2, 5, 6, 8, 9) },
+                { label: '1) الاشتراكات', route: 'erp.subscriptions.index', show: can(t, 1, 2, 5, 6) },
+                { label: '2) المزودين', route: 'erp.providers.index', show: can(t, 1, 2, 5, 6) },
+                { label: '2) الزيارات', route: 'erp.visits.index', show: can(t, 1, 2, 5, 6) },
+                { label: '3) المبيعات', route: 'erp.sales.index', show: can(t, 1, 2, 5) },
+                { label: '4) التذاكر', route: 'erp.tickets.index', show: can(t, 1, 2, 5, 6) },
+                { label: '5) الفواتير', route: 'erp.invoices.index', show: can(t, 1, 5) },
+                { label: '6) التحليلات', route: 'erp.analytics.index', show: can(t, 1, 2, 5) },
+            ],
+        },
+        {
+            key: 'phones',
+            label: 'الهاتف والمبيعات',
+            items: [
+                { label: 'لوحة الهاتف', route: 'dashboard_phone', show: can(t, 1, 8, 9) },
+                { label: 'الإسناد', route: 'sort_phone', show: can(t, 1, 8) },
+                { label: 'أرقام جديدة', route: 'new_phone', show: can(t, 1, 8) },
+                { label: 'تم الإسناد', route: 'contact_phone', show: can(t, 1, 8, 9) },
+                { label: 'قبول العرض', route: 'accept_offer', show: can(t, 1, 8, 9) },
+                { label: 'رفض العرض', route: 'reject_offer', show: can(t, 1, 8, 9) },
+                { label: 'معاودة مرة أخرى', route: 'follow_up', show: can(t, 1, 8, 9) },
+                { label: 'مشغول', route: 'busy', show: can(t, 1, 8, 9) },
+            ],
+        },
+        {
+            key: 'legacy',
+            label: 'النظام القديم',
+            items: [
+                { label: 'لوحة قديمة', route: 'dashboard.legacy', show: can(t, 1, 2, 5, 6) },
+                { label: 'العقد الإلكتروني', route: 'formRegistration', show: can(t, 1, 2, 5, 6) },
+                { label: 'عرض البطاقات', route: 'card', show: can(t, 1, 2, 5, 6) },
+                { label: 'الطلبات المعلقة', route: 'PendingRequest', show: can(t, 1, 2, 5, 6) },
+                { label: 'حسابات المندوبين', route: 'FormRegistrationCourt', show: can(t, 1, 5) },
+                { label: 'العقود المكتملة', route: 'FormRegistrationCompleted', show: can(t, 1, 2, 5) },
+                { label: 'تسجيل استمارة', route: 'تسجيل-الاستمارة', show: can(t, 1, 2, 5) },
+                { label: 'البطاقات', route: 'CardsMobile', show: can(t, 1, 2, 5, 6) },
+                { label: 'تصنيفات البطاقات', route: 'CategoryCardMobile', show: can(t, 1, 2, 5, 6) },
+                { label: 'خدمات البطاقات', route: 'ServicesCardMobile', show: can(t, 1, 2, 5, 6) },
+                { label: 'الحجوزات', route: 'hospital', show: can(t, 1, 6) },
+                { label: 'المحاسبة القديمة', route: 'accounting', show: can(t, 1, 5) },
+                { label: 'المندوبين', route: 'users.index', show: can(t, 1, 2, 5) },
+                { label: 'إعدادات التطبيق', route: 'settings', show: can(t, 1, 2, 5, 6) },
+                { label: 'نظام واتساب', route: 'whatsapp-system', show: can(t, 1, 8) },
+                { label: 'فحص واتساب', route: 'whatsapp-checker', show: can(t, 1, 8) },
+                { label: 'استيراد أرقام', route: 'import-numbers', show: can(t, 1, 8) },
+                { label: 'إدارة data_cv', route: 'data-cv-manage', show: can(t, 1, 8) },
+                { label: 'إدارة الطوابير', route: 'queue-manage', show: can(t, 1, 8) },
+            ],
+        },
+    ];
+
+    return groups
+        .map((g) => ({ ...g, items: g.items.filter((i) => i.show) }))
+        .filter((g) => g.items.length > 0);
+};
+
+const hrefFor = (name) => {
+    try {
+        return route(name);
+    } catch (e) {
+        return '#';
+    }
+};
+
+const toggleMobileGroup = (key) => {
+    openMobileGroup.value = openMobileGroup.value === key ? null : key;
+};
 </script>
 
 <template>
-    <div >
-        <div class="min-h-screen bg-gray-100   dark:bg-gray-800">
-            <nav class="bg-white border-gray-100 dark:bg-gray-900  print:hidden">
-                <!-- Primary Navigation Menu -->
-                <div class=" mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between h-16">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="shrink-0 flex items-center" v-if="false"> 
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo class="block h-9 w-auto" />
-                                </Link>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5||$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    الرئيسية
-                                </NavLink>
-                            </div> 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5||$page.props.auth.user.type_id==2">
-                                <NavLink :href="route('users.index')" :active="route().current('users.index')">
-                                    المندوبين
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"  v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5">
-                                <NavLink :href="route('formRegistration')" :active="route().current('formRegistration')">
-                                     العقد الإلكتروني
-                                </NavLink>
-                            </div>
+    <div class="min-h-screen bg-slate-100 dark:bg-slate-950">
+        <nav class="print:hidden sticky top-0 z-50 overflow-visible border-b border-slate-800/40 bg-slate-900 text-slate-100 shadow-lg">
+            <div class="mx-auto max-w-[1600px] overflow-visible px-3 sm:px-5 lg:px-6">
+                <div class="flex h-16 items-center justify-between gap-3 overflow-visible">
+                    <div class="flex min-w-0 flex-1 items-center gap-3 overflow-visible">
+                        <Link :href="hrefFor('dashboard')" class="flex shrink-0 items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-white/5">
+                            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-500/15 ring-1 ring-teal-400/30">
+                                <ApplicationLogo class="block h-6 w-auto fill-current text-teal-300" />
+                            </span>
+                            <span class="hidden leading-tight lg:block">
+                                <span class="block text-sm font-semibold text-white">CMS AI</span>
+                                <span class="block text-[11px] text-slate-400">نظام التأمين الصحي</span>
+                            </span>
+                        </Link>
 
-                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1 ||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')">
-                                    حسابات المندوبين
-                                </NavLink>
-                            </div>
-                            <div  class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('accounting')" :active="route().current('accounting')">
-                                    المحاسبة
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==6" >
-                                <NavLink :href="route('hospital')" :active="route().current('hospital')">
-                                     الحجوزات
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('card')" :active="route().current('card')">
-                                     عرض البطاقات
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('CardsMobile')" :active="route().current('CardsMobile')">
-                                        البطاقات 
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('CategoryCardMobile')" :active="route().current('CategoryCardMobile')">
-                                    تصنيفات
-                                    البطاقات  
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex " v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('ServicesCardMobile')" :active="route().current('ServicesCardMobile')">
-                                       خدمات البطاقات
-                                </NavLink>
-                            </div>
+                        <div class="hidden min-w-0 flex-wrap items-center gap-1 overflow-visible lg:flex">
+                            <Dropdown
+                                v-for="group in buildGroups($page.props.auth.user.type_id)"
+                                :key="group.key"
+                                align="left"
+                                width="64"
+                                :content-classes="['py-2', 'bg-white', 'dark:bg-slate-800']"
+                            >
+                                <template #trigger>
+                                    <button
+                                        type="button"
+                                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition"
+                                        :class="groupHasActive(group.items)
+                                            ? 'bg-teal-500/20 text-teal-200 ring-1 ring-teal-400/30'
+                                            : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                                    >
+                                        {{ group.label }}
+                                        <svg class="h-3.5 w-3.5 opacity-70" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </template>
 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('PendingRequest')" :active="route().current('PendingRequest')">
-                                      طلبات المعلقة
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5" >
-                                <NavLink :href="route('settings')" :active="route().current('settings')">
-                                       اعدادات التطبيق
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8" >
-                                <NavLink :href="route('sort_phone')" :active="route().current('sort_phone')">
-                                     الإسناد
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8" >
-                                <NavLink :href="route('new_phone')" :active="route().current('sort_phone')">
-                                     ارقام جديدة
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
-                                <NavLink :href="route('contact_phone')" :active="route().current('contact_phone')">
-                                       تم الاسناد
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
-                                <NavLink :href="route('accept_offer')" :active="route().current('accept_offer')">
-                                    تم قبول العرض
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
-                                <NavLink :href="route('reject_offer')" :active="route().current('reject_offer')">
-                                    رفض العرض
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
-                                <NavLink :href="route('follow_up')" :active="route().current('follow_up')">
-                                    معاودة مره اخرى
-                                </NavLink>
-                            </div>
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9" >
-                                <NavLink :href="route('busy')" :active="route().current('busy')">
-                                    مشغول
-                                </NavLink>
-                            </div>
-                        </div>
-                        <div class="hidden sm:flex sm:items-center sm:ml-6">
-                            <!-- Settings Dropdown -->
-                            <div class="ml-3 relative">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                                {{ $page.props.auth.user.name }}
-
-                                                <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-
-                                    <template #content>
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
-                                            تسجيل الخروج
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                            <DarkModeToggle></DarkModeToggle>
-                        </div>
-
-                        <!-- Hamburger -->
-                        <div class="-mr-2 flex items-center sm:hidden">
-                            <button @click="showingNavigationDropdown = ! showingNavigationDropdown" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path :class="{'hidden': showingNavigationDropdown, 'inline-flex': ! showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                    <path :class="{'hidden': ! showingNavigationDropdown, 'inline-flex': showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                                <template #content>
+                                    <div class="border-b border-slate-100 px-4 py-2 text-[11px] font-semibold text-slate-400 dark:border-slate-700">
+                                        {{ group.label }}
+                                    </div>
+                                    <DropdownLink
+                                        v-for="item in group.items"
+                                        :key="item.route"
+                                        :href="hrefFor(item.route)"
+                                        :class="isRouteActive(item.route) ? '!bg-teal-50 !text-teal-800 dark:!bg-teal-900/40 dark:!text-teal-200' : ''"
+                                    >
+                                        {{ item.label }}
+                                    </DropdownLink>
+                                </template>
+                            </Dropdown>
                         </div>
                     </div>
-                </div>
 
-                <!-- Responsive Navigation Menu -->
-                <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            لوحة القيادة
-                        </ResponsiveNavLink>
+                    <div class="hidden items-center gap-2 sm:flex">
+                        <DarkModeToggle />
+                        <Dropdown align="right" width="56" :content-classes="['py-1', 'bg-white', 'dark:bg-slate-800']">
+                            <template #trigger>
+                                <button type="button" class="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-slate-200 ring-1 ring-white/10 hover:bg-white/10">
+                                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-teal-500/20 text-xs font-bold text-teal-200">
+                                        {{ $page.props.auth.user.name?.charAt(0) || 'U' }}
+                                    </span>
+                                    <span class="max-w-[120px] truncate">{{ $page.props.auth.user.name }}</span>
+                                    <svg class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </template>
+                            <template #content>
+                                <div class="border-b border-slate-100 px-4 py-3 dark:border-slate-700">
+                                    <div class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $page.props.auth.user.name }}</div>
+                                    <div class="truncate text-xs text-slate-500">{{ $page.props.auth.user.email }}</div>
+                                </div>
+                                <DropdownLink :href="route('logout')" method="post" as="button" class="!text-rose-600">
+                                    تسجيل الخروج
+                                </DropdownLink>
+                            </template>
+                        </Dropdown>
                     </div>
 
-                    <!-- Responsive Settings Options -->
-                    <div class="pt-4 pb-1 border-t border-gray-200">
-        
-                        <div class="px-4">
-                            <div class="font-medium text-base text-gray-800">{{ $page.props.auth.user.name }}</div>
-                            <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
-                        </div>
+                    <button
+                        type="button"
+                        class="inline-flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-white/10 lg:hidden"
+                        @click="showingNavigationDropdown = !showingNavigationDropdown"
+                    >
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path :class="{ hidden: showingNavigationDropdown, 'inline-flex': !showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path :class="{ hidden: !showingNavigationDropdown, 'inline-flex': showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
 
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    الرئيسية
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.index')" v-if="$page.props.auth.user.type_id==1 ||$page.props.auth.user.type_id==5">
-                                    المندوبين
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('formRegistration')" :active="route().current('formRegistration')"  v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6||$page.props.auth.user.type_id==5">
-                                     العقد الإلكتروني
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('FormRegistrationCourt')" :active="route().current('FormRegistrationCourt')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==5">
-                                     حسابات المندوبين       
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('accounting')" :active="route().current('accounting')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==5">
-                                      المحاسبة       
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('hospital')" :active="route().current('hospital')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==6">
-                                    الحجوزات
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('card')" :active="route().current('card')" v-if="$page.props.auth.user.type_id==1||$page.props.auth.user.type_id==2||$page.props.auth.user.type_id==6">
-                                عرض البطاقات
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('sort_phone')" :active="route().current('sort_phone')" v-if="$page.props.auth.user.type_id==8">
-                                الإسناد
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('new_phone')" :active="route().current('new_phone')" v-if="$page.props.auth.user.type_id==8">
-                                ارقام جديدة
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('contact_phone')" :active="route().current('contact_phone')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                تم الاسناد
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('accept_offer')" :active="route().current('accept_offer')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                تم قبول العرض
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('reject_offer')" :active="route().current('reject_offer')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                رفض العرض
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('follow_up')" :active="route().current('follow_up')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                معاودة مره اخرى
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('busy')" :active="route().current('busy')" v-if="$page.props.auth.user.type_id==8||$page.props.auth.user.type_id==9">
-                                مشغول
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                تسجيل الخروج    
-                            </ResponsiveNavLink>
+            <div v-show="showingNavigationDropdown" class="border-t border-white/10 bg-slate-950/95 lg:hidden">
+                <div class="max-h-[75vh] space-y-1 overflow-y-auto px-3 py-3">
+                    <div
+                        v-for="group in buildGroups($page.props.auth.user.type_id)"
+                        :key="'m-' + group.key"
+                        class="rounded-lg bg-white/5"
+                    >
+                        <button
+                            type="button"
+                            class="flex w-full items-center justify-between px-3 py-2.5 text-sm font-semibold text-slate-100"
+                            @click="toggleMobileGroup(group.key)"
+                        >
+                            <span>{{ group.label }}</span>
+                            <svg class="h-4 w-4 transition" :class="{ 'rotate-180': openMobileGroup === group.key }" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div v-show="openMobileGroup === group.key || groupHasActive(group.items)" class="space-y-0.5 border-t border-white/10 px-2 py-2">
+                            <Link
+                                v-for="item in group.items"
+                                :key="'mi-' + item.route"
+                                :href="hrefFor(item.route)"
+                                class="block rounded-md px-3 py-2 text-sm"
+                                :class="isRouteActive(item.route) ? 'bg-teal-500/20 text-teal-200' : 'text-slate-300 hover:bg-white/5'"
+                                @click="showingNavigationDropdown = false"
+                            >
+                                {{ item.label }}
+                            </Link>
                         </div>
                     </div>
-                </div>
-            </nav>
-            <!-- Page Heading -->
-            <header class="bg-white shadow dark:bg-gray-900 dark:text-gray-200" v-if="$slots.header">
-                <div class="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
-                    <div class="flex flex-row">
-                        <div class="basis-1/2 flex flex-col justify-center">
-                            <slot name="header" />
-                        </div>
-                        <div class="basis-1/2">
-                            <img src="/asset/img/logo.jpg" alt="karbala-alhassan"   style="margin-right: auto;width: 200px;" />
-                        </div>
-                </div>
-                </div>
-  
 
-            </header>
+                    <div class="mt-3 border-t border-white/10 pt-3">
+                        <div class="px-3 pb-2">
+                            <div class="text-sm font-semibold text-white">{{ $page.props.auth.user.name }}</div>
+                            <div class="truncate text-xs text-slate-400">{{ $page.props.auth.user.email }}</div>
+                        </div>
+                        <Link :href="route('logout')" method="post" as="button" class="block w-full rounded-lg px-3 py-2.5 text-right text-sm font-medium text-rose-300 hover:bg-rose-500/10">
+                            تسجيل الخروج
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-            <!-- Page Content -->
-            <main>
-                <slot />
-            </main>
-        </div>
+        <header
+            v-if="$slots.header"
+            class="border-b border-slate-200/80 bg-white/90 dark:border-slate-800 dark:bg-slate-900/90 dark:text-slate-100"
+        >
+            <div class="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+                <div class="min-w-0 flex-1">
+                    <slot name="header" />
+                </div>
+                <img src="/asset/img/logo.jpg" alt="logo" class="hidden h-12 w-auto object-contain sm:block" />
+            </div>
+        </header>
+
+        <main class="mx-auto max-w-[1600px]">
+            <slot />
+        </main>
     </div>
 </template>

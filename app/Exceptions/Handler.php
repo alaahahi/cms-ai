@@ -1,48 +1,28 @@
 <?php
+
 namespace App\Exceptions;
 
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
-    /**
-     * A list of exception types with their corresponding custom log levels.
-     *
-     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
-     */
-    protected $levels = [
-        //
-    ];
+    protected $levels = [];
 
-    /**
-     * A list of the exception types that are not reported.
-     *
-     * @var array<int, class-string<\Throwable>>
-     */
-    protected $dontReport = [
-        //
-    ];
+    protected $dontReport = [];
 
-    /**
-     * A list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
-     */
     protected $dontFlash = [
         'current_password',
         'password',
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     *
-     * @return void
-     */
     public function register()
     {
         $this->reportable(function (Throwable $e) {
@@ -50,23 +30,80 @@ class Handler extends ExceptionHandler
         });
     }
 
-    /**
-     * Render an exception into an HTTP response.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $exception
-     * @return \Illuminate\Http\Response
-     */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
-            if ($request->expectsJson()) {
-                return response()->json(['error' => 'Unauthenticated'], 401);
-            } else {
-                return redirect()->guest(route('login'));
-            }
+        if ($this->shouldReturnApiJson($request)) {
+            return $this->renderApiException($request, $exception);
         }
-    
+
+        if ($exception instanceof AuthenticationException) {
+            return redirect()->guest(route('login'));
+        }
+
         return parent::render($request, $exception);
+    }
+
+    protected function shouldReturnApiJson($request): bool
+    {
+        return $request->is('api/*') || $request->expectsJson();
+    }
+
+    protected function renderApiException($request, Throwable $exception): JsonResponse
+    {
+        if ($exception instanceof AuthenticationException) {
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => 'Unauthenticated',
+                'errors' => [],
+            ], 401);
+        }
+
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        if ($exception instanceof ModelNotFoundException || $exception instanceof NotFoundHttpException) {
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => 'Resource not found',
+                'errors' => [],
+            ], 404);
+        }
+
+        if ($exception instanceof HttpExceptionInterface) {
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => $exception->getMessage() ?: 'HTTP error',
+                'errors' => [],
+            ], $exception->getStatusCode());
+        }
+
+        if (config('app.debug')) {
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => $exception->getMessage(),
+                'errors' => [
+                    'exception' => class_basename($exception),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
+                ],
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => false,
+            'status' => 'error',
+            'message' => 'Server error',
+            'errors' => [],
+        ], 500);
     }
 }

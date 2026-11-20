@@ -17,3 +17,5 @@ yarn-error.log
 data.ms/indexes/*
 public/hot
 .env
+
+.agents/

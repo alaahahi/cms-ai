@@ -150,9 +150,14 @@ class DashboardController extends Controller
             });
         
         // إحصائيات البطاقات بحسب الشهر (آخر 6 أشهر)
+        // MySQL: DATE_FORMAT / SQLite: strftime
+        $monthExpr = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', created)"
+            : 'DATE_FORMAT(created, "%Y-%m")';
+
         $monthlyStats = DB::table('profile')
             ->select(
-                DB::raw('DATE_FORMAT(created, "%Y-%m") as month'),
+                DB::raw("{$monthExpr} as month"),
                 DB::raw('COUNT(*) as count')
             )
             ->where('created', '>=', now()->subMonths(6))
